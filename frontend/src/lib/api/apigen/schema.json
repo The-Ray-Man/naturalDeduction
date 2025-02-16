@@ -1,0 +1,521 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "naturalDeduction",
+    "description": "",
+    "license": { "name": "" },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/apply": {
+      "post": {
+        "tags": ["crate::api::routes"],
+        "operationId": "apply_rule",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ApplyRuleParams" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Statement" }
+                }
+              }
+            }
+          },
+          "404": { "description": "Building not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/api/check": {
+      "post": {
+        "tags": ["crate::api::routes"],
+        "operationId": "check",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Statement" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          },
+          "404": { "description": "Building not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/api/exercise": {
+      "get": {
+        "tags": ["crate::api::routes"],
+        "operationId": "get_exercises",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Exercise" }
+                }
+              }
+            }
+          },
+          "500": { "description": "Internal server error" }
+        }
+      },
+      "post": {
+        "tags": ["crate::api::routes"],
+        "operationId": "create_exercise",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateExerciseRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/api/exercise/{id}": {
+      "get": {
+        "tags": ["crate::api::routes"],
+        "operationId": "get_exercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Statement" }
+              }
+            }
+          },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/api/parse": {
+      "post": {
+        "tags": ["crate::api::routes"],
+        "operationId": "parse",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ParseParams" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Formula" }
+              }
+            }
+          },
+          "404": { "description": "Building not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/api/rules": {
+      "get": {
+        "tags": ["crate::api::routes"],
+        "operationId": "all_rules",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DerivationRule" }
+                }
+              }
+            }
+          },
+          "404": { "description": "Building not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApplyRuleParams": {
+        "type": "object",
+        "required": ["statement", "rule", "mapping", "substitution"],
+        "properties": {
+          "mapping": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FormulaMapping" }
+          },
+          "rule": { "$ref": "#/components/schemas/Rules" },
+          "statement": { "$ref": "#/components/schemas/Statement" },
+          "substitution": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ElementMapping" }
+          }
+        }
+      },
+      "CreateExerciseRequest": {
+        "type": "object",
+        "required": ["lhs", "rhs"],
+        "properties": {
+          "lhs": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Formula" }
+          },
+          "rhs": { "$ref": "#/components/schemas/Formula" }
+        }
+      },
+      "DerivationRule": {
+        "type": "object",
+        "required": ["name", "premises", "conclusion"],
+        "properties": {
+          "conclusion": { "$ref": "#/components/schemas/RuleStatement" },
+          "name": { "$ref": "#/components/schemas/Rules" },
+          "premises": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RuleStatement" }
+          }
+        }
+      },
+      "ElementMapping": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" }
+        }
+      },
+      "Exercise": {
+        "type": "object",
+        "required": ["id", "exercise", "likes", "dislikes"],
+        "properties": {
+          "dislikes": { "type": "integer", "format": "int32" },
+          "exercise": { "$ref": "#/components/schemas/Statement" },
+          "id": { "type": "string", "format": "uuid" },
+          "likes": { "type": "integer", "format": "int32" }
+        }
+      },
+      "Formula": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["And"],
+            "properties": {
+              "And": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Formula" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Or"],
+            "properties": {
+              "Or": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Formula" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Not"],
+            "properties": { "Not": { "$ref": "#/components/schemas/Formula" } }
+          },
+          {
+            "type": "object",
+            "required": ["Ident"],
+            "properties": {
+              "Ident": { "$ref": "#/components/schemas/Identifier" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Imp"],
+            "properties": {
+              "Imp": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Formula" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          { "type": "string", "enum": ["True"] },
+          { "type": "string", "enum": ["False"] },
+          {
+            "type": "object",
+            "required": ["Forall"],
+            "properties": {
+              "Forall": {
+                "type": "array",
+                "items": { "type": "object" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Exists"],
+            "properties": {
+              "Exists": {
+                "type": "array",
+                "items": { "type": "object" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Predicate"],
+            "properties": {
+              "Predicate": {
+                "type": "array",
+                "items": { "type": "object" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          }
+        ]
+      },
+      "FormulaMapping": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": { "type": "integer", "format": "int32", "minimum": 0 },
+          "to": { "$ref": "#/components/schemas/Formula" }
+        }
+      },
+      "Identifier": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["Literal"],
+            "properties": { "Literal": { "type": "string" } }
+          },
+          {
+            "type": "object",
+            "required": ["Element"],
+            "properties": { "Element": { "type": "string" } }
+          }
+        ]
+      },
+      "ParseParams": {
+        "type": "object",
+        "required": ["formula"],
+        "properties": { "formula": { "type": "string" } }
+      },
+      "RuleFormula": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["Ident"],
+            "properties": {
+              "Ident": { "$ref": "#/components/schemas/RuleIdentifier" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["And"],
+            "properties": {
+              "And": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/RuleIdentifier" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Or"],
+            "properties": {
+              "Or": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/RuleIdentifier" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Not"],
+            "properties": {
+              "Not": { "$ref": "#/components/schemas/RuleIdentifier" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Imp"],
+            "properties": {
+              "Imp": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/RuleIdentifier" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          { "type": "string", "enum": ["False"] },
+          { "type": "string", "enum": ["True"] },
+          {
+            "type": "object",
+            "required": ["Forall"],
+            "properties": {
+              "Forall": {
+                "type": "array",
+                "items": { "type": "object" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Exists"],
+            "properties": {
+              "Exists": {
+                "type": "array",
+                "items": { "type": "object" },
+                "description": "",
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Substitution"],
+            "properties": {
+              "Substitution": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/RuleIdentifier" },
+                "description": "",
+                "maxItems": 3,
+                "minItems": 3
+              }
+            }
+          }
+        ]
+      },
+      "RuleIdentifier": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["Formula"],
+            "properties": {
+              "Formula": { "type": "integer", "format": "int32", "minimum": 0 }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["Element"],
+            "properties": { "Element": { "type": "string" } }
+          }
+        ]
+      },
+      "RuleStatement": {
+        "type": "object",
+        "required": ["formula"],
+        "properties": {
+          "formula": { "$ref": "#/components/schemas/RuleFormula" },
+          "lhs": {
+            "allOf": [{ "$ref": "#/components/schemas/RuleIdentifier" }],
+            "nullable": true
+          }
+        }
+      },
+      "Rules": {
+        "type": "string",
+        "enum": [
+          "Ax",
+          "ImplIntro",
+          "ImplElim",
+          "FalseElim",
+          "NotIntro",
+          "NotElim",
+          "AndIntro",
+          "AndElimL",
+          "AndElimR",
+          "OrIntroL",
+          "OrIntroR",
+          "OrElim",
+          "ForallElim",
+          "ForallIntro",
+          "ExistsElim",
+          "ExistsIntro",
+          "AlphaExists",
+          "AlphaForall"
+        ]
+      },
+      "Statement": {
+        "type": "object",
+        "required": ["lhs", "formula"],
+        "properties": {
+          "formula": { "$ref": "#/components/schemas/Formula" },
+          "lhs": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Formula" }
+          }
+        }
+      }
+    }
+  },
+  "tags": [{ "name": "naturalDeduction", "description": "FMFP goes easy" }]
+}

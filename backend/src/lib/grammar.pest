@@ -1,0 +1,41 @@
+
+lit = {ASCII_ALPHA_UPPER}
+elem = {ASCII_ALPHA_LOWER}
+
+w = _{ " "* }
+
+comma = _{w ~ "," ~ w }
+list_elem = {var}
+list_succ = _{ comma ~ var }
+list_start = _{w ~ var | var}
+list = { list_start ~ list_succ*  }
+
+true_ = {"true"}
+false_ = {"false"}
+or_ = _{"or"}
+and_ = _{"and"}
+not_ = _{"not"}
+arrow_ = _{"->"}
+forall_ = {"forall"}
+exists_ = {"exists"}
+
+predicate = {elem ~ "(" ~ list ~ ")"}
+ 
+
+forall = {forall_ ~ "_" ~ elem ~ w ~ (expr | b_expr)}
+exists = {exists_ ~ "_" ~ elem ~ w ~ (expr | b_expr)}
+
+quantifier = {forall | exists}
+
+and = {ex ~ w ~ and_ ~ w ~ ex}
+or = {ex ~ w ~ or_ ~ w ~ ex}
+not = {not_ ~ w ~ expr | not_ ~ w ~ b_expr}
+implication = {ex ~ w ~ arrow_ ~ w ~ ex}
+
+var = {elem}
+ex = _{predicate | lit  | b_expr }
+
+b_expr = _{"(" ~ w ~ expr ~ w ~ ")"}
+expr = _{quantifier | not  | and | or | implication | predicate | lit }
+
+main = _{SOI ~ expr | b_expr ~ EOI}
