@@ -195,7 +195,7 @@ const Matcher = () => {
       title="Apply Rule"
     >
       <Group justify={"space-around"}>
-        <Stack>
+        <Stack className="katex">
           <DerivationRule
             rule={current_rule}
             highlighted={

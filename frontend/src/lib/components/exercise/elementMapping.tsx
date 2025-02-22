@@ -13,7 +13,7 @@ const ElementMapping = ({ mapping }: ElementMappingProps) => {
       <RuleFormula
         rule={{ type: "Ident", body: { type: "Element", value: mapping.from } }}
       />
-      <Text>{"\u2261"}</Text>
+      <Text mt={-1} px={3}>{"\u2261"}</Text>
       <Formula
         formula={{
           type: "Ident",
