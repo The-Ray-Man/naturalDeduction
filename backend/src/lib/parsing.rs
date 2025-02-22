@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 use pest::iterators::Pair;
 use pest::Parser;
@@ -85,7 +85,7 @@ impl LogicParser {
         let (num, f_lhs) =
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
         let (num, r_hs) = LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
-        Ok((num, Formula::And(Box::new(f_lhs), Box::new(r_hs))))
+        Ok((num, Formula::And { lhs: Box::new(f_lhs), rhs: Box::new(r_hs) }))
     }
 
     fn parse_or(
@@ -98,7 +98,7 @@ impl LogicParser {
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
         let (num, f_rhs) =
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
-        Ok((num, Formula::Or(Box::new(f_lhs), Box::new(f_rhs))))
+        Ok((num, Formula::Or { lhs: Box::new(f_lhs), rhs: Box::new(f_rhs) }))
     }
 
     fn parse_not(
@@ -134,7 +134,7 @@ impl LogicParser {
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
         let (num, f_rhs) =
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
-        Ok((num, Formula::Imp(Box::new(f_lhs), Box::new(f_rhs))))
+        Ok((num, Formula::Imp { lhs: Box::new(f_lhs), rhs: Box::new(f_rhs) }))
     }
 
     fn parse_forall(
@@ -148,7 +148,7 @@ impl LogicParser {
         println!("{:?}", var);
         let name = var.as_str();
         // let capure_name = format!("{}{}", name, num);
-        let capure_name = format!("{}", name);
+        let capure_name = name.to_string();
 
         let mut captures = captures.clone();
         captures.insert(name, capure_name.clone());
@@ -156,7 +156,7 @@ impl LogicParser {
             LogicParser::parse_formula(num + 1, pairs.next().unwrap(), &captures).unwrap();
         Ok((
             num,
-            Formula::Forall(Identifier::Element(capure_name.to_string()), Box::new(f)),
+            Formula::Forall { identifier: Identifier::Element(capure_name.to_string()), formula: Box::new(f) },
         ))
     }
 
@@ -170,7 +170,7 @@ impl LogicParser {
         let var = pairs.next().unwrap();
         let name = var.as_str();
         // let capure_name = format!("{}{}", name, num);
-        let capure_name = format!("{}", name);
+        let capure_name = name.to_string();
 
         let mut captures = captures.clone();
         captures.insert(name, capure_name.clone());
@@ -178,7 +178,7 @@ impl LogicParser {
             LogicParser::parse_formula(num + 1, pairs.next().unwrap(), &captures).unwrap();
         Ok((
             num,
-            Formula::Exists(Identifier::Element(capure_name.to_string()), Box::new(f)),
+            Formula::Exists { identifier: Identifier::Element(capure_name.to_string()), formula: Box::new(f) },
         ))
     }
 
@@ -200,6 +200,6 @@ impl LogicParser {
                 args.push(Identifier::Element(name.to_string()));
             }
         }
-        Ok((num, Formula::Predicate(Identifier::Element(name), args)))
+        Ok((num, Formula::Predicate { identifier: Identifier::Element(name), identifiers: args }))
     }
 }

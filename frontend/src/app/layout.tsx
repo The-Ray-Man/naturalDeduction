@@ -20,7 +20,6 @@ import { Notifications } from "@mantine/notifications";
 import Footer from "@/lib/components/footer";
 import Link from "next/link";
 
-
 export default function RootLayout({
   children,
 }: {

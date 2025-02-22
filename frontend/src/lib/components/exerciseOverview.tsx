@@ -75,7 +75,7 @@ const CreateExerciseForm = () => {
     };
 
     checkTautologyAsync();
-  }, [lhs, rhs]);
+  }, [lhs, rhs, checkTautology]);
 
   const statement = {
     lhs: lhs,
@@ -219,14 +219,21 @@ const CreateExerciseForm = () => {
 const ExerciseOverview = () => {
   const { data: allExercises, refetch } = useGetExercisesQuery();
 
-  const [selectedExerciseId, setSelectedExerciseId] = useState<UUID | undefined>()
+  const [selectedExerciseId, setSelectedExerciseId] = useState<
+    UUID | undefined
+  >();
 
   if (!allExercises) {
     return <div>Loading...</div>;
   }
 
   if (selectedExerciseId) {
-    return <ExerciseInterface exerciseId={selectedExerciseId} handler={setSelectedExerciseId}/>
+    return (
+      <ExerciseInterface
+        exerciseId={selectedExerciseId}
+        handler={setSelectedExerciseId}
+      />
+    );
   }
 
   return (
@@ -248,7 +255,11 @@ const ExerciseOverview = () => {
         <Divider py={"md"} />
         <Stack>
           {allExercises.map((exercise, i) => (
-            <ExerciseListElement key={i} exercise={exercise} handler={setSelectedExerciseId}/>
+            <ExerciseListElement
+              key={i}
+              exercise={exercise}
+              handler={setSelectedExerciseId}
+            />
           ))}
         </Stack>
       </Card>

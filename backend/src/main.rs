@@ -9,17 +9,12 @@ mod lib;
 // mod utils;
 
 use crate::docs::ApiDocs;
-use api::formula_models::Statement;
 use axum::extract::Request;
-use axum::http::header::{ACCEPT, AUTHORIZATION};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::{http, Router};
-use error::BackendError;
 use http::Method;
-use lib::is_tautology;
 use sea_orm::DatabaseConnection;
-use std::fs;
 use tower_http::cors::{Any, CorsLayer};
 use utils::connect_db;
 use utoipa::OpenApi;

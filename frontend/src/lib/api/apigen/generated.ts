@@ -71,37 +71,69 @@ export type AllRulesApiResponse = /** status 200  */ DerivationRule[];
 export type AllRulesApiArg = void;
 export type Identifier =
   | {
-      Literal: string;
+      type: "Literal";
+      value: string;
     }
   | {
-      Element: string;
+      type: "Element";
+      value: string;
     };
 export type Formula =
   | {
-      And: Formula[];
+      body: {
+        lhs: Formula;
+        rhs: Formula;
+      };
+      type: "And";
     }
   | {
-      Or: Formula[];
+      body: {
+        lhs: Formula;
+        rhs: Formula;
+      };
+      type: "Or";
     }
   | {
-      Not: Formula;
+      body: Formula;
+      type: "Not";
     }
   | {
-      Ident: Identifier;
+      body: Identifier;
+      type: "Ident";
     }
   | {
-      Imp: Formula[];
-    }
-  | "True"
-  | "False"
-  | {
-      Forall: object[];
-    }
-  | {
-      Exists: object[];
+      body: {
+        lhs: Formula;
+        rhs: Formula;
+      };
+      type: "Imp";
     }
   | {
-      Predicate: object[];
+      type: "True";
+    }
+  | {
+      type: "False";
+    }
+  | {
+      body: {
+        formula: Formula;
+        identifier: Identifier;
+      };
+      type: "Forall";
+    }
+  | {
+      body: {
+        formula: Formula;
+        identifier: Identifier;
+      };
+      type: "Exists";
+    }
+  | {
+      body: {
+        identifier: Identifier;
+        identifiers: Identifier[];
+      };
+      type: "Predicate";
     };
 export type Statement = {
   formula: Formula;
@@ -155,41 +187,74 @@ export type ParseParams = {
 };
 export type RuleIdentifier =
   | {
-      Formula: number;
+      type: "Formula";
+      value: number;
     }
   | {
-      Element: string;
+      type: "Element";
+      value: string;
     };
 export type RuleFormula =
   | {
-      Ident: RuleIdentifier;
+      body: RuleIdentifier;
+      type: "Ident";
     }
   | {
-      And: RuleIdentifier[];
+      body: {
+        lhs: RuleIdentifier;
+        rhs: RuleIdentifier;
+      };
+      type: "And";
     }
   | {
-      Or: RuleIdentifier[];
+      body: {
+        lhs: RuleIdentifier;
+        rhs: RuleIdentifier;
+      };
+      type: "Or";
     }
   | {
-      Not: RuleIdentifier;
+      body: RuleIdentifier;
+      type: "Not";
     }
   | {
-      Imp: RuleIdentifier[];
-    }
-  | "False"
-  | "True"
-  | {
-      Forall: object[];
-    }
-  | {
-      Exists: object[];
+      body: {
+        lhs: RuleIdentifier;
+        rhs: RuleIdentifier;
+      };
+      type: "Imp";
     }
   | {
-      Substitution: RuleIdentifier[];
+      type: "False";
+    }
+  | {
+      type: "True";
+    }
+  | {
+      body: {
+        formula: RuleFormula;
+        identifier: RuleIdentifier;
+      };
+      type: "Forall";
+    }
+  | {
+      body: {
+        formula: RuleFormula;
+        identifier: RuleIdentifier;
+      };
+      type: "Exists";
+    }
+  | {
+      body: {
+        identifier: RuleIdentifier;
+        lhs: RuleIdentifier;
+        rhs: RuleIdentifier;
+      };
+      type: "Substitution";
     };
 export type RuleStatement = {
   formula: RuleFormula;
-  lhs?: RuleIdentifier | null;
+  lhs?: null | RuleIdentifier;
 };
 export type DerivationRule = {
   conclusion: RuleStatement;

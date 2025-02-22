@@ -11,50 +11,29 @@ function getIdentifiers(statement: RuleStatement): RuleIdentifier[] {
     identifiers.push(statement.lhs);
   }
 
-  if (statement.formula) {
-    if (statement.formula.hasOwnProperty("And")) {
-      for (let identifier of (statement.formula as { And: RuleIdentifier[] })
-        .And) {
-        identifiers.push(identifier);
-      }
-    } else if (statement.formula.hasOwnProperty("Or")) {
-      for (let identifier of (statement.formula as { Or: RuleIdentifier[] })
-        .Or) {
-        identifiers.push(identifier);
-      }
-    } else if (statement.formula.hasOwnProperty("Imp")) {
-      for (let identifier of (statement.formula as { Imp: RuleIdentifier[] })
-        .Imp) {
-        identifiers.push(identifier);
-      }
-    } else if (statement.formula.hasOwnProperty("Forall")) {
-      let formula = (statement.formula as { Forall: object[] }).Forall;
-      let variable = formula[0] as RuleIdentifier;
-      let sub_formula = formula[1] as RuleFormula;
-      identifiers.push(variable);
-      identifiers = identifiers.concat(
-        getIdentifiers({ formula: sub_formula }),
-      );
-    } else if (statement.formula.hasOwnProperty("Exists")) {
-      let formula = (statement.formula as { Exists: object[] }).Exists;
-      let variable = formula[0] as RuleIdentifier;
-      let sub_formula = formula[1] as RuleFormula;
-      identifiers.push(variable);
-      identifiers = identifiers.concat(
-        getIdentifiers({ formula: sub_formula }),
-      );
-    } else if (statement.formula.hasOwnProperty("Substitution")) {
-      for (let identifier of (
-        statement.formula as { Substitution: RuleIdentifier[] }
-      ).Substitution) {
-        identifiers.push(identifier);
-      }
-    } else if (statement.formula.hasOwnProperty("Ident")) {
-      identifiers.push((statement.formula as { Ident: RuleIdentifier }).Ident);
-    } else if (statement.formula.hasOwnProperty("Not")) {
-      identifiers.push((statement.formula as { Not: RuleIdentifier }).Not);
+  const getFormulaIdentifiers = (): Array<RuleIdentifier> => {
+    switch (statement.formula.type) {
+      case "And":
+      case "Or":
+      case "Imp":
+        return Object.values(statement.formula.body);
+      case "Forall":
+      case "Exists":
+        return [
+          statement.formula.body.identifier,
+          ...getIdentifiers({ formula: statement.formula.body.formula }),
+        ];
+      case "Substitution":
+        return Object.values(statement.formula.body);
+      case "Ident":
+      case "Not":
+        return [statement.formula.body];
+      default:
+        return [];
     }
-  }
+  };
+
+  if (statement.formula) identifiers.push(...getFormulaIdentifiers());
 
   return identifiers;
 }

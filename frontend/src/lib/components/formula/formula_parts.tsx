@@ -5,10 +5,9 @@ import {
 import Formula, { FormulaProps } from "./formula";
 import { Box, Group, Text } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
+import { useMemo } from "react";
 
-const And = ({ formula, click, textColor }: FormulaProps) => {
-  let cast_formula = formula as { And: FormulaType[] };
-
+const And = ({ formula, click, textColor }: FormulaProps<"And">) => {
   const { hovered, ref } = useHover();
 
   return (
@@ -17,27 +16,17 @@ const And = ({ formula, click, textColor }: FormulaProps) => {
       style={{ backgroundColor: hovered ? "greenyellow" : undefined }}
     >
       <Text c={textColor}>(</Text>
-      <Formula
-        formula={cast_formula.And[0]}
-        click={click}
-        textColor={textColor}
-      />
+      <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
       <Text ref={ref} c={textColor}>
         {"\u2227"}
       </Text>
-      <Formula
-        formula={cast_formula.And[1]}
-        click={click}
-        textColor={textColor}
-      />
+      <Formula formula={formula.body.rhs} click={click} textColor={textColor} />
       <Text c={textColor}>)</Text>
     </Group>
   );
 };
 
-const Or = ({ formula, click, textColor }: FormulaProps) => {
-  let cast_formula = formula as { Or: FormulaType[] };
-
+const Or = ({ formula, click, textColor }: FormulaProps<"Or">) => {
   const { hovered, ref } = useHover();
   return (
     <Group
@@ -45,27 +34,17 @@ const Or = ({ formula, click, textColor }: FormulaProps) => {
       style={{ backgroundColor: hovered ? "greenyellow" : undefined }}
     >
       <Text c={textColor}>(</Text>
-      <Formula
-        formula={cast_formula.Or[0]}
-        click={click}
-        textColor={textColor}
-      />
+      <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
       <Text ref={ref} c={textColor}>
         {"\u2228"}
       </Text>
-      <Formula
-        formula={cast_formula.Or[1]}
-        click={click}
-        textColor={textColor}
-      />
+      <Formula formula={formula.body.rhs} click={click} textColor={textColor} />
       <Text c={textColor}>)</Text>
     </Group>
   );
 };
 
-const Not = ({ formula, click, textColor }: FormulaProps) => {
-  let cast_formula = formula as { Not: FormulaType };
-
+const Not = ({ formula, click, textColor }: FormulaProps<"Not">) => {
   const { hovered, ref } = useHover();
   return (
     <Group
@@ -75,47 +54,28 @@ const Not = ({ formula, click, textColor }: FormulaProps) => {
       <Text ref={ref} c={textColor}>
         ({"\u00AC"}
       </Text>
-      <Formula formula={cast_formula.Not} click={click} textColor={textColor} />
+      <Formula formula={formula.body} click={click} textColor={textColor} />
       <Text c={textColor}>)</Text>
     </Group>
   );
 };
 
-const Identifier = ({ formula, click, textColor }: FormulaProps) => {
-  let cast_formula = formula as { Ident: IdentifierType };
+const Identifier = ({ formula, click, textColor }: FormulaProps<"Ident">) => {
   const { hovered, ref } = useHover();
-  if (cast_formula.Ident.hasOwnProperty("Literal")) {
-    let name = (cast_formula.Ident as { Literal: string }).Literal;
-    return (
-      <Group
-        gap={0}
-        style={{ backgroundColor: hovered ? "greenyellow" : undefined }}
-      >
-        <Text ref={ref} c={textColor}>
-          {name}
-        </Text>
-      </Group>
-    );
-  }
-
-  if (cast_formula.Ident.hasOwnProperty("Element")) {
-    let name = (cast_formula.Ident as { Element: string }).Element;
-    return (
-      <Group
-        gap={0}
-        style={{ backgroundColor: hovered ? "greenyellow" : undefined }}
-      >
-        <Text ref={ref} c={textColor}>
-          {name}
-        </Text>
-      </Group>
-    );
-  }
+  const name = formula.body.value;
+  return (
+    <Group
+      gap={0}
+      style={{ backgroundColor: hovered ? "greenyellow" : undefined }}
+    >
+      <Text ref={ref} c={textColor}>
+        {name}
+      </Text>
+    </Group>
+  );
 };
 
-const Implication = ({ formula, click, textColor }: FormulaProps) => {
-  let cast_formula = formula as { Imp: FormulaType[] };
-
+const Implication = ({ formula, click, textColor }: FormulaProps<"Imp">) => {
   const { hovered, ref } = useHover();
   return (
     <Group
@@ -123,25 +83,17 @@ const Implication = ({ formula, click, textColor }: FormulaProps) => {
       style={{ backgroundColor: hovered ? "greenyellow" : undefined }}
     >
       <Text c={textColor}>(</Text>
-      <Formula
-        formula={cast_formula.Imp[0]}
-        click={click}
-        textColor={textColor}
-      />
+      <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
       <Text ref={ref} c={textColor}>
         {"\u2192"}
       </Text>
-      <Formula
-        formula={cast_formula.Imp[1]}
-        click={click}
-        textColor={textColor}
-      />
+      <Formula formula={formula.body.rhs} click={click} textColor={textColor} />
       <Text c={textColor}>)</Text>
     </Group>
   );
 };
 
-const True = ({ formula, click, textColor }: FormulaProps) => {
+const True = ({ formula, click, textColor }: FormulaProps<"True">) => {
   const { hovered, ref } = useHover();
   return (
     <Group
@@ -155,7 +107,7 @@ const True = ({ formula, click, textColor }: FormulaProps) => {
   );
 };
 
-const False = ({ formula, click, textColor }: FormulaProps) => {
+const False = ({ formula, click, textColor }: FormulaProps<"False">) => {
   const { hovered, ref } = useHover();
   return (
     <Group
@@ -169,12 +121,7 @@ const False = ({ formula, click, textColor }: FormulaProps) => {
   );
 };
 
-const Forall = ({ formula, click, textColor }: FormulaProps) => {
-  let cast_formula = formula as { Forall: object[] };
-
-  let element = cast_formula.Forall[0] as IdentifierType;
-  let sub_formula = cast_formula.Forall[1] as FormulaType;
-
+const Forall = ({ formula, click, textColor }: FormulaProps<"Forall">) => {
   const { hovered, ref } = useHover();
   return (
     <Group
@@ -185,23 +132,22 @@ const Forall = ({ formula, click, textColor }: FormulaProps) => {
         ({"\u2200"}
       </Text>
       <Formula
-        formula={{ Ident: element }}
+        formula={{ type: "Ident", body: formula.body.identifier }}
         click={click}
         textColor={textColor}
       />
       <Text c={textColor}>{"."}</Text>
-      <Formula formula={sub_formula} click={click} textColor={textColor} />
+      <Formula
+        formula={formula.body.formula}
+        click={click}
+        textColor={textColor}
+      />
       <Text c={textColor}>)</Text>
     </Group>
   );
 };
 
-const Exists = ({ formula, click, textColor }: FormulaProps) => {
-  let cast_formula = formula as { Exists: object[] };
-
-  let element = cast_formula.Exists[0] as IdentifierType;
-  let sub_formula = cast_formula.Exists[1] as FormulaType;
-
+const Exists = ({ formula, click, textColor }: FormulaProps<"Exists">) => {
   const { hovered, ref } = useHover();
   return (
     <Group
@@ -212,22 +158,26 @@ const Exists = ({ formula, click, textColor }: FormulaProps) => {
         ({"\u2203"}
       </Text>
       <Formula
-        formula={{ Ident: element }}
+        formula={{ type: "Ident", body: formula.body.identifier }}
         click={click}
         textColor={textColor}
       />
       <Text c={textColor}>{"."}</Text>
-      <Formula formula={sub_formula} click={click} textColor={textColor} />
+      <Formula
+        formula={formula.body.formula}
+        click={click}
+        textColor={textColor}
+      />
       <Text c={textColor}>)</Text>
     </Group>
   );
 };
 
-const Predicate = ({ formula, click, textColor }: FormulaProps) => {
-  let cast_formula = formula as { Predicate: object[] };
-  let name = cast_formula.Predicate[0] as IdentifierType;
-  let terms = cast_formula.Predicate[1] as IdentifierType[];
-
+const Predicate = ({
+  formula,
+  click,
+  textColor,
+}: FormulaProps<"Predicate">) => {
   const { hovered, ref } = useHover();
   return (
     <Group
@@ -235,16 +185,16 @@ const Predicate = ({ formula, click, textColor }: FormulaProps) => {
       style={{ backgroundColor: hovered ? "greenyellow" : undefined }}
     >
       <Text ref={ref} c={textColor}>
-        {(name as { Element: string }).Element}
+        {formula.body.identifier.value}
       </Text>
       <Text c={textColor}>(</Text>
-      {terms.map((term, index) => {
+      {formula.body.identifiers.map((term, index) => {
         if (index > 0) {
           return (
             <Group key={index} gap={0}>
               <Text c={textColor}>,</Text>{" "}
               <Formula
-                formula={{ Ident: term }}
+                formula={{ type: "Ident", body: term }}
                 click={click}
                 textColor={textColor}
               />
@@ -253,7 +203,7 @@ const Predicate = ({ formula, click, textColor }: FormulaProps) => {
         }
         return (
           <Formula
-            formula={{ Ident: term }}
+            formula={{ type: "Ident", body: term }}
             key={index}
             click={click}
             textColor={textColor}

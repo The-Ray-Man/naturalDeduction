@@ -4,19 +4,25 @@ import Exercise from "@/lib/components/exercise/exercise";
 import Matcher from "@/lib/components/exercise/matcher";
 import Rules from "@/lib/components/rule/rules";
 import { useDragContext } from "@/lib/hook/DragContext";
-import { Box, Button, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@mantine/core";
 import { UUID } from "crypto";
 import { useParams } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
 
 type ExerciseInterfaceProps = {
-    exerciseId : UUID,
-    handler: Dispatch<SetStateAction<UUID | undefined>>
+  exerciseId: UUID;
+  handler: Dispatch<SetStateAction<UUID | undefined>>;
 };
 
-
-const ExerciseInterface = ({exerciseId, handler} : ExerciseInterfaceProps) => {
-
+const ExerciseInterface = ({ exerciseId, handler }: ExerciseInterfaceProps) => {
   const { data: exercise } = useGetExerciseQuery({
     id: exerciseId,
   });
@@ -33,7 +39,13 @@ const ExerciseInterface = ({exerciseId, handler} : ExerciseInterfaceProps) => {
         <Matcher />
       ) : (
         <Box>
-            <Button variant="transparent" pb={"md"} onClick={() => handler(undefined)}>Back to Exercises</Button>
+          <Button
+            variant="transparent"
+            pb={"md"}
+            onClick={() => handler(undefined)}
+          >
+            Back to Exercises
+          </Button>
           <Flex w={"100%"} gap={5} wrap="wrap">
             <Rules />
           </Flex>

@@ -11,9 +11,9 @@ pub async fn connect_db() -> Result<DatabaseConnection, String> {
         println!("Try connecting to database");
         let db = Database::connect(&url).await;
 
-        if db.is_ok() {
+        if let Ok(db) = db {
             println!("Connected to database");
-            return Ok(db.unwrap());
+            return Ok(db)
         } else {
             println!("Failed to connect to database. Waiting for 5 seconds and retrying");
             thread::sleep(second)

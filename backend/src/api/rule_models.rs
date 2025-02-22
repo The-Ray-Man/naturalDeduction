@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
-use super::formula_models::Identifier;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, PartialOrd)]
 pub enum Rules {
@@ -26,23 +25,26 @@ pub enum Rules {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema, PartialOrd, PartialEq, Ord, Eq)]
+#[serde(tag = "type", content = "value")]
 pub enum RuleIdentifier {
     Formula(u32),
     Element(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+#[schema(no_recursion)]
+#[serde(tag = "type", content = "body")]
 pub enum RuleFormula {
     Ident(RuleIdentifier),
-    And(RuleIdentifier, RuleIdentifier),
-    Or(RuleIdentifier, RuleIdentifier),
+    And { lhs: RuleIdentifier, rhs: RuleIdentifier },
+    Or { lhs: RuleIdentifier, rhs: RuleIdentifier },
     Not(RuleIdentifier),
-    Imp(RuleIdentifier, RuleIdentifier),
+    Imp { lhs: RuleIdentifier, rhs: RuleIdentifier },
     False,
     True,
-    Forall(RuleIdentifier, Box<RuleFormula>),
-    Exists(RuleIdentifier, Box<RuleFormula>),
-    Substitution(RuleIdentifier, RuleIdentifier, RuleIdentifier),
+    Forall { identifier: RuleIdentifier, formula: Box<RuleFormula> },
+    Exists { identifier: RuleIdentifier, formula: Box<RuleFormula> },
+    Substitution { identifier: RuleIdentifier, lhs: RuleIdentifier, rhs: RuleIdentifier },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]

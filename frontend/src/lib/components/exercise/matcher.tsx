@@ -50,8 +50,6 @@ const Matcher = () => {
 
   const current_node = nodes?.find((n) => n.name == target);
 
-
-
   const [formulaIdentifier, formulaIdentifierHandler] = useListState<number>(
     [],
   );
@@ -79,16 +77,12 @@ const Matcher = () => {
       counter >= formulaIdentifier.length &&
       counter < formulaIdentifier.length + elementIdentifier.length
     ) {
-      if (f.hasOwnProperty("Ident")) {
-        const ident = (f as { Ident: RuleIdentifier }).Ident;
-        if (ident.hasOwnProperty("Element")) {
-          const element = (ident as { Element: string }).Element;
-          elementMatcherHandler.append({
-            from: elementIdentifier[counter - formulaIdentifier.length],
-            to: element,
-          });
-          setCounter(counter + 1);
-        }
+      if (f.type === "Ident" && f.body.type === "Element") {
+        elementMatcherHandler.append({
+          from: elementIdentifier[counter - formulaIdentifier.length],
+          to: f.body.value,
+        });
+        setCounter(counter + 1);
       }
     }
   };
@@ -162,10 +156,15 @@ const Matcher = () => {
     let elements: string[] = [];
 
     for (let i of ident) {
-      if (i.hasOwnProperty("Formula")) {
-        formulas.push((i as { Formula: number }).Formula);
-      } else if (i.hasOwnProperty("Element")) {
-        elements.push((i as { Element: string }).Element);
+      switch (i.type) {
+        case "Formula": {
+          formulas.push(i.value);
+          break;
+        }
+        case "Element": {
+          elements.push(i.value);
+          break;
+        }
       }
     }
 

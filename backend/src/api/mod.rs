@@ -15,7 +15,7 @@ pub fn get_router(state: &AppState) -> Router {
     Router::new()
         .route("/apply", post(routes::apply_rule))
         .route("/exercise", get(routes::get_exercises))
-        .route("/exercise/:id", get(routes::get_exercise))
+        .route("/exercise/{id}", get(routes::get_exercise))
         .route("/exercise", post(routes::create_exercise))
         .route("/parse", post(routes::parse))
         .route("/rules", get(routes::all_rules))

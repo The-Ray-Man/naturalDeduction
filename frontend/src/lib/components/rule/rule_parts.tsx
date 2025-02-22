@@ -3,39 +3,42 @@ import RuleFormula, { RuleFormulaProps } from "./ruleFormula";
 import { RuleIdentifier } from "@/lib/api";
 import { get_color } from "@/lib/utils/color";
 import { RuleFormula as RuleFormulaType } from "@/lib/api";
+import { useMemo } from "react";
 
-const RuleIdent = ({ rule, highlighted }: RuleFormulaProps) => {
-  let cast_rule = rule as { Ident: RuleIdentifier };
-  let letter;
-  let bg_color = undefined;
+const RuleIdent = ({ rule, highlighted }: RuleFormulaProps<"Ident">) => {
+  const [letter, bgColor] = useMemo(() => {
+    switch (rule.body.type) {
+      case "Formula":
+        return [
+          String.fromCharCode(65 + rule.body.value),
+          highlighted !== undefined &&
+            highlighted === rule.body.value &&
+            get_color(highlighted),
+        ];
+      case "Element":
+        return [
+          rule.body.value,
+          highlighted !== undefined &&
+            highlighted === rule.body.value &&
+            get_color(highlighted),
+        ];
+    }
+  }, [rule.body, highlighted]);
 
-  if (cast_rule.Ident.hasOwnProperty("Formula")) {
-    let num = (cast_rule.Ident as { Formula: number }).Formula;
-    letter = String.fromCharCode(65 + num);
-    if (highlighted != undefined && highlighted == num) {
-      bg_color = get_color(highlighted);
-    }
-  } else {
-    letter = (cast_rule.Ident as { Element: string }).Element;
-    if (highlighted != undefined && highlighted === letter) {
-      bg_color = get_color(highlighted);
-    }
-  }
-  return <Text style={{ background: bg_color }}>{letter}</Text>;
+  return <Text style={{ background: bgColor || undefined }}>{letter}</Text>;
 };
 
-const RuleAnd = ({ rule, highlighted }: RuleFormulaProps) => {
-  let cast_rule = rule as { And: RuleIdentifier[] };
+const RuleAnd = ({ rule, highlighted }: RuleFormulaProps<"And">) => {
   return (
     <>
       <Text>(</Text>
       <RuleFormula
-        rule={{ Ident: cast_rule.And[0] }}
+        rule={{ type: "Ident", body: rule.body.lhs }}
         highlighted={highlighted}
       />
       <Text px={3}>{"\u2227"}</Text>
       <RuleFormula
-        rule={{ Ident: cast_rule.And[1] }}
+        rule={{ type: "Ident", body: rule.body.rhs }}
         highlighted={highlighted}
       />
       <Text>)</Text>
@@ -43,18 +46,17 @@ const RuleAnd = ({ rule, highlighted }: RuleFormulaProps) => {
   );
 };
 
-const RuleOr = ({ rule, highlighted }: RuleFormulaProps) => {
-  let cast_rule = rule as { Or: RuleIdentifier[] };
+const RuleOr = ({ rule, highlighted }: RuleFormulaProps<"Or">) => {
   return (
     <>
       <Text>(</Text>
       <RuleFormula
-        rule={{ Ident: cast_rule.Or[0] }}
+        rule={{ type: "Ident", body: rule.body.lhs }}
         highlighted={highlighted}
       />
       <Text px={3}>{"\u2228"}</Text>
       <RuleFormula
-        rule={{ Ident: cast_rule.Or[1] }}
+        rule={{ type: "Ident", body: rule.body.rhs }}
         highlighted={highlighted}
       />
       <Text>)</Text>
@@ -62,30 +64,31 @@ const RuleOr = ({ rule, highlighted }: RuleFormulaProps) => {
   );
 };
 
-const RuleNot = ({ rule, highlighted }: RuleFormulaProps) => {
-  let cast_rule = rule as { Not: RuleIdentifier };
+const RuleNot = ({ rule, highlighted }: RuleFormulaProps<"Not">) => {
   return (
     <>
       <Text>(</Text>
       <Text>{"\u00AC"}</Text>
-      <RuleFormula rule={{ Ident: cast_rule.Not }} highlighted={highlighted} />
+      <RuleFormula
+        rule={{ type: "Ident", body: rule.body }}
+        highlighted={highlighted}
+      />
       <Text>)</Text>
     </>
   );
 };
 
-const RuleImplication = ({ rule, highlighted }: RuleFormulaProps) => {
-  let cast_rule = rule as { Imp: RuleIdentifier[] };
+const RuleImplication = ({ rule, highlighted }: RuleFormulaProps<"Imp">) => {
   return (
     <>
       <Text>(</Text>
       <RuleFormula
-        rule={{ Ident: cast_rule.Imp[0] }}
+        rule={{ type: "Ident", body: rule.body.lhs }}
         highlighted={highlighted}
       />
       <Text px={3}>{"\u2192"}</Text>
       <RuleFormula
-        rule={{ Ident: cast_rule.Imp[1] }}
+        rule={{ type: "Ident", body: rule.body.rhs }}
         highlighted={highlighted}
       />
       <Text>)</Text>
@@ -93,57 +96,62 @@ const RuleImplication = ({ rule, highlighted }: RuleFormulaProps) => {
   );
 };
 
-const RuleTrue = ({ rule, highlighted }: RuleFormulaProps) => {
+const RuleTrue = ({ rule, highlighted }: RuleFormulaProps<"True">) => {
   return <Text>{"\u22A4"}</Text>;
 };
 
-const RuleFalse = ({ rule, highlighted }: RuleFormulaProps) => {
+const RuleFalse = ({ rule, highlighted }: RuleFormulaProps<"False">) => {
   return <Text>{"\u22A5"}</Text>;
 };
 
-const RuleForall = ({ rule, highlighted }: RuleFormulaProps) => {
-  let cast_rule = rule as { Forall: object[] };
-  let letter = cast_rule.Forall[0] as RuleIdentifier;
-  let sub_formula = cast_rule.Forall[1] as RuleFormulaType;
-
+const RuleForall = ({ rule, highlighted }: RuleFormulaProps<"Forall">) => {
   return (
     <>
       <Text>{"\u2200"}</Text>
-      <RuleFormula rule={{ Ident: letter }} highlighted={highlighted} />
+      <RuleFormula
+        rule={{ type: "Ident", body: rule.body.identifier }}
+        highlighted={highlighted}
+      />
       <Text>{"."}</Text>
-      <RuleFormula rule={sub_formula} highlighted={highlighted} />
+      <RuleFormula rule={rule.body.formula} highlighted={highlighted} />
     </>
   );
 };
 
-const RuleExists = ({ rule, highlighted }: RuleFormulaProps) => {
-  let cast_rule = rule as { Exists: object[] };
-  let letter = cast_rule.Exists[0] as RuleIdentifier;
-  let sub_formula = cast_rule.Exists[1] as RuleFormulaType;
-
+const RuleExists = ({ rule, highlighted }: RuleFormulaProps<"Exists">) => {
   return (
     <>
       <Text>{"\u2203"}</Text>
-      <RuleFormula rule={{ Ident: letter }} highlighted={highlighted} />
+      <RuleFormula
+        rule={{ type: "Ident", body: rule.body.identifier }}
+        highlighted={highlighted}
+      />
       <Text>{"."}</Text>
-      <RuleFormula rule={sub_formula} highlighted={highlighted} />
+      <RuleFormula rule={rule.body.formula} highlighted={highlighted} />
     </>
   );
 };
 
-const RuleSubstitution = ({ rule, highlighted }: RuleFormulaProps) => {
-  let cast_rule = rule as { Substitution: RuleIdentifier[] };
-  let sub_formula = cast_rule.Substitution[0];
-  let from = cast_rule.Substitution[1];
-  let to = cast_rule.Substitution[2];
-
+const RuleSubstitution = ({
+  rule,
+  highlighted,
+}: RuleFormulaProps<"Substitution">) => {
   return (
     <>
-      <RuleFormula rule={{ Ident: sub_formula }} highlighted={highlighted} />
+      <RuleFormula
+        rule={{ type: "Ident", body: rule.body.identifier }}
+        highlighted={highlighted}
+      />
       <Text>{"["}</Text>
-      <RuleFormula rule={{ Ident: from }} highlighted={highlighted} />
+      <RuleFormula
+        rule={{ type: "Ident", body: rule.body.lhs }}
+        highlighted={highlighted}
+      />
       <Text>{"\u2192"}</Text>
-      <RuleFormula rule={{ Ident: to }} highlighted={highlighted} />
+      <RuleFormula
+        rule={{ type: "Ident", body: rule.body.rhs }}
+        highlighted={highlighted}
+      />
       <Text>{"]"}</Text>
     </>
   );

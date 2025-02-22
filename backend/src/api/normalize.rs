@@ -61,29 +61,29 @@ impl Normalizer {
 
 pub fn normalize(formula: Formula, mapping: &mut Normalizer) -> BackendResult<Formula> {
     match formula {
-        Formula::And(lhs, rhs) => Ok(Formula::And(
-            Box::new(normalize(*lhs, mapping)?),
-            Box::new(normalize(*rhs, mapping)?),
-        )),
-        Formula::Or(lhs, rhs) => Ok(Formula::Or(
-            Box::new(normalize(*lhs, mapping)?),
-            Box::new(normalize(*rhs, mapping)?),
-        )),
-        Formula::Imp(lhs, rhs) => Ok(Formula::Imp(
-            Box::new(normalize(*lhs, mapping)?),
-            Box::new(normalize(*rhs, mapping)?),
-        )),
+        Formula::And { lhs, rhs } => Ok(Formula::And {
+            lhs: Box::new(normalize(*lhs, mapping)?),
+            rhs: Box::new(normalize(*rhs, mapping)?),
+        }),
+        Formula::Or { lhs, rhs } => Ok(Formula::Or {
+            lhs: Box::new(normalize(*lhs, mapping)?),
+            rhs: Box::new(normalize(*rhs, mapping)?),
+        }),
+        Formula::Imp { lhs, rhs } => Ok(Formula::Imp {
+            lhs: Box::new(normalize(*lhs, mapping)?),
+            rhs: Box::new(normalize(*rhs, mapping)?),
+        }),
         Formula::Not(formula) => Ok(Formula::Not(Box::new(normalize(*formula, mapping)?))),
         Formula::True => Ok(Formula::True),
         Formula::False => Ok(Formula::False),
-        Formula::Forall(identifier, formula) => todo!(),
-        Formula::Exists(identifier, formula) => todo!(),
-        Formula::Predicate(identifier, identifiers) => todo!(),
+        Formula::Forall { .. } => todo!(),
+        Formula::Exists { .. } => todo!(),
+        Formula::Predicate { .. } => todo!(),
         Formula::Ident(Identifier::Literal(s)) => {
             if mapping.literal.contains_key(&s) {
-                return Ok(Formula::Ident(mapping.literal.get(&s).unwrap().clone()));
+                Ok(Formula::Ident(mapping.literal.get(&s).unwrap().clone()))
             } else {
-                return Ok(Formula::Ident(mapping.next_literal()?));
+                Ok(Formula::Ident(mapping.next_literal()?))
             }
         }
         _ => panic!("This should never happen"),

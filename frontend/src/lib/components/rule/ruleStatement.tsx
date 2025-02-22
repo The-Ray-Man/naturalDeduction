@@ -13,7 +13,10 @@ const RuleStatement = ({ rule, highlighted }: RuleStatementProps) => {
   let lhs = rule.lhs ? (
     <>
       <Text>{","}</Text>
-      <RuleFormula rule={{ Ident: rule.lhs }} highlighted={highlighted} />
+      <RuleFormula
+        rule={{ type: "Ident", body: rule.lhs }}
+        highlighted={highlighted}
+      />
     </>
   ) : (
     <></>
