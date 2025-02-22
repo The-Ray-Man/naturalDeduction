@@ -8,8 +8,8 @@ const Footer = () => {
       <Center>
         <Text pe={"xs"}>Made with ❤️ by The-Ray-Man</Text>
       </Center>
-      <Flex justify={"end"} align={"center"}>
-        <a href="https://github.com/The-Ray-Man/naturlaDeduction">
+      <Flex pr={"10"} justify={"end"} align={"center"}>
+        <a href="https://github.com/The-Ray-Man/naturalDeduction">
           <ActionIcon>
             <IconBrandGithub size={24} />
           </ActionIcon>

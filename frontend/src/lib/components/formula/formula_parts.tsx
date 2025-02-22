@@ -17,7 +17,7 @@ const And = ({ formula, click, textColor }: FormulaProps<"And">) => {
     >
       <Text c={textColor}>(</Text>
       <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
-      <Text ref={ref} c={textColor}>
+      <Text px={3} ref={ref} c={textColor}>
         {"\u2227"}
       </Text>
       <Formula formula={formula.body.rhs} click={click} textColor={textColor} />
@@ -35,7 +35,7 @@ const Or = ({ formula, click, textColor }: FormulaProps<"Or">) => {
     >
       <Text c={textColor}>(</Text>
       <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
-      <Text ref={ref} c={textColor}>
+      <Text px={3} ref={ref} c={textColor}>
         {"\u2228"}
       </Text>
       <Formula formula={formula.body.rhs} click={click} textColor={textColor} />
@@ -84,7 +84,7 @@ const Implication = ({ formula, click, textColor }: FormulaProps<"Imp">) => {
     >
       <Text c={textColor}>(</Text>
       <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
-      <Text ref={ref} c={textColor}>
+      <Text px={3} ref={ref} c={textColor}>
         {"\u2192"}
       </Text>
       <Formula formula={formula.body.rhs} click={click} textColor={textColor} />

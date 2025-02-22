@@ -66,7 +66,7 @@ const Formula = ({
   }, [formula, click, textColor]);
 
   return (
-    <Group data-test="asdf" onClick={chooseFormula} gap={0}>
+    <Group className="katex" onClick={chooseFormula} gap={0}>
       {inner}
     </Group>
   );

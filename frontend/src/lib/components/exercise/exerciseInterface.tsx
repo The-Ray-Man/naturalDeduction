@@ -49,7 +49,7 @@ const ExerciseInterface = ({ exerciseId, handler }: ExerciseInterfaceProps) => {
           <Flex w={"100%"} gap={5} wrap="wrap">
             <Rules />
           </Flex>
-          <Group>
+          <Group className="katex">
             <Text>*x does not occur freely in any formula in Γ</Text>
             <Text>**x does not occur freely in any formula in Γ or B</Text>
             <Text>***the binding structure is preserved</Text>

@@ -147,7 +147,7 @@ const RuleSubstitution = ({
         rule={{ type: "Ident", body: rule.body.lhs }}
         highlighted={highlighted}
       />
-      <Text>{"\u2192"}</Text>
+      <Text px={3}>{"\u2192"}</Text>
       <RuleFormula
         rule={{ type: "Ident", body: rule.body.rhs }}
         highlighted={highlighted}

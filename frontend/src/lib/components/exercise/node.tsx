@@ -119,7 +119,7 @@ const Node = ({ node, all_nodes }: NodeProps) => {
   }
 
   return (
-    <Stack gap={0}>
+    <Stack m={isRoot ? 16 : 0} pt={isRoot ? 10 : 0} gap={0}>
       {hidden ? (
         <Flex gap={"xl"} justify="center" align="flex-end">
           {isCompleted ? (
@@ -131,16 +131,19 @@ const Node = ({ node, all_nodes }: NodeProps) => {
       ) : (
         <Flex gap={"xl"} justify="center" align="flex-end">
           {node &&
-            node.premisses.length > 0 &&
-            node.premisses.map((premiss) => {
-              return (
-                <Node
-                  key={premiss}
-                  all_nodes={all_nodes}
-                  node={all_nodes.find((n) => n.name == premiss) as NodeType}
-                />
-              );
-            })}
+            node.premisses.length > 0 && (
+              <Group align="flex-end" w={"fit-content"}>
+                {node.premisses.map((premiss) => {
+                  return (
+                    <Node
+                      key={premiss}
+                      all_nodes={all_nodes}
+                      node={all_nodes.find((n) => n.name == premiss) as NodeType}
+                    />
+                  );
+                })}
+              </Group>
+            )}
           {node.premisses.length == 0 && node.rule == undefined && (
             <DropZone id={node.name} />
           )}
@@ -148,13 +151,18 @@ const Node = ({ node, all_nodes }: NodeProps) => {
       )}
       <Group justify="center" align="start">
         <Stack gap={0}>
-          <Divider my={15} w={"100%"} />
+          <Divider style={{ borderColor: "currentColor" }} mb={8} mt={node.rule == undefined ? 15 : 8} w={"100%"}>
+          </Divider>
           <Flex justify={"center"}>
             <Statement statement={node.statement} textColor={color} />
           </Flex>
         </Stack>
-        <Stack gap={0}>
-          {node && node.rule && <RuleName name={node.rule} />}
+        <Group pl={node.rule == undefined ? 5 : -10} mt={node.rule == undefined ? 5 : -5} gap={15}>
+          {node && node.rule && (
+            <Box className="katex">
+              <RuleName name={node.rule} />
+            </Box>
+          )}
           <Menu trigger="click-hover" position="right">
             <Menu.Target>
               <IconDots size={14} />
@@ -190,7 +198,7 @@ const Node = ({ node, all_nodes }: NodeProps) => {
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
-        </Stack>
+        </Group>
       </Group>
     </Stack>
   );

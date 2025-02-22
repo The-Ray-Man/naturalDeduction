@@ -5,6 +5,7 @@ import "@mantine/core/styles.css";
 // import '@mantine/modals/styles.css';
 import StoreProvider from "@/lib/redux/StoreProvider";
 import "@mantine/notifications/styles.css";
+import 'katex/dist/katex.min.css';
 
 import {
   AppShell,
