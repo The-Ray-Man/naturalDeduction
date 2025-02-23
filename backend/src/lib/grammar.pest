@@ -20,7 +20,7 @@ forall_ = {"forall"}
 exists_ = {"exists"}
 
 predicate = {elem ~ "(" ~ list ~ ")"}
- 
+
 
 forall = {forall_ ~ "_" ~ elem ~ w ~ (expr | b_expr)}
 exists = {exists_ ~ "_" ~ elem ~ w ~ (expr | b_expr)}

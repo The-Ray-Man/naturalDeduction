@@ -1,22 +1,36 @@
-use sea_orm::{Database, DatabaseConnection};
-use std::{thread, time};
+use log::{error, info};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use std::{thread, time::{self, Duration}};
 
 pub async fn connect_db() -> Result<DatabaseConnection, String> {
-    let url = std::env::var("POSTGRES_URL").expect("POSTGRES_URL must be set");
+    let url = match std::env::var("POSTGRES_URL") {
+        Ok(var) => var,
+        Err(_) => return Err(String::from("POSTGRES_URL must be set")),
+    };
 
     // Connect to the database. Wait and retry if the database is not ready yet.
 
     let second = time::Duration::from_secs(5);
-    loop {
-        println!("Try connecting to database");
-        let db = Database::connect(&url).await;
+    let mut options = ConnectOptions::new(&url);
+    options
+        .connect_timeout(Duration::from_secs(10))
+        .idle_timeout(Duration::from_secs(10))
+        .acquire_timeout(Duration::from_secs(10))
+        .sqlx_logging(true)
+        .sqlx_logging_level(log::LevelFilter::Debug);
 
-        if let Ok(db) = db {
-            println!("Connected to database");
-            return Ok(db)
-        } else {
-            println!("Failed to connect to database. Waiting for 5 seconds and retrying");
-            thread::sleep(second)
+    loop {
+        info!("attempting to connect to database");
+        match Database::connect(options.clone()).await {
+            Ok(db) => {
+                info!("successfully connected to database");
+                return Ok(db)
+            },
+            Err(err) => {
+                error!("failed to connect to database: {err}");
+                info!("retrying in 5 seconds");
+                thread::sleep(second)
+            },
         }
     }
 }

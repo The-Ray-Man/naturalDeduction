@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use log::info;
 use uuid::Uuid;
 
 use crate::{error::{BackendError, BackendResult}, lib::check_node};
@@ -358,7 +359,7 @@ pub fn apply_mapping(
     mapping: &BTreeMap<RuleIdentifier, Formula>,
     substitution: &BTreeMap<RuleIdentifier, String>,
 ) -> BackendResult<Formula> {
-    println!("{:?}", formula);
+    info!("{:?}", formula);
     match formula {
         RuleFormula::Ident(i) => get_formula(i, mapping),
         RuleFormula::And { lhs, rhs } => {
@@ -413,7 +414,7 @@ pub fn apply_mapping(
         }
         RuleFormula::Substitution { identifier, lhs, rhs } => {
             let f = get_formula(identifier, mapping)?;
-            println!("{:?}", substitution);
+            info!("{:?}", substitution);
             let from = substitution.get(&lhs);
             let to = substitution.get(&rhs);
             if let (Some(from), Some(to)) = (from, to) {
@@ -583,7 +584,7 @@ pub fn legal_rule(
     substitution: &BTreeMap<RuleIdentifier, String>,
 ) -> BackendResult<()> {
     // First check if the rule is applicable
-    println!("{:?}", target.formula);
+    info!("{:?}", target.formula);
     let res = match (&target.formula, &rule.conclusion.formula) {
         (_, RuleFormula::Ident(_)) => Ok(()),
         (Formula::And { .. }, RuleFormula::And { .. }) => Ok(()),
@@ -608,8 +609,8 @@ pub fn legal_rule(
         Rules::Ax => {
             // The lhs must include the rhs.
             let rhs = &target.formula;
-            println!("{:?}", rhs);
-            println!("{:?}", target.lhs);
+            info!("{:?}", rhs);
+            info!("{:?}", target.lhs);
             let lhs = &target.lhs;
             if !lhs.contains(rhs) {
                 return Err(BackendError::BadRequest(
@@ -665,8 +666,8 @@ pub fn legal_rule(
                         let to = substitution.get(&to).ok_or(BackendError::BadRequest(
                             "Could not find the substitution".to_string(),
                         ))?;
-                        println!("FREE VARS {:?}", free_vars);
-                        println!("SUBSTITUTION {} -> {}", from, to);
+                        info!("FREE VARS {:?}", free_vars);
+                        info!("SUBSTITUTION {} -> {}", from, to);
                         if free_vars.contains(to) {
                             return Err(BackendError::BadRequest(
                                 "The variable to be substituted must not be free in the target formula"
@@ -748,7 +749,7 @@ pub fn apply_rule(
                 None => None,
             };
 
-            println!("Premise {:?} -> {:?}", lhs, formula);
+            info!("Premise {:?} -> {:?}", lhs, formula);
             match (lhs, formula) {
                 (Some(Ok(lhs)), Ok(formula)) => {
                     let mut lhs = vec![lhs];

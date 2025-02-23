@@ -1,6 +1,7 @@
 use core::panic;
 use std::collections::{BTreeMap, BTreeSet};
 
+use log::info;
 use z3::{
     ast::{self, Bool, Int},
     Config, Context, FuncDecl, SatResult, Solver, Sort,
@@ -192,7 +193,7 @@ pub fn check_formula(formula: Formula) -> bool {
     let solver = Solver::new(ctx);
     solver.assert(&formula.not());
     let result = solver.check();
-    println!("{:?}", result);
+    info!("{:?}", result);
 
     result == SatResult::Unsat
 }

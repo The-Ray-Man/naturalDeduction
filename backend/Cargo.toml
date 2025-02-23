@@ -17,10 +17,16 @@ utoipa-swagger-ui = { version = "9.0.0", features = ["axum"] }
 tower-http = { version = "0.5.0", features = ["cors"] }
 sea-orm = { version = "0.12.4", features = [
     "sqlx-postgres",
-    "runtime-tokio-native-tls",
+    "runtime-tokio-rustls",
     "macros",
     "with-json",
     "with-uuid",
 ] }
 uuid = { version = "1.4.1", features = ["v4"] }
 utoipauto = "=0.3.0-alpha.1"
+tower = { version = "0.5.2", optional = true }
+log = "0.4.26"
+env_logger = "0.11.6"
+
+[features]
+static = ["tower-http/fs", "tower"]

@@ -2,6 +2,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use log::error;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -46,7 +47,7 @@ impl BackendError {
 
 impl IntoResponse for BackendError {
     fn into_response(self) -> Response {
-        eprintln!("Error: {}", &self);
+        error!("Error: {}", &self);
         (self.status_code(), self.status_text()).into_response()
     }
 }

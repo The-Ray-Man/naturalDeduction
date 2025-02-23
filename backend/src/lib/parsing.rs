@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use log::info;
 use pest::iterators::Pair;
 use pest::Parser;
 use pest_derive::Parser;
@@ -28,7 +29,7 @@ impl LogicParser {
         pair: Pair<Rule>,
         captures: &BTreeMap<&str, String>,
     ) -> Result<(u32, Formula), String> {
-        println!("parse formula");
+        info!("parse formula");
         match pair.as_rule() {
             Rule::var => Self::parse_var(num, pair, captures),
             Rule::and => Self::parse_and(num, pair, captures),
@@ -64,7 +65,7 @@ impl LogicParser {
         pair: Pair<Rule>,
         captures: &BTreeMap<&str, String>,
     ) -> Result<(u32, Formula), String> {
-        println!("parse var {:?}", pair);
+        info!("parse var {:?}", pair);
         let name = pair.as_str();
         if let Some(capture_name) = captures.get(name) {
             Ok((
@@ -145,7 +146,7 @@ impl LogicParser {
         let mut pairs = pair.into_inner();
         let _ = pairs.next().unwrap();
         let var = pairs.next().unwrap();
-        println!("{:?}", var);
+        info!("{:?}", var);
         let name = var.as_str();
         // let capure_name = format!("{}{}", name, num);
         let capure_name = name.to_string();
@@ -189,7 +190,7 @@ impl LogicParser {
     ) -> Result<(u32, Formula), String> {
         let mut pairs = pair.into_inner();
         let name = pairs.next().unwrap().as_str().to_string();
-        println!("name: {}", name);
+        info!("name: {}", name);
         let mut args = Vec::new();
         let mut arguments = pairs.next().unwrap().into_inner();
         while let Some(arg) = arguments.next() {

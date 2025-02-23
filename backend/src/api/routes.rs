@@ -1,5 +1,6 @@
 use axum::extract::{Path, State};
 use axum::Json;
+use log::info;
 use sea_orm::{ActiveModelTrait, QueryFilter};
 use std::collections::BTreeMap;
 use uuid::Uuid;
@@ -27,7 +28,7 @@ use sea_orm::ColumnTrait;
 )]
 pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exercise>>> {
     let exercises = exercise::Entity::find().all(&state.db).await?;
-    println!("{:?}", exercises);
+    info!("{:?}", exercises);
 
     let mut result = Vec::new();
     for e in exercises.iter() {
@@ -351,7 +352,7 @@ pub async fn apply_rule(query: Json<ApplyRuleParams>) -> BackendResult<Json<Vec<
 )]
 pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
     let result = is_tautology(query.0.clone());
-    println!("{:?} is a tautology: {}", query.0, result);
+    info!("{:?} is a tautology: {}", query.0, result);
     Ok(Json(result))
 }
 
