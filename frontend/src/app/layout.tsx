@@ -11,7 +11,6 @@ import {
   AppShell,
   ColorSchemeScript,
   MantineProvider,
-  Title,
   mantineHtmlProps,
 } from "@mantine/core";
 import { DragProvider } from "@/lib/hook/DragContext";
@@ -19,7 +18,7 @@ import { NodesProvider } from "@/lib/hook/FormulaContext";
 import { useDisclosure } from "@mantine/hooks";
 import { Notifications } from "@mantine/notifications";
 import Footer from "@/lib/components/footer";
-import Link from "next/link";
+import Header from "@/lib/components/header";
 
 export default function RootLayout({
   children,
@@ -48,16 +47,8 @@ export default function RootLayout({
                   padding="md"
                 >
                   <AppShell.Header>
-                    <Link
-                      href={"/"}
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      <Title order={2} pl={"md"}>
-                        FMFP Made Easy
-                      </Title>
-                    </Link>
+                    <Header />
                   </AppShell.Header>
-
                   <AppShell.Main>{children}</AppShell.Main>
                   <AppShell.Footer>
                     <Footer />

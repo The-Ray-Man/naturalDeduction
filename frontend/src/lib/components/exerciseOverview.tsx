@@ -5,10 +5,12 @@ import {
   ButtonGroup,
   Card,
   Center,
+  Code,
   Divider,
   Flex,
   Grid,
   Group,
+  List,
   Modal,
   ScrollArea,
   SimpleGrid,
@@ -17,6 +19,7 @@ import {
   Textarea,
   TextInput,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import {
   Formula as FormulaType,
@@ -31,7 +34,7 @@ import ExerciseListElement from "./exerciseListElement";
 import { useDisclosure, useListState } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import Statement from "./statement";
-import { IconCheck, IconPlus, IconReload } from "@tabler/icons-react";
+import { IconCheck, IconInfoCircle, IconPlus, IconReload } from "@tabler/icons-react";
 import Formula from "./formula/formula";
 import { Action } from "@dnd-kit/core/dist/store";
 import { showError, showInfo } from "../utils/notifications";
@@ -45,6 +48,7 @@ const CreateExerciseForm = () => {
   const [parseFormula] = useParseMutation();
   const [addExercise] = useCreateExerciseMutation();
   const [checkTautology] = useCheckMutation();
+  const { refetch } = useGetExercisesQuery();
 
   const [lhs, lhsHandler] = useListState<FormulaType>([]);
   const [rhs, rhsHandler] = useState<FormulaType | undefined>(undefined);
@@ -112,15 +116,12 @@ const CreateExerciseForm = () => {
   const create = async () => {
     if (rhs) {
       try {
-        let result = await addExercise({
+        await addExercise({
           createExerciseRequest: { lhs: lhs, rhs: rhs },
         }).unwrap();
         showInfo("New Exercise created!");
-        lhsHandler.setState([]);
-        rhsHandler(undefined);
-        setFormula(undefined);
-        setParseError(undefined);
-        inputHandler("");
+        refetch();
+        close();
       } catch (error: any) {
         showError(error.data);
       }
@@ -173,6 +174,11 @@ const CreateExerciseForm = () => {
                     }
                     placeholder="Enter Formula"
                     w={"80%"}
+                    rightSection={
+                      <Tooltip label={<GrammarTooltip />}>
+                        <IconInfoCircle />
+                      </Tooltip>
+                    }
                   />
                   <ActionIcon onClick={enterFormula}>
                     <IconCheck />
@@ -277,5 +283,37 @@ const ExerciseOverview = () => {
     </Flex>
   );
 };
+
+const GRAMMAR: Array<[string, Array<string>]> = [
+  ["Tautology", ["true", "top"]],
+  ["Unsatisfiable", ["false", "bot"]],
+  ["Logical and", ["and", "land"]],
+  ["Logical or", ["or", "lor"]],
+  ["Logical not", ["not", "neg", "lnot"]],
+  ["Implication", ["->", "to", "rightarrow", "implies", "arrow.r"]],
+  ["All quantifier", ["forall"]],
+  ["Exists quantifier", ["exists"]]
+];
+
+const GrammarTooltip: React.FC = (): React.ReactNode => {
+  return (
+    <Stack gap={8}>
+      <Text>The following operators can be used to compose a formula:</Text>
+      <List>
+        {GRAMMAR.map(([name, matches]) => {
+          return (
+            <List.Item key={name}>
+              <Group align="flex-end" gap={8}>
+                <Text>{name}:</Text>
+                {matches.map((match) => <Code lh={1.25} key={match}>{match}</Code>)}
+              </Group>
+            </List.Item>
+          )
+        })}
+      </List>
+      <Text>All operators can be optionally prefixed with a <Code lh={1.25}>\</Code> for better LaTeX compatibility</Text>
+    </Stack>
+  )
+}
 
 export default ExerciseOverview;
