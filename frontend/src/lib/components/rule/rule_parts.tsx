@@ -1,4 +1,4 @@
-import { Group, Text } from "@mantine/core";
+import { Group, Text, useMantineColorScheme } from "@mantine/core";
 import RuleFormula, { RuleFormulaProps } from "./ruleFormula";
 import { RuleIdentifier } from "@/lib/api";
 import { get_color } from "@/lib/utils/color";
@@ -26,8 +26,11 @@ const RuleIdent = ({ rule, highlighted }: RuleFormulaProps<"Ident">) => {
     }
   }, [rule.body, highlighted]);
 
+  const { colorScheme } = useMantineColorScheme();
+
   const style = getStyle(
     highlighted !== undefined && highlighted === rule.body.value,
+    colorScheme,
   );
 
   return <Text style={style}>{letter}</Text>;

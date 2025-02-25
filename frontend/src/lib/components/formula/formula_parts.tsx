@@ -13,8 +13,7 @@ import {
 import { useHover } from "@mantine/hooks";
 import { useMemo } from "react";
 
-const getStyle = (hovered: boolean) => {
-  const { colorScheme } = useMantineColorScheme();
+const getStyle = (hovered: boolean, colorScheme: MantineColorScheme) => {
   if (colorScheme == "dark") {
     return {
       outlineColor: "greenyellow",
@@ -28,13 +27,14 @@ const getStyle = (hovered: boolean) => {
 
 const And = ({ formula, click, textColor }: FormulaProps<"And">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   // const style = colorScheme=="dark" ? {border} : {backgroundColor: hovered? "greenyello" : undefined}
 
   return (
     <Group
       gap={1}
       // style={{ borderColor: "greenyellow", borderWidth: 1, borderStyle: hovered ? "solid" : "undefined"}}
-      style={getStyle(hovered)}
+      style={getStyle(hovered, colorScheme)}
     >
       <Text c={textColor}>(</Text>
       <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
@@ -49,8 +49,9 @@ const And = ({ formula, click, textColor }: FormulaProps<"And">) => {
 
 const Or = ({ formula, click, textColor }: FormulaProps<"Or">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   return (
-    <Group gap={1} style={getStyle(hovered)}>
+    <Group gap={1} style={getStyle(hovered, colorScheme)}>
       <Text c={textColor}>(</Text>
       <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
       <Text px={3} ref={ref} c={textColor}>
@@ -64,8 +65,9 @@ const Or = ({ formula, click, textColor }: FormulaProps<"Or">) => {
 
 const Not = ({ formula, click, textColor }: FormulaProps<"Not">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   return (
-    <Group gap={1} style={getStyle(hovered)}>
+    <Group gap={1} style={getStyle(hovered, colorScheme)}>
       <Text ref={ref} c={textColor}>
         ({"\u00AC"}
       </Text>
@@ -77,9 +79,10 @@ const Not = ({ formula, click, textColor }: FormulaProps<"Not">) => {
 
 const Identifier = ({ formula, click, textColor }: FormulaProps<"Ident">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   const name = formula.body.value;
   return (
-    <Group gap={0} style={getStyle(hovered)}>
+    <Group gap={0} style={getStyle(hovered, colorScheme)}>
       <Text ref={ref} c={textColor}>
         {name}
       </Text>
@@ -89,8 +92,9 @@ const Identifier = ({ formula, click, textColor }: FormulaProps<"Ident">) => {
 
 const Implication = ({ formula, click, textColor }: FormulaProps<"Imp">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   return (
-    <Group gap={1} style={getStyle(hovered)}>
+    <Group gap={1} style={getStyle(hovered, colorScheme)}>
       <Text c={textColor}>(</Text>
       <Formula formula={formula.body.lhs} click={click} textColor={textColor} />
       <Text px={3} ref={ref} c={textColor}>
@@ -104,8 +108,9 @@ const Implication = ({ formula, click, textColor }: FormulaProps<"Imp">) => {
 
 const True = ({ formula, click, textColor }: FormulaProps<"True">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   return (
-    <Group gap={1} style={getStyle(hovered)}>
+    <Group gap={1} style={getStyle(hovered, colorScheme)}>
       <Text ref={ref} c={textColor}>
         {"\u22A4"}
       </Text>
@@ -115,8 +120,9 @@ const True = ({ formula, click, textColor }: FormulaProps<"True">) => {
 
 const False = ({ formula, click, textColor }: FormulaProps<"False">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   return (
-    <Group gap={1} style={getStyle(hovered)}>
+    <Group gap={1} style={getStyle(hovered, colorScheme)}>
       <Text ref={ref} c={textColor}>
         {"\u22A5"}
       </Text>
@@ -126,8 +132,9 @@ const False = ({ formula, click, textColor }: FormulaProps<"False">) => {
 
 const Forall = ({ formula, click, textColor }: FormulaProps<"Forall">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   return (
-    <Group gap={1} style={getStyle(hovered)}>
+    <Group gap={1} style={getStyle(hovered, colorScheme)}>
       <Text ref={ref} c={textColor}>
         ({"\u2200"}
       </Text>
@@ -149,8 +156,9 @@ const Forall = ({ formula, click, textColor }: FormulaProps<"Forall">) => {
 
 const Exists = ({ formula, click, textColor }: FormulaProps<"Exists">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   return (
-    <Group gap={1} style={getStyle(hovered)}>
+    <Group gap={1} style={getStyle(hovered, colorScheme)}>
       <Text ref={ref} c={textColor}>
         ({"\u2203"}
       </Text>
@@ -176,8 +184,9 @@ const Predicate = ({
   textColor,
 }: FormulaProps<"Predicate">) => {
   const { hovered, ref } = useHover();
+  const { colorScheme } = useMantineColorScheme();
   return (
-    <Group gap={1} style={getStyle(hovered)}>
+    <Group gap={1} style={getStyle(hovered, colorScheme)}>
       <Text ref={ref} c={textColor}>
         {formula.body.identifier.value}
       </Text>
