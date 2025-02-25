@@ -39,9 +39,27 @@ impl LogicParser {
             Rule::predicate => Self::parse_predicate(num, pair, captures),
             Rule::quantifier => Self::parse_quantifier(num, pair, captures),
             Rule::lit => Self::parse_literal(num, pair, captures),
+            Rule::true_ => Self::parse_true(num, pair, captures),
+            Rule::false_ => Self::parse_false(num, pair, captures),
             e => panic!("Unexpected rule: {:?}", e),
         }
         // todo!()
+    }
+
+    fn parse_true(
+        num: u32,
+        pair: Pair<Rule>,
+        captures: &BTreeMap<&str, String>,
+    ) -> Result<(u32, Formula), String> {
+        return Ok((num, Formula::True));
+    }
+
+    fn parse_false(
+        num: u32,
+        pair: Pair<Rule>,
+        captures: &BTreeMap<&str, String>,
+    ) -> Result<(u32, Formula), String> {
+        return Ok((num, Formula::False));
     }
 
     fn parse_literal(

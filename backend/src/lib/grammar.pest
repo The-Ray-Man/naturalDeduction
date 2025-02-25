@@ -36,6 +36,6 @@ var = {elem}
 ex = _{predicate | lit  | b_expr }
 
 b_expr = _{"(" ~ w ~ expr ~ w ~ ")"}
-expr = _{quantifier | not  | and | or | implication | predicate | lit }
+expr = _{quantifier | not  | and | or | implication | predicate | true_ | false_ | lit }
 
 main = _{SOI ~ expr | b_expr ~ EOI}

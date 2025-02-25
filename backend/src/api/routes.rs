@@ -2,6 +2,7 @@ use axum::extract::{Path, State};
 use axum::Json;
 use log::info;
 use sea_orm::{ActiveModelTrait, QueryFilter};
+use serde::Serialize;
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
@@ -39,56 +40,23 @@ pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exe
             continue;
         }
         let exercise = exercise.unwrap();
-        let formula = LogicParser::parse_input(&exercise.rhs);
-        if let Err(err) = formula {
-            print!("error while parseing rhs\n: {:?}", err);
-            continue;
-        }
-        let lhs = exercise.lhs.split(':').collect::<Vec<&str>>();
+        let formula = serde_json::from_str::<Formula>(&exercise.rhs)
+            .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
 
-        let lhs = lhs
-            .iter()
-            .map(|l| {
-                let formula = LogicParser::parse_input(l);
-                if formula.is_err() {
-                    return None;
-                }
-                Some(formula.unwrap())
-            })
-            .collect::<Option<Vec<Formula>>>();
-
-        if lhs.is_none() {
-            result.push(Exercise {
-                id: e.id,
-                likes: e.likes,
-                dislikes: e.dislikes,
-                exercise: Statement {
-                    lhs: vec![],
-                    formula: formula.unwrap(),
-                },
-            });
-            continue;
-        }
+        let lhs = serde_json::from_str::<Vec<Formula>>(&exercise.lhs)
+            .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
 
         result.push(Exercise {
             id: e.id,
             likes: e.likes,
             dislikes: e.dislikes,
             exercise: Statement {
-                lhs: lhs.unwrap(),
-                formula: formula.unwrap(),
+                lhs: lhs,
+                formula: formula,
             },
         });
     }
-    // let input = "(a and b) -> b";
-    // let input = "(not r(k)) -> ( ( r(k) or (exists_y (q(y)))) -> (forall_x (not q(x))))";
-    // let input = "(forall_y ((exists_x (p(x,y))) -> (not q(y)))) -> (q(z) -> (not p(z,z)))";
-    // let input = "p(a,b)";
-    // let input = "(exists_x (p(x,x))) -> (p(a,b))";
-    // let input = "(forall_x (forall_y (p(x,y)))) -> (forall_b (forall_a (p(a,b))))";
-    // let input = "(exists_x (p and q)) -> (exists_x (p))";
 
-    // let f = LogicParser::parse_input(input).unwrap();
     Ok(Json(result))
 }
 
@@ -123,77 +91,18 @@ pub async fn get_exercise(
     }
 
     let statement = statement.unwrap();
-    let rhs = LogicParser::parse_input(&statement.rhs);
-    if let Err(err) = rhs {
-        return Err(BackendError::BadRequest(err));
-    }
+    let formula = serde_json::from_str::<Formula>(&statement.rhs)
+        .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
 
-    if statement.lhs.is_empty() {
-        Ok(Json(Statement {
-            lhs: vec![],
-            formula: rhs.unwrap(),
-        }))
-    } else {
-        let lhs = statement.lhs.split(':').collect::<Vec<&str>>();
+    let lhs = serde_json::from_str::<Vec<Formula>>(&statement.lhs)
+        .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
 
-        let lhs = lhs
-            .iter()
-            .map(|l| {
-                let formula = LogicParser::parse_input(l);
-                if formula.is_err() {
-                    return None;
-                }
-                Some(formula.unwrap())
-            })
-            .collect::<Option<Vec<Formula>>>();
+    let exercise = Statement {
+        formula: formula,
+        lhs: lhs,
+    };
 
-        if lhs.is_none() {
-            return Err(BackendError::BadRequest(
-                "Error while parsing lhs".to_string(),
-            ));
-        }
-
-        Ok(Json(Statement {
-            lhs: lhs.unwrap(),
-            formula: rhs.unwrap(),
-        }))
-    }
-
-    // let result = exercises.iter().filter_map(|e| {
-    //     let formula = LogicParser::parse_input(&e.rhs);
-    //     if formula.is_err() {
-    //         return None;
-    //     }
-    //     let lhs = e.lhs.split(':').collect::<Vec<&str>>();
-
-    //     let lhs = lhs.iter().map(|l| {
-    //         let formula = LogicParser::parse_input(l);
-    //         if formula.is_err() {
-    //             return None;
-    //         }
-    //         Some(formula.unwrap())
-    //     }).collect::<Option<Vec<Formula>>>();
-
-    //     if lhs.is_none() {
-    //         return None;
-    //     }
-
-    //     Some(Statement {
-    //         lhs: lhs.unwrap(),
-    //         formula: formula.unwrap(),
-    //     })
-    // }).collect::<Vec<_>>();
-
-    // let input = "(a and b) -> b";
-    // let input = "(not r(k)) -> ( ( r(k) or (exists_y (q(y)))) -> (forall_x (not q(x))))";
-    // let input = "(forall_y ((exists_x (p(x,y))) -> (not q(y)))) -> (q(z) -> (not p(z,z)))";
-    // let input = "p(a,b)";
-    // let input = "(exists_x (p(x,x))) -> (p(a,b))";
-    // let input = "(forall_x (forall_y (p(x,y)))) -> (forall_b (forall_a (p(a,b))))";
-    // let input = "(exists_x (p and q)) -> (exists_x (p))";
-
-    // let f = LogicParser::parse_input(input).unwrap();
-    // Ok(Json(result[0].clone()))
+    Ok(Json(exercise))
 }
 
 #[utoipa::path(
@@ -219,14 +128,15 @@ pub async fn create_exercise(
         ));
     }
 
-    let rhs = query.rhs.to_string();
-    let mut lhs_sorted = query.lhs.clone();
-    lhs_sorted.sort();
-    let lhs = lhs_sorted
-        .iter()
-        .map(|l| l.to_string())
-        .collect::<Vec<String>>()
-        .join(":");
+    let statement = Statement {
+        formula: query.rhs.clone(),
+        lhs: query.lhs.clone(),
+    };
+
+    let rhs = serde_json::to_string(&query.rhs)
+        .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
+    let lhs = serde_json::to_string(&query.lhs)
+        .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
 
     let exists = statement::Entity::find()
         .filter(statement::Column::Lhs.eq(&lhs))
