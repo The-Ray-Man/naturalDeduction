@@ -12,9 +12,10 @@ import {
   Text,
 } from "@mantine/core";
 import { useNodesContext } from "@/lib/hook/FormulaContext";
-import { IconZoomCancel } from "@tabler/icons-react";
+import { IconCopy, IconZoomCancel } from "@tabler/icons-react";
 import { treeCompleted } from "@/lib/utils/finished";
 import { useWindowSize } from "react-use";
+import { exportToTypst } from "@/lib/utils/export";
 
 type ExerciseProps = {
   exercise: Statement;
@@ -57,6 +58,13 @@ const Exercise = ({ exercise }: ExerciseProps) => {
     }
   }, [exercise]);
 
+  const handleTypstExport = () => {
+    const root = nodes?.find(node => node.name === rootId);
+    if (!root) return;
+    const typstStr = exportToTypst(root, nodes || []);
+    // TODO: Copy to clipboard
+  }
+
   return (
     <>
       {done && <Confetti width={width} height={height} />}
@@ -67,6 +75,9 @@ const Exercise = ({ exercise }: ExerciseProps) => {
             disabled={rootId == currentId}
           >
             <IconZoomCancel />
+          </ActionIcon>
+          <ActionIcon disabled={!done} onClick={handleTypstExport}>
+            <IconCopy  />
           </ActionIcon>
         </Stack>
         <Center w={"100%"}>
