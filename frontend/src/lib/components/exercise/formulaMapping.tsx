@@ -13,7 +13,9 @@ const FormulaMapping = ({ mapping }: FormulaMappingProps) => {
       <RuleFormula
         rule={{ type: "Ident", body: { type: "Formula", value: mapping.from } }}
       />
-      <Text mt={-1} px={3}>{"\u2261"}</Text>
+      <Text mt={-1} px={3}>
+        {"\u2261"}
+      </Text>
       <Formula formula={mapping.to} />
     </Group>
   );

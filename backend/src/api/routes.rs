@@ -245,14 +245,12 @@ pub async fn create_exercise(
                     "This exercise already exists".to_string(),
                 ))
             }
-            None => {
-                exercise::ActiveModel {
-                    dislikes: sea_orm::ActiveValue::Set(0),
-                    likes: sea_orm::ActiveValue::Set(0),
-                    statement_id: sea_orm::ActiveValue::Set(stmt.id),
-                    ..Default::default()
-                }
-            }
+            None => exercise::ActiveModel {
+                dislikes: sea_orm::ActiveValue::Set(0),
+                likes: sea_orm::ActiveValue::Set(0),
+                statement_id: sea_orm::ActiveValue::Set(stmt.id),
+                ..Default::default()
+            },
         }
     } else {
         let node = statement::ActiveModel {
@@ -355,7 +353,6 @@ pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
     info!("{:?} is a tautology: {}", query.0, result);
     Ok(Json(result))
 }
-
 
 // #[utoipa::path(
 //     post,

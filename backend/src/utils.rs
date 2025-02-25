@@ -1,6 +1,9 @@
 use log::{error, info};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
-use std::{thread, time::{self, Duration}};
+use std::{
+    thread,
+    time::{self, Duration},
+};
 
 pub async fn connect_db() -> Result<DatabaseConnection, String> {
     let url = match std::env::var("POSTGRES_URL") {
@@ -24,13 +27,13 @@ pub async fn connect_db() -> Result<DatabaseConnection, String> {
         match Database::connect(options.clone()).await {
             Ok(db) => {
                 info!("successfully connected to database");
-                return Ok(db)
-            },
+                return Ok(db);
+            }
             Err(err) => {
                 error!("failed to connect to database: {err}");
                 info!("retrying in 5 seconds");
                 thread::sleep(second)
-            },
+            }
         }
     }
 }

@@ -2,7 +2,10 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use super::{formula_models::{Formula, Statement}, rule_models::Rules};
+use super::{
+    formula_models::{Formula, Statement},
+    rule_models::Rules,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CreateExerciseRequest {
@@ -18,7 +21,6 @@ pub struct Exercise {
     pub dislikes: i32,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct Node {
     pub name: Uuid,
@@ -27,10 +29,8 @@ pub struct Node {
     pub premisses: Vec<Uuid>,
 }
 
-
-
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct CreateTreeRequest {
-    pub nodes : Vec<Node>,
+    pub nodes: Vec<Node>,
     pub root_id: Uuid,
 }

@@ -130,20 +130,19 @@ const Node = ({ node, all_nodes }: NodeProps) => {
         </Flex>
       ) : (
         <Flex gap={"xl"} justify="center" align="flex-end">
-          {node &&
-            node.premisses.length > 0 && (
-              <Group align="flex-end" w={"fit-content"}>
-                {node.premisses.map((premiss) => {
-                  return (
-                    <Node
-                      key={premiss}
-                      all_nodes={all_nodes}
-                      node={all_nodes.find((n) => n.name == premiss) as NodeType}
-                    />
-                  );
-                })}
-              </Group>
-            )}
+          {node && node.premisses.length > 0 && (
+            <Group align="flex-end" w={"fit-content"}>
+              {node.premisses.map((premiss) => {
+                return (
+                  <Node
+                    key={premiss}
+                    all_nodes={all_nodes}
+                    node={all_nodes.find((n) => n.name == premiss) as NodeType}
+                  />
+                );
+              })}
+            </Group>
+          )}
           {node.premisses.length == 0 && node.rule == undefined && (
             <DropZone id={node.name} />
           )}
@@ -151,13 +150,21 @@ const Node = ({ node, all_nodes }: NodeProps) => {
       )}
       <Group justify="center" align="start">
         <Stack gap={0}>
-          <Divider style={{ borderColor: "currentColor" }} mb={8} mt={node.rule == undefined ? 15 : 8} w={"100%"}>
-          </Divider>
+          <Divider
+            style={{ borderColor: "currentColor" }}
+            mb={8}
+            mt={node.rule == undefined ? 15 : 8}
+            w={"100%"}
+          ></Divider>
           <Flex justify={"center"}>
             <Statement statement={node.statement} textColor={color} />
           </Flex>
         </Stack>
-        <Group pl={node.rule == undefined ? 5 : -10} mt={node.rule == undefined ? 5 : -5} gap={15}>
+        <Group
+          pl={node.rule == undefined ? 5 : -10}
+          mt={node.rule == undefined ? 5 : -5}
+          gap={15}
+        >
           {node && node.rule && (
             <Box className="katex">
               <RuleName name={node.rule} />

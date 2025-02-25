@@ -3,10 +3,15 @@ use std::collections::{BTreeMap, BTreeSet};
 use log::info;
 use uuid::Uuid;
 
-use crate::{error::{BackendError, BackendResult}, lib::check_node};
+use crate::{
+    error::{BackendError, BackendResult},
+    lib::check_node,
+};
 
 use super::{
-    exercise_models::Node, formula_models::{Formula, Identifier, Statement}, rule_models::{DerivationRule, RuleFormula, RuleIdentifier, RuleStatement, Rules}
+    exercise_models::Node,
+    formula_models::{Formula, Identifier, Statement},
+    rule_models::{DerivationRule, RuleFormula, RuleIdentifier, RuleStatement, Rules},
 };
 
 impl Rules {
@@ -28,7 +33,10 @@ impl Rules {
             }],
             conclusion: RuleStatement {
                 lhs: None,
-                formula: RuleFormula::Imp { lhs: RuleIdentifier::Formula(0), rhs: RuleIdentifier::Formula(1) },
+                formula: RuleFormula::Imp {
+                    lhs: RuleIdentifier::Formula(0),
+                    rhs: RuleIdentifier::Formula(1),
+                },
             },
         };
 
@@ -109,7 +117,10 @@ impl Rules {
             ],
             conclusion: RuleStatement {
                 lhs: None,
-                formula: RuleFormula::And { lhs: RuleIdentifier::Formula(0), rhs: RuleIdentifier::Formula(1) },
+                formula: RuleFormula::And {
+                    lhs: RuleIdentifier::Formula(0),
+                    rhs: RuleIdentifier::Formula(1),
+                },
             },
         };
 
@@ -117,7 +128,10 @@ impl Rules {
             name: Rules::AndElimL,
             premises: vec![RuleStatement {
                 lhs: None,
-                formula: RuleFormula::And { lhs: RuleIdentifier::Formula(0), rhs: RuleIdentifier::Formula(1) },
+                formula: RuleFormula::And {
+                    lhs: RuleIdentifier::Formula(0),
+                    rhs: RuleIdentifier::Formula(1),
+                },
             }],
             conclusion: RuleStatement {
                 lhs: None,
@@ -129,7 +143,10 @@ impl Rules {
             name: Rules::AndElimR,
             premises: vec![RuleStatement {
                 lhs: None,
-                formula: RuleFormula::And { lhs: RuleIdentifier::Formula(0), rhs: RuleIdentifier::Formula(1) },
+                formula: RuleFormula::And {
+                    lhs: RuleIdentifier::Formula(0),
+                    rhs: RuleIdentifier::Formula(1),
+                },
             }],
             conclusion: RuleStatement {
                 lhs: None,
@@ -145,7 +162,10 @@ impl Rules {
             }],
             conclusion: RuleStatement {
                 lhs: None,
-                formula: RuleFormula::Or { lhs: RuleIdentifier::Formula(0), rhs: RuleIdentifier::Formula(1) },
+                formula: RuleFormula::Or {
+                    lhs: RuleIdentifier::Formula(0),
+                    rhs: RuleIdentifier::Formula(1),
+                },
             },
         };
 
@@ -157,7 +177,10 @@ impl Rules {
             }],
             conclusion: RuleStatement {
                 lhs: None,
-                formula: RuleFormula::Or { lhs: RuleIdentifier::Formula(0), rhs: RuleIdentifier::Formula(1) },
+                formula: RuleFormula::Or {
+                    lhs: RuleIdentifier::Formula(0),
+                    rhs: RuleIdentifier::Formula(1),
+                },
             },
         };
 
@@ -365,12 +388,18 @@ pub fn apply_mapping(
         RuleFormula::And { lhs, rhs } => {
             let lhs = get_formula(lhs, mapping)?;
             let rhs = get_formula(rhs, mapping)?;
-            Ok(Formula::And { lhs: Box::new(lhs), rhs: Box::new(rhs) })
+            Ok(Formula::And {
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            })
         }
         RuleFormula::Or { lhs, rhs } => {
             let lhs = get_formula(lhs, mapping)?;
             let rhs = get_formula(rhs, mapping)?;
-            Ok(Formula::Or { lhs: Box::new(lhs), rhs: Box::new(rhs) })
+            Ok(Formula::Or {
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            })
         }
         RuleFormula::Not(i) => {
             let f = get_formula(i, mapping)?;
@@ -379,11 +408,17 @@ pub fn apply_mapping(
         RuleFormula::Imp { lhs, rhs } => {
             let lhs = get_formula(lhs, mapping)?;
             let rhs = get_formula(rhs, mapping)?;
-            Ok(Formula::Imp { lhs: Box::new(lhs), rhs: Box::new(rhs) })
+            Ok(Formula::Imp {
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            })
         }
         RuleFormula::False => Ok(Formula::False),
         RuleFormula::True => Ok(Formula::True),
-        RuleFormula::Forall { identifier, formula } => {
+        RuleFormula::Forall {
+            identifier,
+            formula,
+        } => {
             let f = apply_mapping(&formula, mapping, substitution)?;
             let i = substitution.get(identifier);
             if i.is_none() {
@@ -397,7 +432,10 @@ pub fn apply_mapping(
                 formula: Box::new(f),
             })
         }
-        RuleFormula::Exists { identifier, formula } => {
+        RuleFormula::Exists {
+            identifier,
+            formula,
+        } => {
             let f = apply_mapping(&formula, mapping, substitution)?;
             // let f = get_formula(&**f, mapping)?;
             let i = substitution.get(identifier);
@@ -412,7 +450,11 @@ pub fn apply_mapping(
                 formula: Box::new(f),
             })
         }
-        RuleFormula::Substitution { identifier, lhs, rhs } => {
+        RuleFormula::Substitution {
+            identifier,
+            lhs,
+            rhs,
+        } => {
             let f = get_formula(identifier, mapping)?;
             info!("{:?}", substitution);
             let from = substitution.get(&lhs);
@@ -472,7 +514,10 @@ pub fn apply_substitution(
         }),
         Formula::True => Ok(Formula::True),
         Formula::False => Ok(Formula::False),
-        Formula::Forall { identifier, formula } => {
+        Formula::Forall {
+            identifier,
+            formula,
+        } => {
             let name = match &identifier {
                 Identifier::Element(s) | Identifier::Literal(s) => s,
             };
@@ -483,7 +528,10 @@ pub fn apply_substitution(
                 formula: Box::new(apply_substitution(*formula, from, to, new_capture)?),
             })
         }
-        Formula::Exists { identifier, formula } => {
+        Formula::Exists {
+            identifier,
+            formula,
+        } => {
             let name = match &identifier {
                 Identifier::Element(s) => s,
                 Identifier::Literal(_) => Err(BackendError::BadRequest(
@@ -497,7 +545,10 @@ pub fn apply_substitution(
                 formula: Box::new(apply_substitution(*formula, from, to, new_capture)?),
             })
         }
-        Formula::Predicate { identifier, identifiers } => {
+        Formula::Predicate {
+            identifier,
+            identifiers,
+        } => {
             let new_identifiers = identifiers
                 .into_iter()
                 .map(|i| match i {
@@ -515,7 +566,10 @@ pub fn apply_substitution(
                     }
                 })
                 .collect::<Result<Vec<Identifier>, BackendError>>()?;
-            Ok(Formula::Predicate { identifier, identifiers: new_identifiers })
+            Ok(Formula::Predicate {
+                identifier,
+                identifiers: new_identifiers,
+            })
         }
     }
 }
@@ -545,7 +599,14 @@ pub fn get_free_vars(
         },
         Formula::True => Ok(BTreeSet::new()),
         Formula::False => Ok(BTreeSet::new()),
-        Formula::Exists { identifier, formula } | Formula::Forall { identifier, formula } => {
+        Formula::Exists {
+            identifier,
+            formula,
+        }
+        | Formula::Forall {
+            identifier,
+            formula,
+        } => {
             let mut new_captured = captured.clone();
             match identifier {
                 Identifier::Element(s) => {
@@ -619,7 +680,11 @@ pub fn legal_rule(
             }
         }
         Rules::ForallIntro => {
-            if let Formula::Forall { identifier: Identifier::Element(i), .. } = target.formula.clone() {
+            if let Formula::Forall {
+                identifier: Identifier::Element(i),
+                ..
+            } = target.formula.clone()
+            {
                 let free_vars = get_free_vars(&target.formula, BTreeSet::new())?;
                 if free_vars.contains(&i) {
                     return Err(BackendError::BadRequest(
@@ -631,9 +696,11 @@ pub fn legal_rule(
         Rules::ExistsElim => {
             if let Some(rule_exists) = rule.premises.get(0) {
                 if let RuleFormula::Exists { identifier, .. } = &rule_exists.formula {
-                    let chosen = substitution.get(&identifier).ok_or(BackendError::BadRequest(
-                        "Could not find the exists identifier in the substitution".to_string(),
-                    ))?;
+                    let chosen = substitution
+                        .get(&identifier)
+                        .ok_or(BackendError::BadRequest(
+                            "Could not find the exists identifier in the substitution".to_string(),
+                        ))?;
                     let free_vars = get_free_vars(&target.formula, BTreeSet::new())?;
                     let lhs_free_vars = target.lhs.iter().fold(
                         Ok(BTreeSet::new()),
@@ -658,7 +725,10 @@ pub fn legal_rule(
         Rules::AlphaExists => {
             if let Some(rule_exists) = rule.premises.get(0) {
                 if let RuleFormula::Exists { formula, .. } = rule_exists.formula.clone() {
-                    if let RuleFormula::Substitution { lhs: from, rhs: to, .. } = *formula {
+                    if let RuleFormula::Substitution {
+                        lhs: from, rhs: to, ..
+                    } = *formula
+                    {
                         let free_vars = get_free_vars(&target.formula, BTreeSet::new())?;
                         let from = substitution.get(&from).ok_or(BackendError::BadRequest(
                             "Could not find the substitution".to_string(),
@@ -711,7 +781,12 @@ pub fn apply_rule(
 ) -> BackendResult<Vec<Statement>> {
     let _ = legal_rule(&target, &rule, substitution)?;
 
-    if let RuleFormula::Substitution { identifier, lhs: from_ident, rhs: to_ident } = &rule.conclusion.formula {
+    if let RuleFormula::Substitution {
+        identifier,
+        lhs: from_ident,
+        rhs: to_ident,
+    } = &rule.conclusion.formula
+    {
         let formula = get_formula(&identifier, mapping)?;
         let from = substitution
             .get(&from_ident)
@@ -734,7 +809,6 @@ pub fn apply_rule(
             "The conclusion of the rule does not match the target formula".to_string(),
         ));
     }
-
 
     let res = rule
         .premises
@@ -780,9 +854,7 @@ pub fn apply_rule(
     Ok(premisses)
 }
 
-
 pub fn check_tree(root: Uuid, nodes: Vec<Node>) -> bool {
-
     let root_node = nodes.iter().find(|n| n.name == root);
 
     let root_node = match root_node {
@@ -790,11 +862,17 @@ pub fn check_tree(root: Uuid, nodes: Vec<Node>) -> bool {
         None => return false,
     };
 
-    let premisses = nodes.iter().filter(|n| root_node.premisses.contains(&n.name)).collect::<Vec<_>>();
+    let premisses = nodes
+        .iter()
+        .filter(|n| root_node.premisses.contains(&n.name))
+        .collect::<Vec<_>>();
 
-    let statements = premisses.iter().map(|n| n.statement.clone()).collect::<Vec<_>>();
+    let statements = premisses
+        .iter()
+        .map(|n| n.statement.clone())
+        .collect::<Vec<_>>();
 
-    let valid = check_node(root_node.statement,statements);
+    let valid = check_node(root_node.statement, statements);
 
     for premiss in premisses {
         let valid = check_tree(premiss.name, nodes.clone());

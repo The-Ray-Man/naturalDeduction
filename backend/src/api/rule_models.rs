@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
-
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, PartialOrd)]
 pub enum Rules {
     Ax,
@@ -36,15 +35,34 @@ pub enum RuleIdentifier {
 #[serde(tag = "type", content = "body")]
 pub enum RuleFormula {
     Ident(RuleIdentifier),
-    And { lhs: RuleIdentifier, rhs: RuleIdentifier },
-    Or { lhs: RuleIdentifier, rhs: RuleIdentifier },
+    And {
+        lhs: RuleIdentifier,
+        rhs: RuleIdentifier,
+    },
+    Or {
+        lhs: RuleIdentifier,
+        rhs: RuleIdentifier,
+    },
     Not(RuleIdentifier),
-    Imp { lhs: RuleIdentifier, rhs: RuleIdentifier },
+    Imp {
+        lhs: RuleIdentifier,
+        rhs: RuleIdentifier,
+    },
     False,
     True,
-    Forall { identifier: RuleIdentifier, formula: Box<RuleFormula> },
-    Exists { identifier: RuleIdentifier, formula: Box<RuleFormula> },
-    Substitution { identifier: RuleIdentifier, lhs: RuleIdentifier, rhs: RuleIdentifier },
+    Forall {
+        identifier: RuleIdentifier,
+        formula: Box<RuleFormula>,
+    },
+    Exists {
+        identifier: RuleIdentifier,
+        formula: Box<RuleFormula>,
+    },
+    Substitution {
+        identifier: RuleIdentifier,
+        lhs: RuleIdentifier,
+        rhs: RuleIdentifier,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]

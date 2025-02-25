@@ -39,7 +39,7 @@ async fn main() {
 
     let db = match connect_db().await {
         Ok(con) => con,
-        Err(err) => return error!("unable to connect to database: {err}")
+        Err(err) => return error!("unable to connect to database: {err}"),
     };
 
     let origins = [
@@ -89,9 +89,9 @@ async fn main() {
 
 #[cfg(feature = "static")]
 mod files {
-    use tower::ServiceExt;
-    use axum::http::{Request, Response, StatusCode, Uri};
     use axum::body::Body;
+    use axum::http::{Request, Response, StatusCode, Uri};
+    use tower::ServiceExt;
 
     pub async fn static_file_handler(uri: Uri) -> Result<Response<Body>, (StatusCode, String)> {
         match get_static_file(uri.clone()).await {
@@ -100,26 +100,31 @@ mod files {
                 if status == StatusCode::NOT_FOUND {
                     match format!("{}.html", uri).parse() {
                         Ok(uri_html) => get_static_file(uri_html).await,
-                        Err(_) => Err((StatusCode::INTERNAL_SERVER_ERROR, "Invalid URI".to_string())),
+                        Err(_) => {
+                            Err((StatusCode::INTERNAL_SERVER_ERROR, "Invalid URI".to_string()))
+                        }
                     }
                 } else {
                     Err((status, msg))
                 }
-            },
+            }
         }
     }
 
     async fn get_static_file(uri: Uri) -> Result<Response<Body>, (StatusCode, String)> {
         let req = Request::builder().uri(uri).body(Body::empty()).unwrap();
         let uri = req.uri().clone();
-        match tower_http::services::ServeDir::new("static").oneshot(req).await {
+        match tower_http::services::ServeDir::new("static")
+            .oneshot(req)
+            .await
+        {
             Ok(res) => {
                 if res.status().is_success() {
                     Ok(res.map(Body::new))
                 } else {
                     Err((res.status(), format!("{}: {}", res.status(), uri.path())))
                 }
-            },
+            }
             Err(err) => Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Something went wrong: {}", err),

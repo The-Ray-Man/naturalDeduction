@@ -6,7 +6,7 @@ mod sat;
 // use derivation::{apply_rule, apply_step, Stmt};
 // use latex::toLatex;
 pub use parsing::LogicParser;
-pub use sat::{is_tautology, check_node};
+pub use sat::{check_node, is_tautology};
 // use pest::{
 //     iterators::Pair,
 //     pratt_parser::{Op, PrattParser},

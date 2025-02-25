@@ -4,6 +4,7 @@ import { RuleIdentifier } from "@/lib/api";
 import { get_color } from "@/lib/utils/color";
 import { RuleFormula as RuleFormulaType } from "@/lib/api";
 import { useMemo } from "react";
+import { getStyle } from "../formula/formula_parts";
 
 const RuleIdent = ({ rule, highlighted }: RuleFormulaProps<"Ident">) => {
   const [letter, bgColor] = useMemo(() => {
@@ -25,7 +26,11 @@ const RuleIdent = ({ rule, highlighted }: RuleFormulaProps<"Ident">) => {
     }
   }, [rule.body, highlighted]);
 
-  return <Text style={{ background: bgColor || undefined }}>{letter}</Text>;
+  const style = getStyle(
+    highlighted !== undefined && highlighted === rule.body.value,
+  );
+
+  return <Text style={style}>{letter}</Text>;
 };
 
 const RuleAnd = ({ rule, highlighted }: RuleFormulaProps<"And">) => {

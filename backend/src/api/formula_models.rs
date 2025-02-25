@@ -14,16 +14,34 @@ pub enum Identifier {
 #[serde(tag = "type", content = "body")]
 #[schema(no_recursion)]
 pub enum Formula {
-    And { lhs: Box<Formula>, rhs: Box<Formula> },
-    Or { lhs: Box<Formula>, rhs: Box<Formula> },
+    And {
+        lhs: Box<Formula>,
+        rhs: Box<Formula>,
+    },
+    Or {
+        lhs: Box<Formula>,
+        rhs: Box<Formula>,
+    },
     Not(Box<Formula>),
     Ident(Identifier),
-    Imp { lhs: Box<Formula>, rhs: Box<Formula> },
+    Imp {
+        lhs: Box<Formula>,
+        rhs: Box<Formula>,
+    },
     True,
     False,
-    Forall { identifier: Identifier, formula: Box<Formula> },
-    Exists { identifier: Identifier, formula: Box<Formula> },
-    Predicate { identifier: Identifier, identifiers: Vec<Identifier> },
+    Forall {
+        identifier: Identifier,
+        formula: Box<Formula>,
+    },
+    Exists {
+        identifier: Identifier,
+        formula: Box<Formula>,
+    },
+    Predicate {
+        identifier: Identifier,
+        identifiers: Vec<Identifier>,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]
@@ -39,10 +57,14 @@ pub struct ParseParams {
 
 impl Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Identifier::Literal(s) => s,
-            Identifier::Element(s) => s,
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Identifier::Literal(s) => s,
+                Identifier::Element(s) => s,
+            }
+        )
     }
 }
 
@@ -59,9 +81,18 @@ impl Display for Formula {
             Formula::Imp { lhs, rhs } => write!(f, "({lhs} -> {rhs})"),
             Formula::True => write!(f, "true"),
             Formula::False => write!(f, "false"),
-            Formula::Forall { identifier, formula } => write!(f, "(forall_{identifier} {formula})"),
-            Formula::Exists { identifier, formula } => write!(f, "(exists_{identifier} {formula})"),
-            Formula::Predicate { identifier, identifiers } => {
+            Formula::Forall {
+                identifier,
+                formula,
+            } => write!(f, "(forall_{identifier} {formula})"),
+            Formula::Exists {
+                identifier,
+                formula,
+            } => write!(f, "(exists_{identifier} {formula})"),
+            Formula::Predicate {
+                identifier,
+                identifiers,
+            } => {
                 let mut s = identifier.to_string();
                 s.push('(');
                 for i in identifiers {

@@ -34,7 +34,12 @@ import ExerciseListElement from "./exerciseListElement";
 import { useDisclosure, useListState } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import Statement from "./statement";
-import { IconCheck, IconInfoCircle, IconPlus, IconReload } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconInfoCircle,
+  IconPlus,
+  IconReload,
+} from "@tabler/icons-react";
 import Formula from "./formula/formula";
 import { Action } from "@dnd-kit/core/dist/store";
 import { showError, showInfo } from "../utils/notifications";
@@ -292,7 +297,7 @@ const GRAMMAR: Array<[string, Array<string>]> = [
   ["Logical not", ["not", "neg", "lnot"]],
   ["Implication", ["->", "to", "rightarrow", "implies", "arrow.r"]],
   ["All quantifier", ["forall"]],
-  ["Exists quantifier", ["exists"]]
+  ["Exists quantifier", ["exists"]],
 ];
 
 const GrammarTooltip: React.FC = (): React.ReactNode => {
@@ -305,15 +310,22 @@ const GrammarTooltip: React.FC = (): React.ReactNode => {
             <List.Item key={name}>
               <Group align="flex-end" gap={8}>
                 <Text>{name}:</Text>
-                {matches.map((match) => <Code lh={1.25} key={match}>{match}</Code>)}
+                {matches.map((match) => (
+                  <Code lh={1.25} key={match}>
+                    {match}
+                  </Code>
+                ))}
               </Group>
             </List.Item>
-          )
+          );
         })}
       </List>
-      <Text>All operators can be optionally prefixed with a <Code lh={1.25}>\</Code> for better LaTeX compatibility</Text>
+      <Text>
+        All operators can be optionally prefixed with a <Code lh={1.25}>\</Code>{" "}
+        for better LaTeX compatibility
+      </Text>
     </Stack>
-  )
-}
+  );
+};
 
 export default ExerciseOverview;

@@ -12,7 +12,7 @@ export type RuleProps = {
 const DerivationRule = ({ rule, highlighted }: RuleProps) => {
   return (
     <Flex className="katex" justify="center" align="flex-end">
-      <Stack gap={0} justify="center" align="center">
+      <Stack gap={5} justify="center" align="center">
         {/* Premises */}
         <Flex gap={"xl"} justify="center" align="flex-end">
           {rule.premises.map((premise, i) => (

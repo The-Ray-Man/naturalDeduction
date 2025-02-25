@@ -16,9 +16,7 @@ pub fn collect_vars(
     predicates: &mut BTreeSet<String>,
 ) {
     match formula {
-        Formula::And { lhs, rhs }
-        | Formula::Or { lhs, rhs }
-        | Formula::Imp { lhs, rhs } => {
+        Formula::And { lhs, rhs } | Formula::Or { lhs, rhs } | Formula::Imp { lhs, rhs } => {
             collect_vars(lhs, bool_vars, predicate_vars, predicates);
             collect_vars(rhs, bool_vars, predicate_vars, predicates);
         }
@@ -30,12 +28,21 @@ pub fn collect_vars(
         // }
         Formula::True | Formula::False => {}
         // Formula::List(btree_set) => panic!("A formula should never contain a list"),
-        Formula::Forall { identifier: Identifier::Element(x), formula }
-        | Formula::Exists { identifier: Identifier::Element(x), formula } => {
+        Formula::Forall {
+            identifier: Identifier::Element(x),
+            formula,
+        }
+        | Formula::Exists {
+            identifier: Identifier::Element(x),
+            formula,
+        } => {
             collect_vars(formula, bool_vars, predicate_vars, predicates);
             predicate_vars.insert(x.to_string());
         }
-        Formula::Predicate { identifier: Identifier::Element(p), identifiers: vec } => {
+        Formula::Predicate {
+            identifier: Identifier::Element(p),
+            identifiers: vec,
+        } => {
             let vars = vec
                 .iter()
                 .map(|x| match x {
@@ -86,7 +93,10 @@ pub fn build_formula<'a>(
         }
         Formula::True => Bool::from_bool(ctx, true),
         Formula::False => Bool::from_bool(ctx, false),
-        Formula::Forall { identifier: Identifier::Element(name), formula } => {
+        Formula::Forall {
+            identifier: Identifier::Element(name),
+            formula,
+        } => {
             let name = pred_vars.get(name).unwrap();
             let f = build_formula(ctx, formula, bools, predicates, pred_vars);
 
@@ -94,7 +104,10 @@ pub fn build_formula<'a>(
 
             forall_formula
         }
-        Formula::Exists { identifier: Identifier::Element(name), formula } => {
+        Formula::Exists {
+            identifier: Identifier::Element(name),
+            formula,
+        } => {
             let name = pred_vars.get(name).unwrap();
             let f = build_formula(ctx, formula, bools, predicates, pred_vars);
 
@@ -102,7 +115,10 @@ pub fn build_formula<'a>(
 
             forall_formula
         }
-        Formula::Predicate { identifier: Identifier::Element(name), identifiers: args } => {
+        Formula::Predicate {
+            identifier: Identifier::Element(name),
+            identifiers: args,
+        } => {
             let predicate = predicates.get(name).unwrap();
             let vars = args
                 .iter()
@@ -132,24 +148,38 @@ pub fn build_implication(statement: Statement) -> Formula {
 
     let lhs = assumptions
         .into_iter()
-        .reduce(|lhs, rhs| Formula::And { lhs: Box::new(lhs.clone()), rhs: Box::new(rhs.clone()) })
+        .reduce(|lhs, rhs| Formula::And {
+            lhs: Box::new(lhs.clone()),
+            rhs: Box::new(rhs.clone()),
+        })
         .unwrap();
 
-    Formula::Imp { lhs: Box::new(lhs), rhs: Box::new(formula) }
+    Formula::Imp {
+        lhs: Box::new(lhs),
+        rhs: Box::new(formula),
+    }
 }
 
-pub fn build_formula_from_node(statement: Statement, premisses : Vec<Statement>) -> Formula {
+pub fn build_formula_from_node(statement: Statement, premisses: Vec<Statement>) -> Formula {
     let conclusion = build_implication(statement);
-    let premisses = premisses.into_iter().map(build_implication).collect::<Vec<_>>();
+    let premisses = premisses
+        .into_iter()
+        .map(build_implication)
+        .collect::<Vec<_>>();
 
     let lhs = premisses
         .into_iter()
-        .reduce(|lhs, rhs| Formula::And { lhs: Box::new(lhs.clone()), rhs: Box::new(rhs.clone()) })
+        .reduce(|lhs, rhs| Formula::And {
+            lhs: Box::new(lhs.clone()),
+            rhs: Box::new(rhs.clone()),
+        })
         .unwrap();
 
-    Formula::Imp { lhs: Box::new(lhs), rhs: Box::new(conclusion) }
+    Formula::Imp {
+        lhs: Box::new(lhs),
+        rhs: Box::new(conclusion),
+    }
 }
-
 
 pub fn check_formula(formula: Formula) -> bool {
     let mut bool_vars = BTreeSet::new();

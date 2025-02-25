@@ -86,7 +86,13 @@ impl LogicParser {
         let (num, f_lhs) =
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
         let (num, r_hs) = LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
-        Ok((num, Formula::And { lhs: Box::new(f_lhs), rhs: Box::new(r_hs) }))
+        Ok((
+            num,
+            Formula::And {
+                lhs: Box::new(f_lhs),
+                rhs: Box::new(r_hs),
+            },
+        ))
     }
 
     fn parse_or(
@@ -99,7 +105,13 @@ impl LogicParser {
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
         let (num, f_rhs) =
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
-        Ok((num, Formula::Or { lhs: Box::new(f_lhs), rhs: Box::new(f_rhs) }))
+        Ok((
+            num,
+            Formula::Or {
+                lhs: Box::new(f_lhs),
+                rhs: Box::new(f_rhs),
+            },
+        ))
     }
 
     fn parse_not(
@@ -135,7 +147,13 @@ impl LogicParser {
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
         let (num, f_rhs) =
             LogicParser::parse_formula(num, pairs.next().unwrap(), captures).unwrap();
-        Ok((num, Formula::Imp { lhs: Box::new(f_lhs), rhs: Box::new(f_rhs) }))
+        Ok((
+            num,
+            Formula::Imp {
+                lhs: Box::new(f_lhs),
+                rhs: Box::new(f_rhs),
+            },
+        ))
     }
 
     fn parse_forall(
@@ -157,7 +175,10 @@ impl LogicParser {
             LogicParser::parse_formula(num + 1, pairs.next().unwrap(), &captures).unwrap();
         Ok((
             num,
-            Formula::Forall { identifier: Identifier::Element(capure_name.to_string()), formula: Box::new(f) },
+            Formula::Forall {
+                identifier: Identifier::Element(capure_name.to_string()),
+                formula: Box::new(f),
+            },
         ))
     }
 
@@ -179,7 +200,10 @@ impl LogicParser {
             LogicParser::parse_formula(num + 1, pairs.next().unwrap(), &captures).unwrap();
         Ok((
             num,
-            Formula::Exists { identifier: Identifier::Element(capure_name.to_string()), formula: Box::new(f) },
+            Formula::Exists {
+                identifier: Identifier::Element(capure_name.to_string()),
+                formula: Box::new(f),
+            },
         ))
     }
 
@@ -201,6 +225,12 @@ impl LogicParser {
                 args.push(Identifier::Element(name.to_string()));
             }
         }
-        Ok((num, Formula::Predicate { identifier: Identifier::Element(name), identifiers: args }))
+        Ok((
+            num,
+            Formula::Predicate {
+                identifier: Identifier::Element(name),
+                identifiers: args,
+            },
+        ))
     }
 }

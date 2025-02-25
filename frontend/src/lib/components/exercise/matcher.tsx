@@ -1,6 +1,7 @@
 "use client";
 import {
   ActionIcon,
+  Box,
   Button,
   ButtonGroup,
   Center,
@@ -195,7 +196,7 @@ const Matcher = () => {
       title="Apply Rule"
     >
       <Group justify={"space-around"}>
-        <Stack className="katex">
+        <Stack className="katex" pt={"md"}>
           <DerivationRule
             rule={current_rule}
             highlighted={
@@ -215,7 +216,12 @@ const Matcher = () => {
         </Stack>
 
         <Stack>
-          <Statement statement={current_node?.statement!} click={handleClick} />
+          <Box pt={"xs"}>
+            <Statement
+              statement={current_node?.statement!}
+              click={handleClick}
+            />
+          </Box>
           <Group>
             <TextInput
               value={value}
