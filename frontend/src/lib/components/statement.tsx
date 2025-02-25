@@ -10,8 +10,8 @@ type StatementProps = {
 
 const Statement = ({ statement, click, textColor }: StatementProps) => {
   return (
-    <Group gap={0}>
-      {statement.lhs.length == 0 && <Text>{"\u2205"}</Text>}
+    <Group className="katex" gap={0}>
+      {statement.lhs.length == 0 && <Text mb={-1}>{"\u2205"}</Text>}
       {/* <Text c={textColor}>{"\u0393"}</Text> */}
       {statement.lhs.map((a, i) => {
         return (

@@ -10,8 +10,10 @@ type FormulaMappingProps = {
 const FormulaMapping = ({ mapping }: FormulaMappingProps) => {
   return (
     <Group gap={3}>
-      <RuleFormula rule={{ Ident: { Formula: mapping.from } }} />
-      <Text>{"\u2261"}</Text>
+      <RuleFormula
+        rule={{ type: "Ident", body: { type: "Formula", value: mapping.from } }}
+      />
+      <Text mt={-1} px={3}>{"\u2261"}</Text>
       <Formula formula={mapping.to} />
     </Group>
   );

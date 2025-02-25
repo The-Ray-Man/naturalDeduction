@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "info": {
     "title": "naturalDeduction",
     "description": "",
@@ -12,7 +12,6 @@
         "tags": ["crate::api::routes"],
         "operationId": "apply_rule",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": { "$ref": "#/components/schemas/ApplyRuleParams" }
@@ -42,7 +41,6 @@
         "tags": ["crate::api::routes"],
         "operationId": "check",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": { "$ref": "#/components/schemas/Statement" }
@@ -83,7 +81,6 @@
         "tags": ["crate::api::routes"],
         "operationId": "create_exercise",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": { "$ref": "#/components/schemas/CreateExerciseRequest" }
@@ -130,7 +127,6 @@
         "tags": ["crate::api::routes"],
         "operationId": "parse",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": { "$ref": "#/components/schemas/ParseParams" }
@@ -203,6 +199,17 @@
           "rhs": { "$ref": "#/components/schemas/Formula" }
         }
       },
+      "CreateTreeRequest": {
+        "type": "object",
+        "required": ["nodes", "root_id"],
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Node" }
+          },
+          "root_id": { "type": "string", "format": "uuid" }
+        }
+      },
       "DerivationRule": {
         "type": "object",
         "required": ["name", "premises", "conclusion"],
@@ -237,94 +244,121 @@
         "oneOf": [
           {
             "type": "object",
-            "required": ["And"],
+            "required": ["body", "type"],
             "properties": {
-              "And": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/Formula" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": {
+                "type": "object",
+                "required": ["lhs", "rhs"],
+                "properties": {
+                  "lhs": { "$ref": "#/components/schemas/Formula" },
+                  "rhs": { "$ref": "#/components/schemas/Formula" }
+                }
+              },
+              "type": { "type": "string", "enum": ["And"] }
             }
           },
           {
             "type": "object",
-            "required": ["Or"],
+            "required": ["body", "type"],
             "properties": {
-              "Or": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/Formula" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": {
+                "type": "object",
+                "required": ["lhs", "rhs"],
+                "properties": {
+                  "lhs": { "$ref": "#/components/schemas/Formula" },
+                  "rhs": { "$ref": "#/components/schemas/Formula" }
+                }
+              },
+              "type": { "type": "string", "enum": ["Or"] }
             }
           },
           {
             "type": "object",
-            "required": ["Not"],
-            "properties": { "Not": { "$ref": "#/components/schemas/Formula" } }
-          },
-          {
-            "type": "object",
-            "required": ["Ident"],
+            "required": ["body", "type"],
             "properties": {
-              "Ident": { "$ref": "#/components/schemas/Identifier" }
+              "body": { "$ref": "#/components/schemas/Formula" },
+              "type": { "type": "string", "enum": ["Not"] }
             }
           },
           {
             "type": "object",
-            "required": ["Imp"],
+            "required": ["body", "type"],
             "properties": {
-              "Imp": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/Formula" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
-            }
-          },
-          { "type": "string", "enum": ["True"] },
-          { "type": "string", "enum": ["False"] },
-          {
-            "type": "object",
-            "required": ["Forall"],
-            "properties": {
-              "Forall": {
-                "type": "array",
-                "items": { "type": "object" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": { "$ref": "#/components/schemas/Identifier" },
+              "type": { "type": "string", "enum": ["Ident"] }
             }
           },
           {
             "type": "object",
-            "required": ["Exists"],
+            "required": ["body", "type"],
             "properties": {
-              "Exists": {
-                "type": "array",
-                "items": { "type": "object" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": {
+                "type": "object",
+                "required": ["lhs", "rhs"],
+                "properties": {
+                  "lhs": { "$ref": "#/components/schemas/Formula" },
+                  "rhs": { "$ref": "#/components/schemas/Formula" }
+                }
+              },
+              "type": { "type": "string", "enum": ["Imp"] }
             }
           },
           {
             "type": "object",
-            "required": ["Predicate"],
+            "required": ["type"],
+            "properties": { "type": { "type": "string", "enum": ["True"] } }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "type": "string", "enum": ["False"] } }
+          },
+          {
+            "type": "object",
+            "required": ["body", "type"],
             "properties": {
-              "Predicate": {
-                "type": "array",
-                "items": { "type": "object" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": {
+                "type": "object",
+                "required": ["identifier", "formula"],
+                "properties": {
+                  "formula": { "$ref": "#/components/schemas/Formula" },
+                  "identifier": { "$ref": "#/components/schemas/Identifier" }
+                }
+              },
+              "type": { "type": "string", "enum": ["Forall"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["body", "type"],
+            "properties": {
+              "body": {
+                "type": "object",
+                "required": ["identifier", "formula"],
+                "properties": {
+                  "formula": { "$ref": "#/components/schemas/Formula" },
+                  "identifier": { "$ref": "#/components/schemas/Identifier" }
+                }
+              },
+              "type": { "type": "string", "enum": ["Exists"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["body", "type"],
+            "properties": {
+              "body": {
+                "type": "object",
+                "required": ["identifier", "identifiers"],
+                "properties": {
+                  "identifier": { "$ref": "#/components/schemas/Identifier" },
+                  "identifiers": {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/Identifier" }
+                  }
+                }
+              },
+              "type": { "type": "string", "enum": ["Predicate"] }
             }
           }
         ]
@@ -341,15 +375,34 @@
         "oneOf": [
           {
             "type": "object",
-            "required": ["Literal"],
-            "properties": { "Literal": { "type": "string" } }
+            "required": ["value", "type"],
+            "properties": {
+              "type": { "type": "string", "enum": ["Literal"] },
+              "value": { "type": "string" }
+            }
           },
           {
             "type": "object",
-            "required": ["Element"],
-            "properties": { "Element": { "type": "string" } }
+            "required": ["value", "type"],
+            "properties": {
+              "type": { "type": "string", "enum": ["Element"] },
+              "value": { "type": "string" }
+            }
           }
         ]
+      },
+      "Node": {
+        "type": "object",
+        "required": ["name", "statement", "rule", "premisses"],
+        "properties": {
+          "name": { "type": "string", "format": "uuid" },
+          "premisses": {
+            "type": "array",
+            "items": { "type": "string", "format": "uuid" }
+          },
+          "rule": { "$ref": "#/components/schemas/Rules" },
+          "statement": { "$ref": "#/components/schemas/Statement" }
+        }
       },
       "ParseParams": {
         "type": "object",
@@ -360,96 +413,125 @@
         "oneOf": [
           {
             "type": "object",
-            "required": ["Ident"],
+            "required": ["body", "type"],
             "properties": {
-              "Ident": { "$ref": "#/components/schemas/RuleIdentifier" }
+              "body": { "$ref": "#/components/schemas/RuleIdentifier" },
+              "type": { "type": "string", "enum": ["Ident"] }
             }
           },
           {
             "type": "object",
-            "required": ["And"],
+            "required": ["body", "type"],
             "properties": {
-              "And": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/RuleIdentifier" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": {
+                "type": "object",
+                "required": ["lhs", "rhs"],
+                "properties": {
+                  "lhs": { "$ref": "#/components/schemas/RuleIdentifier" },
+                  "rhs": { "$ref": "#/components/schemas/RuleIdentifier" }
+                }
+              },
+              "type": { "type": "string", "enum": ["And"] }
             }
           },
           {
             "type": "object",
-            "required": ["Or"],
+            "required": ["body", "type"],
             "properties": {
-              "Or": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/RuleIdentifier" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": {
+                "type": "object",
+                "required": ["lhs", "rhs"],
+                "properties": {
+                  "lhs": { "$ref": "#/components/schemas/RuleIdentifier" },
+                  "rhs": { "$ref": "#/components/schemas/RuleIdentifier" }
+                }
+              },
+              "type": { "type": "string", "enum": ["Or"] }
             }
           },
           {
             "type": "object",
-            "required": ["Not"],
+            "required": ["body", "type"],
             "properties": {
-              "Not": { "$ref": "#/components/schemas/RuleIdentifier" }
+              "body": { "$ref": "#/components/schemas/RuleIdentifier" },
+              "type": { "type": "string", "enum": ["Not"] }
             }
           },
           {
             "type": "object",
-            "required": ["Imp"],
+            "required": ["body", "type"],
             "properties": {
-              "Imp": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/RuleIdentifier" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
-            }
-          },
-          { "type": "string", "enum": ["False"] },
-          { "type": "string", "enum": ["True"] },
-          {
-            "type": "object",
-            "required": ["Forall"],
-            "properties": {
-              "Forall": {
-                "type": "array",
-                "items": { "type": "object" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": {
+                "type": "object",
+                "required": ["lhs", "rhs"],
+                "properties": {
+                  "lhs": { "$ref": "#/components/schemas/RuleIdentifier" },
+                  "rhs": { "$ref": "#/components/schemas/RuleIdentifier" }
+                }
+              },
+              "type": { "type": "string", "enum": ["Imp"] }
             }
           },
           {
             "type": "object",
-            "required": ["Exists"],
+            "required": ["type"],
+            "properties": { "type": { "type": "string", "enum": ["False"] } }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "type": "string", "enum": ["True"] } }
+          },
+          {
+            "type": "object",
+            "required": ["body", "type"],
             "properties": {
-              "Exists": {
-                "type": "array",
-                "items": { "type": "object" },
-                "description": "",
-                "maxItems": 2,
-                "minItems": 2
-              }
+              "body": {
+                "type": "object",
+                "required": ["identifier", "formula"],
+                "properties": {
+                  "formula": { "$ref": "#/components/schemas/RuleFormula" },
+                  "identifier": {
+                    "$ref": "#/components/schemas/RuleIdentifier"
+                  }
+                }
+              },
+              "type": { "type": "string", "enum": ["Forall"] }
             }
           },
           {
             "type": "object",
-            "required": ["Substitution"],
+            "required": ["body", "type"],
             "properties": {
-              "Substitution": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/RuleIdentifier" },
-                "description": "",
-                "maxItems": 3,
-                "minItems": 3
-              }
+              "body": {
+                "type": "object",
+                "required": ["identifier", "formula"],
+                "properties": {
+                  "formula": { "$ref": "#/components/schemas/RuleFormula" },
+                  "identifier": {
+                    "$ref": "#/components/schemas/RuleIdentifier"
+                  }
+                }
+              },
+              "type": { "type": "string", "enum": ["Exists"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["body", "type"],
+            "properties": {
+              "body": {
+                "type": "object",
+                "required": ["identifier", "lhs", "rhs"],
+                "properties": {
+                  "identifier": {
+                    "$ref": "#/components/schemas/RuleIdentifier"
+                  },
+                  "lhs": { "$ref": "#/components/schemas/RuleIdentifier" },
+                  "rhs": { "$ref": "#/components/schemas/RuleIdentifier" }
+                }
+              },
+              "type": { "type": "string", "enum": ["Substitution"] }
             }
           }
         ]
@@ -458,15 +540,19 @@
         "oneOf": [
           {
             "type": "object",
-            "required": ["Formula"],
+            "required": ["value", "type"],
             "properties": {
-              "Formula": { "type": "integer", "format": "int32", "minimum": 0 }
+              "type": { "type": "string", "enum": ["Formula"] },
+              "value": { "type": "integer", "format": "int32", "minimum": 0 }
             }
           },
           {
             "type": "object",
-            "required": ["Element"],
-            "properties": { "Element": { "type": "string" } }
+            "required": ["value", "type"],
+            "properties": {
+              "type": { "type": "string", "enum": ["Element"] },
+              "value": { "type": "string" }
+            }
           }
         ]
       },
@@ -476,8 +562,10 @@
         "properties": {
           "formula": { "$ref": "#/components/schemas/RuleFormula" },
           "lhs": {
-            "allOf": [{ "$ref": "#/components/schemas/RuleIdentifier" }],
-            "nullable": true
+            "oneOf": [
+              { "type": "null" },
+              { "$ref": "#/components/schemas/RuleIdentifier" }
+            ]
           }
         }
       },

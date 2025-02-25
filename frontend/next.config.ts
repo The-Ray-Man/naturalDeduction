@@ -6,5 +6,4 @@ const nextConfig: NextConfig = {
   // basePath: "/~rawick/nd"
 };
 
-
 export default nextConfig;

@@ -231,17 +231,17 @@ pub fn get_sub_formulas(formula: &Formula) -> BTreeSet<Formula> {
 //     if depth == 0 {
 //         return false;
 //     }
-// 
+//
 //     if statement.assumptions.contains(&statement.formula) {
 //         println!("Axiom");
 //         return true;
 //     }
-// 
+//
 //     let possible_rules = rules
 //         .iter()
 //         .filter(|r| can_apply_rule(&statement.formula, r))
 //         .collect::<Vec<_>>();
-// 
+//
 //     println!(
 //         "Possible rules: {:?}",
 //         possible_rules
@@ -249,7 +249,7 @@ pub fn get_sub_formulas(formula: &Formula) -> BTreeSet<Formula> {
 //             .map(|r| r.name.clone())
 //             .collect::<Vec<_>>()
 //     );
-// 
+//
 //     let results = possible_rules
 //         .into_iter()
 //         .map(|r| {
@@ -259,17 +259,17 @@ pub fn get_sub_formulas(formula: &Formula) -> BTreeSet<Formula> {
 //             new_premises
 //         })
 //         .collect::<Vec<_>>();
-// 
+//
 //     let good_results = results
 //         .into_iter()
 //         .filter(|r| r.into_iter().all(|s| is_tautology(s.clone())))
 //         .collect::<Vec<_>>();
-// 
-//     
+//
+//
 //     good_results.iter().any(|r|{
 //         r.iter().all(|s| apply_step(depth-1 ,s.clone(), rules.clone()))
 //     })
-// } 
+// }
 
 
 pub fn all_rules() -> [DerivationRule; 11] {
@@ -278,7 +278,7 @@ pub fn all_rules() -> [DerivationRule; 11] {
             premises: vec![(Some(0), RuleFormula::Ident(1))],
             conclusion: RuleFormula::Imp(0, 1),
         };
-    
+
         let impl_elim = DerivationRule {
             name: "impl_elim".to_string(),
             premises: vec![
@@ -287,55 +287,55 @@ pub fn all_rules() -> [DerivationRule; 11] {
             ],
             conclusion: RuleFormula::Ident(1),
         };
-    
+
         let false_intro = DerivationRule {
             name: "false_intro".to_string(),
             premises: vec![(None, RuleFormula::False)],
             conclusion: RuleFormula::Ident(0),
         };
-    
+
         let not_intro = DerivationRule {
             name: "not_intro".to_string(),
             premises: vec![(Some(0), RuleFormula::False)],
             conclusion: (RuleFormula::Not(0)),
         };
-    
+
         let not_elim = DerivationRule {
             name: "not_elim".to_string(),
             premises: vec![(None, RuleFormula::Not(2)), (None, RuleFormula::Ident(2))],
             conclusion: RuleFormula::Ident(1),
         };
-    
+
         let and_intro = DerivationRule {
             name: "and_intro".to_string(),
             premises: vec![(None, RuleFormula::Ident(0)), (None, RuleFormula::Ident(1))],
             conclusion: (RuleFormula::And(0, 1)),
         };
-    
+
         let and_elim_l = DerivationRule {
             name: "and_elim_l".to_string(),
             premises: vec![(None, RuleFormula::And(0, 1))],
             conclusion: RuleFormula::Ident(0),
         };
-    
+
         let and_elim_r = DerivationRule {
             name: "and_elim_r".to_string(),
             premises: vec![(None, RuleFormula::And(0, 1))],
             conclusion: RuleFormula::Ident(1),
         };
-    
+
         let or_intro_l = DerivationRule {
             name: "or_intro_l".to_string(),
             premises: vec![(None, RuleFormula::Ident(0))],
             conclusion: RuleFormula::Or(0, 1),
         };
-    
+
         let or_intro_r = DerivationRule {
             name: "or_intro_r".to_string(),
             premises: vec![(None, RuleFormula::Ident(1))],
             conclusion: RuleFormula::Or(0, 1),
         };
-    
+
         let or_elim = DerivationRule {
             name: "or_elim".to_string(),
             premises: vec![
@@ -345,7 +345,7 @@ pub fn all_rules() -> [DerivationRule; 11] {
             ],
             conclusion: RuleFormula::Ident(2),
         };
-    
+
         let rules = [
             impl_intro,
             impl_elim,

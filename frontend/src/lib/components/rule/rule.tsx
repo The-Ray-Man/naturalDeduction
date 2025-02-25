@@ -11,7 +11,7 @@ export type RuleProps = {
 
 const DerivationRule = ({ rule, highlighted }: RuleProps) => {
   return (
-    <Flex justify="center" align="flex-end">
+    <Flex className="katex" justify="center" align="flex-end">
       <Stack gap={0} justify="center" align="center">
         {/* Premises */}
         <Flex gap={"xl"} justify="center" align="flex-end">
@@ -24,7 +24,7 @@ const DerivationRule = ({ rule, highlighted }: RuleProps) => {
         {/* Conclusion */}
         <RuleStatement rule={rule.conclusion} highlighted={highlighted} />
       </Stack>
-      <Box pb={"15"} pl={"sm"}>
+      <Box pb={"14"} pl={"sm"}>
         <RuleName name={rule.name} />
       </Box>
     </Flex>

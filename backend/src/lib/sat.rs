@@ -1,11 +1,9 @@
 use core::panic;
-use std::{
-    collections::{BTreeMap, BTreeSet, HashSet},
-    fmt::Arguments,
-};
+use std::collections::{BTreeMap, BTreeSet};
 
+use log::info;
 use z3::{
-    ast::{self, Ast, Bool, Datatype, Dynamic, Int, Set},
+    ast::{self, Bool, Int},
     Config, Context, FuncDecl, SatResult, Solver, Sort,
 };
 
@@ -16,13 +14,13 @@ pub fn collect_vars(
     bool_vars: &mut BTreeSet<String>,
     predicate_vars: &mut BTreeSet<String>,
     predicates: &mut BTreeSet<String>,
-) -> () {
+) {
     match formula {
-        Formula::And(formula, formula1)
-        | Formula::Or(formula, formula1)
-        | Formula::Imp(formula, formula1) => {
-            collect_vars(formula, bool_vars, predicate_vars, predicates);
-            collect_vars(formula1, bool_vars, predicate_vars, predicates);
+        Formula::And { lhs, rhs }
+        | Formula::Or { lhs, rhs }
+        | Formula::Imp { lhs, rhs } => {
+            collect_vars(lhs, bool_vars, predicate_vars, predicates);
+            collect_vars(rhs, bool_vars, predicate_vars, predicates);
         }
         Formula::Not(formula) => {
             collect_vars(formula, bool_vars, predicate_vars, predicates);
@@ -32,14 +30,14 @@ pub fn collect_vars(
         // }
         Formula::True | Formula::False => {}
         // Formula::List(btree_set) => panic!("A formula should never contain a list"),
-        Formula::Forall(Identifier::Element(x), formula)
-        | Formula::Exists(Identifier::Element(x), formula) => {
+        Formula::Forall { identifier: Identifier::Element(x), formula }
+        | Formula::Exists { identifier: Identifier::Element(x), formula } => {
             collect_vars(formula, bool_vars, predicate_vars, predicates);
             predicate_vars.insert(x.to_string());
         }
-        Formula::Predicate(Identifier::Element(p), vec) => {
+        Formula::Predicate { identifier: Identifier::Element(p), identifiers: vec } => {
             let vars = vec
-                .into_iter()
+                .iter()
                 .map(|x| match x {
                     Identifier::Element(x) => x.to_string(),
                     _ => panic!("Should never happen"),
@@ -63,12 +61,12 @@ pub fn build_formula<'a>(
     pred_vars: &'a BTreeMap<String, Int<'a>>,
 ) -> Bool<'a> {
     match formula {
-        Formula::And(lhs, rhs) => {
+        Formula::And { lhs, rhs } => {
             let lhs = build_formula(ctx, lhs, bools, predicates, pred_vars);
             let rhs = build_formula(ctx, rhs, bools, predicates, pred_vars);
             Bool::and(ctx, &[&lhs, &rhs])
         }
-        Formula::Or(lhs, rhs) => {
+        Formula::Or { lhs, rhs } => {
             let lhs = build_formula(ctx, lhs, bools, predicates, pred_vars);
             let rhs = build_formula(ctx, rhs, bools, predicates, pred_vars);
             Bool::or(ctx, &[&lhs, &rhs])
@@ -81,14 +79,14 @@ pub fn build_formula<'a>(
             let bool = bools.get(name).unwrap();
             bool.clone()
         }
-        Formula::Imp(lhs, rhs) => {
+        Formula::Imp { lhs, rhs } => {
             let lhs = build_formula(ctx, lhs, bools, predicates, pred_vars);
             let rhs = build_formula(ctx, rhs, bools, predicates, pred_vars);
             lhs.implies(&rhs)
         }
         Formula::True => Bool::from_bool(ctx, true),
         Formula::False => Bool::from_bool(ctx, false),
-        Formula::Forall(Identifier::Element(name), formula) => {
+        Formula::Forall { identifier: Identifier::Element(name), formula } => {
             let name = pred_vars.get(name).unwrap();
             let f = build_formula(ctx, formula, bools, predicates, pred_vars);
 
@@ -96,7 +94,7 @@ pub fn build_formula<'a>(
 
             forall_formula
         }
-        Formula::Exists(Identifier::Element(name), formula) => {
+        Formula::Exists { identifier: Identifier::Element(name), formula } => {
             let name = pred_vars.get(name).unwrap();
             let f = build_formula(ctx, formula, bools, predicates, pred_vars);
 
@@ -104,17 +102,17 @@ pub fn build_formula<'a>(
 
             forall_formula
         }
-        Formula::Predicate(Identifier::Element(name), args) => {
+        Formula::Predicate { identifier: Identifier::Element(name), identifiers: args } => {
             let predicate = predicates.get(name).unwrap();
             let vars = args
-                .into_iter()
+                .iter()
                 .map(|var| match var {
                     Identifier::Element(x) => pred_vars.get(x).unwrap(),
                     _ => panic!("Should never happen"),
                 })
                 .collect::<Vec<_>>();
 
-            let first = vars.get(0).unwrap();
+            let first = vars.first().unwrap();
             let argument = first.to_owned();
             let result = predicate.apply(&[argument]);
             result.as_bool().unwrap()
@@ -126,7 +124,7 @@ pub fn build_formula<'a>(
 pub fn build_implication(statement: Statement) -> Formula {
     let assumptions = statement.lhs;
 
-    if assumptions.len() == 0 {
+    if assumptions.is_empty() {
         return statement.formula;
     }
 
@@ -134,25 +132,22 @@ pub fn build_implication(statement: Statement) -> Formula {
 
     let lhs = assumptions
         .into_iter()
-        .reduce(|lhs, rhs| Formula::And(Box::new(lhs.clone()), Box::new(rhs.clone())))
+        .reduce(|lhs, rhs| Formula::And { lhs: Box::new(lhs.clone()), rhs: Box::new(rhs.clone()) })
         .unwrap();
 
-    let implication = Formula::Imp(Box::new(lhs), Box::new(formula));
-
-    implication
+    Formula::Imp { lhs: Box::new(lhs), rhs: Box::new(formula) }
 }
 
 pub fn build_formula_from_node(statement: Statement, premisses : Vec<Statement>) -> Formula {
     let conclusion = build_implication(statement);
-    let premisses = premisses.into_iter().map(|s| build_implication(s)).collect::<Vec<_>>();
+    let premisses = premisses.into_iter().map(build_implication).collect::<Vec<_>>();
 
     let lhs = premisses
         .into_iter()
-        .reduce(|lhs, rhs| Formula::And(Box::new(lhs.clone()), Box::new(rhs.clone())))
+        .reduce(|lhs, rhs| Formula::And { lhs: Box::new(lhs.clone()), rhs: Box::new(rhs.clone()) })
         .unwrap();
 
-    let implication = Formula::Imp(Box::new(lhs), Box::new(conclusion));
-    return implication;
+    Formula::Imp { lhs: Box::new(lhs), rhs: Box::new(conclusion) }
 }
 
 
@@ -177,28 +172,28 @@ pub fn check_formula(formula: Formula) -> bool {
     let mut predicates = BTreeMap::new();
 
     for p in predicate_names {
-        let func = FuncDecl::new(&ctx, p.clone(), &[&domain_sort], &bool_sort);
+        let func = FuncDecl::new(ctx, p.clone(), &[&domain_sort], &bool_sort);
         predicates.insert(p, func);
     }
 
     let mut bools = BTreeMap::new();
     for v in bool_vars {
-        let func = Bool::new_const(&ctx, v.clone());
+        let func = Bool::new_const(ctx, v.clone());
         bools.insert(v, func);
     }
 
     let mut pred_vars = BTreeMap::new();
-    for (i, name) in predicate_vars.into_iter().enumerate() {
+    for name in predicate_vars.into_iter() {
         let variable = ast::Int::new_const(ctx, name.clone());
         pred_vars.insert(name, variable);
     }
 
-    let formula = build_formula(&ctx, &formula, &bools, &predicates, &pred_vars);
+    let formula = build_formula(ctx, &formula, &bools, &predicates, &pred_vars);
 
-    let solver = Solver::new(&ctx);
+    let solver = Solver::new(ctx);
     solver.assert(&formula.not());
     let result = solver.check();
-    println!("{:?}", result);
+    info!("{:?}", result);
 
     result == SatResult::Unsat
 }

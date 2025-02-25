@@ -13,15 +13,20 @@ import {
   Predicate,
 } from "./formula_parts";
 import { useHover } from "@mantine/hooks";
+import { useMemo } from "react";
 
-export type FormulaProps = {
-  formula: FormulaType;
+export type FormulaProps<T extends FormulaType["type"]> = {
+  formula: FormulaType & { type: T };
   highlighted?: number;
   click?: (f: FormulaType) => void;
   textColor?: string;
 };
 
-const Formula = ({ formula, click, textColor }: FormulaProps) => {
+const Formula = ({
+  formula,
+  click,
+  textColor,
+}: FormulaProps<FormulaType["type"]>) => {
   const chooseFormula = (event: any) => {
     event.stopPropagation();
     if (click) {
@@ -29,53 +34,39 @@ const Formula = ({ formula, click, textColor }: FormulaProps) => {
     }
   };
 
-  let inner = undefined;
-  if (formula.hasOwnProperty("And")) {
-    inner = <And formula={formula} click={click} textColor={textColor} />;
-  }
-
-  if (formula.hasOwnProperty("Or")) {
-    inner = <Or formula={formula} click={click} textColor={textColor} />;
-  }
-
-  if (formula.hasOwnProperty("Not")) {
-    inner = <Not formula={formula} click={click} textColor={textColor} />;
-  }
-
-  if (formula.hasOwnProperty("Ident")) {
-    inner = (
-      <Identifier formula={formula} click={click} textColor={textColor} />
-    );
-  }
-
-  if (formula.hasOwnProperty("Imp")) {
-    inner = (
-      <Implication formula={formula} click={click} textColor={textColor} />
-    );
-  }
-
-  if (formula === "True") {
-    inner = <True formula={formula} click={click} textColor={textColor} />;
-  }
-
-  if (formula === "False") {
-    inner = <False formula={formula} click={click} textColor={textColor} />;
-  }
-
-  if (formula.hasOwnProperty("Forall")) {
-    inner = <Forall formula={formula} click={click} textColor={textColor} />;
-  }
-
-  if (formula.hasOwnProperty("Exists")) {
-    inner = <Exists formula={formula} click={click} textColor={textColor} />;
-  }
-
-  if (formula.hasOwnProperty("Predicate")) {
-    inner = <Predicate formula={formula} click={click} textColor={textColor} />;
-  }
+  const inner = useMemo(() => {
+    switch (formula.type) {
+      case "And":
+        return <And formula={formula} click={click} textColor={textColor} />;
+      case "Or":
+        return <Or formula={formula} click={click} textColor={textColor} />;
+      case "Not":
+        return <Not formula={formula} click={click} textColor={textColor} />;
+      case "Ident":
+        return (
+          <Identifier formula={formula} click={click} textColor={textColor} />
+        );
+      case "Imp":
+        return (
+          <Implication formula={formula} click={click} textColor={textColor} />
+        );
+      case "True":
+        return <True formula={formula} click={click} textColor={textColor} />;
+      case "False":
+        return <False formula={formula} click={click} textColor={textColor} />;
+      case "Forall":
+        return <Forall formula={formula} click={click} textColor={textColor} />;
+      case "Exists":
+        return <Exists formula={formula} click={click} textColor={textColor} />;
+      case "Predicate":
+        return (
+          <Predicate formula={formula} click={click} textColor={textColor} />
+        );
+    }
+  }, [formula, click, textColor]);
 
   return (
-    <Group onClick={chooseFormula} gap={0}>
+    <Group className="katex" onClick={chooseFormula} gap={0}>
       {inner}
     </Group>
   );

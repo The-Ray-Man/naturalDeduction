@@ -5,7 +5,6 @@ dotenv.config({ path: ".env" });
 
 const baseurl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/";
 
-
 export default defineConfig({
   nethmap: {
     output: {

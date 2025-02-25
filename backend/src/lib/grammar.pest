@@ -10,17 +10,17 @@ list_succ = _{ comma ~ var }
 list_start = _{w ~ var | var}
 list = { list_start ~ list_succ*  }
 
-true_ = {"true"}
-false_ = {"false"}
-or_ = _{"or"}
-and_ = _{"and"}
-not_ = _{"not"}
-arrow_ = _{"->"}
-forall_ = {"forall"}
-exists_ = {"exists"}
+true_ = {"\\"? ~ ("true" | "top")}
+false_ = {"\\"? ~ ("false" | "bot")}
+or_ = _{"\\"? ~ ("or" | "lor")}
+and_ = _{"\\"? ~ ("and" | "land")}
+not_ = _{"\\"? ~ ("not" | "neg" | "lnot")}
+arrow_ = _{"\\"? ~ ("->" | "to" | "rightarrow" | "implies" | "arrow.r")}
+forall_ = {"\\"? ~ "forall"}
+exists_ = {"\\"? ~ "exists"}
 
 predicate = {elem ~ "(" ~ list ~ ")"}
- 
+
 
 forall = {forall_ ~ "_" ~ elem ~ w ~ (expr | b_expr)}
 exists = {exists_ ~ "_" ~ elem ~ w ~ (expr | b_expr)}

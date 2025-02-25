@@ -2,7 +2,6 @@
 // mod latex;
 mod parsing;
 // mod derivation;
-use std::collections::{BTreeMap, BTreeSet};
 mod sat;
 // use derivation::{apply_rule, apply_step, Stmt};
 // use latex::toLatex;

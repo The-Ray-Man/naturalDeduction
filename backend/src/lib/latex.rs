@@ -1,42 +1,65 @@
-use crate::{derivation::Stmt, Formula};
+use crate::api::{exercise_models::Exercise, formula_models::{Formula, Statement}};
 
-pub trait toLatex {
-    fn to_latex(&self) -> String;
+use serde::Serialize;
+use utoipa::ToSchema;
+
+#[derive(ToSchema, Serialize)]
+pub struct Latex<T> where T: Serialize + ToLatex + ToSchema {
+    data: T,
+    latex: String
 }
 
-impl toLatex for Formula {
-    fn to_latex(&self) -> String {
+impl<T> From<T> for Latex<T> where T: Serialize + ToLatex + ToSchema {
+    fn from(value: T) -> Self {
+        Self { latex: value.to_latex_str(), data: value }
+    }
+}
+
+pub trait ToLatex: Serialize + Sized + ToSchema {
+    fn to_latex_str(&self) -> String;
+    fn to_latex(self) -> Latex<Self> {
+        Latex { latex: self.to_latex_str(), data: self }
+    }
+}
+
+impl ToLatex for Formula {
+    fn to_latex_str(&self) -> String {
         match self {
-            Formula::And(f1, f2) => format!("({} \\land {})", f1.to_latex(), f2.to_latex()),
-            Formula::Or(f1, f2) => format!("({} \\lor {})", f1.to_latex(), f2.to_latex()),
-            Formula::Not(f) => format!("\\lnot {}", f.to_latex()),
-            Formula::Lit(l) => l.to_string(),
-            Formula::Imp(f1, f2) => format!("({} \\rightarrow {})", f1.to_latex(), f2.to_latex()),
+            Formula::And { lhs, rhs } => format!("({} \\land {})", lhs.to_latex_str(), rhs.to_latex_str()),
+            Formula::Or { lhs, rhs } => format!("({} \\lor {})", lhs.to_latex_str(), rhs.to_latex_str()),
+            Formula::Not(f) => format!("\\lnot {}", f.to_latex_str()),
+            Formula::Imp { lhs, rhs } => format!("({} \\rightarrow {})", lhs.to_latex_str(), rhs.to_latex_str()),
             Formula::True => "\\top".to_string(),
             Formula::False => "\\bot".to_string(),
-            Formula::List(btree_set) => panic!("A formula should never contain a list"),
-            Formula::Forall(x, f) => format!("\\forall_{} {}", x, f.to_latex()),
-            Formula::Exists(x, f) => format!("\\exists_{} {}", x, f.to_latex()),
-            Formula::Predicate(p, vec) => {
-                let vars = vec
-                    .into_iter()
+            Formula::Forall { identifier, formula } => format!("\\forall_{} {}", identifier, formula.to_latex_str()),
+            Formula::Exists { identifier, formula } => format!("\\exists_{} {}", identifier, formula.to_latex_str()),
+            Formula::Predicate { identifier, identifiers } => {
+                let vars = identifiers
+                    .iter()
                     .map(|x| x.to_string())
                     .collect::<Vec<_>>()
                     .join(", ");
-                format!("{}({})", p, vars)
+                format!("{}({})", identifier, vars)
             }
+            Formula::Ident(identifier) => identifier.to_string(),
         }
     }
 }
 
-impl toLatex for Stmt {
-    fn to_latex(&self) -> String {
+impl ToLatex for Statement {
+    fn to_latex_str(&self) -> String {
         let assumptions = self
-            .assumptions
+            .lhs
             .iter()
-            .map(|a| a.to_latex())
+            .map(|a| a.to_latex_str())
             .collect::<Vec<_>>()
             .join(", ");
-        format!("{} \\vDash {}", assumptions, self.formula.to_latex())
+        format!("{} \\vDash {}", assumptions, self.formula.to_latex_str())
+    }
+}
+
+impl ToLatex for Exercise {
+    fn to_latex_str(&self) -> String {
+        self.exercise.to_latex_str()
     }
 }

@@ -3,15 +3,15 @@ import { IconBrandGithub, IconHeart } from "@tabler/icons-react";
 
 const Footer = () => {
   return (
-    <SimpleGrid cols={3} h={"50"}>
+    <SimpleGrid px={"md"} cols={3} h={"50"}>
       <div></div>
       <Center>
         <Text pe={"xs"}>Made with ❤️ by The-Ray-Man</Text>
       </Center>
       <Flex justify={"end"} align={"center"}>
-        <a href="https://github.com/The-Ray-Man/naturlaDeduction">
+        <a href="https://github.com/The-Ray-Man/naturalDeduction">
           <ActionIcon>
-            <IconBrandGithub size={24} />
+            <IconBrandGithub />
           </ActionIcon>
         </a>
       </Flex>

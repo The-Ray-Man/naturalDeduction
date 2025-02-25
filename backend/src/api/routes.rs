@@ -1,8 +1,8 @@
-use axum::body::Body;
-use axum::extract::{Path, Query, State};
+use axum::extract::{Path, State};
 use axum::Json;
-use sea_orm::{ActiveModelTrait, ConnectionTrait, PaginatorTrait, QueryFilter, Related};
-use std::collections::{BTreeMap, HashMap};
+use log::info;
+use sea_orm::{ActiveModelTrait, QueryFilter};
+use std::collections::BTreeMap;
 use uuid::Uuid;
 
 use crate::db::*;
@@ -10,11 +10,11 @@ use crate::error::{BackendError, BackendResult};
 use crate::AppState;
 use sea_orm::EntityTrait;
 
-use super::exercise_models::{CreateExerciseRequest, CreateTreeRequest, Exercise};
+use super::exercise_models::{CreateExerciseRequest, Exercise};
 use super::formula_models::{Formula, ParseParams, Statement};
 use super::models::ApplyRuleParams;
 use super::rule_models::{DerivationRule, RuleIdentifier, Rules};
-use super::utils::{apply_rule as utils_apply_rule, check_tree};
+use super::utils::apply_rule as utils_apply_rule;
 use crate::lib::{is_tautology, LogicParser};
 use sea_orm::ColumnTrait;
 
@@ -28,7 +28,7 @@ use sea_orm::ColumnTrait;
 )]
 pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exercise>>> {
     let exercises = exercise::Entity::find().all(&state.db).await?;
-    println!("{:?}", exercises);
+    info!("{:?}", exercises);
 
     let mut result = Vec::new();
     for e in exercises.iter() {
@@ -128,11 +128,11 @@ pub async fn get_exercise(
         return Err(BackendError::BadRequest(err));
     }
 
-    if (statement.lhs == "") {
-        return Ok(Json(Statement {
+    if statement.lhs.is_empty() {
+        Ok(Json(Statement {
             lhs: vec![],
             formula: rhs.unwrap(),
-        }));
+        }))
     } else {
         let lhs = statement.lhs.split(':').collect::<Vec<&str>>();
 
@@ -153,10 +153,10 @@ pub async fn get_exercise(
             ));
         }
 
-        return Ok(Json(Statement {
+        Ok(Json(Statement {
             lhs: lhs.unwrap(),
             formula: rhs.unwrap(),
-        }));
+        }))
     }
 
     // let result = exercises.iter().filter_map(|e| {
@@ -240,19 +240,18 @@ pub async fn create_exercise(
             .one(&state.db)
             .await?;
         match ex {
-            Some(ex) => {
+            Some(_) => {
                 return Err(BackendError::BadRequest(
                     "This exercise already exists".to_string(),
                 ))
             }
             None => {
-                let exercise = exercise::ActiveModel {
+                exercise::ActiveModel {
                     dislikes: sea_orm::ActiveValue::Set(0),
                     likes: sea_orm::ActiveValue::Set(0),
                     statement_id: sea_orm::ActiveValue::Set(stmt.id),
                     ..Default::default()
-                };
-                exercise
+                }
             }
         }
     } else {
@@ -264,14 +263,12 @@ pub async fn create_exercise(
 
         let statement = node.save(&state.db).await?;
 
-        let exercise = exercise::ActiveModel {
+        exercise::ActiveModel {
             dislikes: sea_orm::ActiveValue::Set(0),
             likes: sea_orm::ActiveValue::Set(0),
             statement_id: statement.id,
             ..Default::default()
-        };
-
-        exercise
+        }
     };
     let _ = exercise.save(&state.db).await?;
 
@@ -355,7 +352,7 @@ pub async fn apply_rule(query: Json<ApplyRuleParams>) -> BackendResult<Json<Vec<
 )]
 pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
     let result = is_tautology(query.0.clone());
-    println!("{:?} is a tautology: {}", query.0, result);
+    info!("{:?} is a tautology: {}", query.0, result);
     Ok(Json(result))
 }
 
