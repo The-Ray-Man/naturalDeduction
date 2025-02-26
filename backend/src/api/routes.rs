@@ -41,10 +41,10 @@ pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exe
         }
         let exercise = exercise.unwrap();
         let formula = serde_json::from_str::<Formula>(&exercise.rhs)
-            .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
+            .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
         let lhs = serde_json::from_str::<Vec<Formula>>(&exercise.lhs)
-            .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
+            .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
         result.push(Exercise {
             id: e.id,
@@ -92,10 +92,10 @@ pub async fn get_exercise(
 
     let statement = statement.unwrap();
     let formula = serde_json::from_str::<Formula>(&statement.rhs)
-        .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
+        .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
     let lhs = serde_json::from_str::<Vec<Formula>>(&statement.lhs)
-        .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
+        .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
     let exercise = Statement {
         formula: formula,
@@ -134,9 +134,9 @@ pub async fn create_exercise(
     };
 
     let rhs = serde_json::to_string(&query.rhs)
-        .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
+        .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
     let lhs = serde_json::to_string(&query.lhs)
-        .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
+        .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
     let exists = statement::Entity::find()
         .filter(statement::Column::Lhs.eq(&lhs))

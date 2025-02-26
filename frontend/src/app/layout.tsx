@@ -19,6 +19,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Notifications } from "@mantine/notifications";
 import Footer from "@/lib/components/footer";
 import Header from "@/lib/components/header";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
