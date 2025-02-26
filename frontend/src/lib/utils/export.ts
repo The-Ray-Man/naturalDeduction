@@ -34,7 +34,7 @@ function formulaToTypst(formula: Formula): string {
     case "Imp": return `${formulaToTypst(formula.body.lhs)} arrow.r ${formulaToTypst(formula.body.rhs)}`
     case "True": return "top"
     case "False": return "bot"
-    case "Forall": return `formall ${formulaToTypst({ type: "Ident", body: formula.body.identifier })}. ${formulaToTypst(formula.body.formula)}`
+    case "Forall": return `forall ${formulaToTypst({ type: "Ident", body: formula.body.identifier })}. ${formulaToTypst(formula.body.formula)}`
     case "Exists": return `exists ${formulaToTypst({ type: "Ident", body: formula.body.identifier })}. ${formulaToTypst(formula.body.formula)}`
     case "Predicate": {
       const vars = formula.body.identifiers.map(id => id.value).join(", ");
