@@ -51,7 +51,7 @@ impl LogicParser {
         pair: Pair<Rule>,
         captures: &BTreeMap<&str, String>,
     ) -> Result<(u32, Formula), String> {
-        return Ok((num, Formula::True));
+        Ok((num, Formula::True))
     }
 
     fn parse_false(
@@ -59,7 +59,7 @@ impl LogicParser {
         pair: Pair<Rule>,
         captures: &BTreeMap<&str, String>,
     ) -> Result<(u32, Formula), String> {
-        return Ok((num, Formula::False));
+        Ok((num, Formula::False))
     }
 
     fn parse_literal(
@@ -234,8 +234,8 @@ impl LogicParser {
         let name = pairs.next().unwrap().as_str().to_string();
         info!("name: {}", name);
         let mut args = Vec::new();
-        let mut arguments = pairs.next().unwrap().into_inner();
-        while let Some(arg) = arguments.next() {
+        let arguments = pairs.next().unwrap().into_inner();
+        for arg in arguments {
             let name = arg.as_str();
             if let Some(capture_name) = captures.get(name) {
                 args.push(Identifier::Element(capture_name.to_string()));
