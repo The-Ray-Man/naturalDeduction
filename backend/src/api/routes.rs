@@ -2,7 +2,6 @@ use axum::extract::{Path, State};
 use axum::Json;
 use log::info;
 use sea_orm::{ActiveModelTrait, QueryFilter};
-use serde::Serialize;
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
@@ -51,8 +50,8 @@ pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exe
             likes: e.likes,
             dislikes: e.dislikes,
             exercise: Statement {
-                lhs: lhs,
-                formula: formula,
+                lhs,
+                formula,
             },
         });
     }
@@ -98,8 +97,8 @@ pub async fn get_exercise(
         .map_err(|e| BackendError::BadRequest("failed to serialize".to_string()))?;
 
     let exercise = Statement {
-        formula: formula,
-        lhs: lhs,
+        formula,
+        lhs,
     };
 
     Ok(Json(exercise))
