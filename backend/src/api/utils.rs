@@ -326,7 +326,8 @@ impl Rules {
             },
         };
 
-        let rules = [
+        
+        [
             ax,
             impl_intro,
             impl_elim,
@@ -345,16 +346,15 @@ impl Rules {
             exists_elim,
             alpha_forall,
             alpha_exists,
-        ];
-        return rules;
+        ]
     }
     pub fn get_rule(&self) -> DerivationRule {
         let all_rules = Rules::all_rules();
-        let rule = all_rules
+        
+        all_rules
             .into_iter()
             .find(|rule| rule.name == *self)
-            .unwrap();
-        rule
+            .unwrap()
     }
 }
 
@@ -419,7 +419,7 @@ pub fn apply_mapping(
             identifier,
             formula,
         } => {
-            let f = apply_mapping(&formula, mapping, substitution)?;
+            let f = apply_mapping(formula, mapping, substitution)?;
             let i = substitution.get(identifier);
             if i.is_none() {
                 return Err(BackendError::BadRequest(
@@ -436,7 +436,7 @@ pub fn apply_mapping(
             identifier,
             formula,
         } => {
-            let f = apply_mapping(&formula, mapping, substitution)?;
+            let f = apply_mapping(formula, mapping, substitution)?;
             // let f = get_formula(&**f, mapping)?;
             let i = substitution.get(identifier);
             if i.is_none() {
@@ -457,8 +457,8 @@ pub fn apply_mapping(
         } => {
             let f = get_formula(identifier, mapping)?;
             info!("{:?}", substitution);
-            let from = substitution.get(&lhs);
-            let to = substitution.get(&rhs);
+            let from = substitution.get(lhs);
+            let to = substitution.get(rhs);
             if let (Some(from), Some(to)) = (from, to) {
                 apply_substitution(f, from, to, BTreeSet::new())
             } else {
@@ -491,7 +491,7 @@ pub fn apply_substitution(
         Formula::Ident(identifier) => {
             let new_name = match identifier.clone() {
                 Identifier::Element(s) | Identifier::Literal(s) => {
-                    if s == from.to_string() {
+                    if s == *from {
                         if captured.contains(to) {
                             return Err(BackendError::BadRequest(
                                 "Substitution results in Capture of variable".to_string(),
@@ -553,7 +553,7 @@ pub fn apply_substitution(
                 .into_iter()
                 .map(|i| match i {
                     Identifier::Element(s) | Identifier::Literal(s) => {
-                        if s == from.to_string() {
+                        if s == *from {
                             if captured.contains(to) {
                                 return Err(BackendError::BadRequest(
                                     "Substitution results in Capture of variable".to_string(),
@@ -570,6 +570,66 @@ pub fn apply_substitution(
                 identifier,
                 identifiers: new_identifiers,
             })
+        }
+    }
+}
+
+pub fn can_contain_every_free_variable(formula: &Formula) -> BackendResult<bool> {
+    match formula {
+        Formula::And { lhs, rhs } | Formula::Or { lhs, rhs } | Formula::Imp { lhs, rhs } => {
+            Ok(can_contain_every_free_variable(lhs)? || can_contain_every_free_variable(rhs)?)
+        }
+        Formula::Ident(identifier) => Ok(true),
+        Formula::False | Formula::True => Ok(false),
+        Formula::Not(formula) => can_contain_every_free_variable(formula),
+        Formula::Exists {
+            identifier,
+            formula,
+        }
+        | Formula::Forall {
+            identifier,
+            formula,
+        } => can_contain_every_free_variable(formula),
+        Formula::Predicate {
+            identifier,
+            identifiers,
+        } => Ok(false),
+    }
+}
+
+pub fn get_all_captures(formula: &Formula) -> BackendResult<BTreeSet<String>> {
+    match formula {
+        Formula::And { lhs, rhs } | Formula::Imp { lhs, rhs } | Formula::Or { lhs, rhs } => {
+            let lhs = get_all_captures(lhs)?;
+            let rhs = get_all_captures(rhs)?;
+            let res = lhs.intersection(&rhs).cloned().collect::<BTreeSet<_>>();
+            Ok(res)
+        }
+        Formula::True
+        | Formula::False
+        | Formula::Predicate {
+            identifier: _,
+            identifiers: _,
+        }
+        | Formula::Ident(_) => Ok(BTreeSet::new()),
+        Formula::Not(formula) => get_all_captures(formula),
+        Formula::Forall {
+            identifier,
+            formula,
+        }
+        | Formula::Exists {
+            identifier,
+            formula,
+        } => {
+            if let Identifier::Element(name) = identifier {
+                let mut captured = BTreeSet::new();
+                captured.insert(name.clone());
+                let sub = get_all_captures(formula)?;
+                captured.extend(sub);
+                Ok(captured)
+            } else {
+                Err(BackendError::BadRequest("malformed formula".to_string()))
+            }
         }
     }
 }
@@ -622,7 +682,7 @@ pub fn get_free_vars(
         }
         Formula::Predicate { identifiers, .. } => {
             let free = identifiers
-                .into_iter()
+                .iter()
                 .filter_map(|i| match i {
                     Identifier::Element(s) => {
                         if captured.contains(s) {
@@ -637,6 +697,36 @@ pub fn get_free_vars(
             Ok(free)
         }
     }
+}
+
+fn check_not_free_condition(formulas: Vec<&Formula>, var: &String) -> BackendResult<()> {
+    let free_vars = formulas
+        .iter()
+        .flat_map(|f| get_free_vars(f, BTreeSet::new()))
+        .fold(BTreeSet::new(), |mut acc, i| {
+            acc.extend(i);
+            acc
+        });
+    if free_vars.contains(var) {
+        return Err(BackendError::BadRequest(
+            "The variable must not be free in any formula of the lhs".to_string(),
+        ));
+    }
+
+    for f in formulas {
+        let everything_free = can_contain_every_free_variable(f)?;
+        if everything_free {
+            let captured = get_all_captures(f)?;
+            if !captured.contains(var) {
+                return Err(BackendError::BadRequest(format!(
+                    "In {} the variable {} could occure freely",
+                    f,
+                    var
+                )));
+            }
+        }
+    }
+    Ok(())
 }
 
 pub fn legal_rule(
@@ -662,7 +752,7 @@ pub fn legal_rule(
             "The rule is not applicable".to_string(),
         )),
     };
-    let _ = res?;
+    res?;
 
     // Check sideconditions
 
@@ -685,45 +775,25 @@ pub fn legal_rule(
                 ..
             } = target.formula.clone()
             {
-                let free_vars = get_free_vars(&target.formula, BTreeSet::new())?;
-                if free_vars.contains(&i) {
-                    return Err(BackendError::BadRequest(
-                        "The variable must not be free in any formula of the lhs".to_string(),
-                    ));
-                }
+                check_not_free_condition(target.lhs.iter().collect(), &i)?
             }
         }
         Rules::ExistsElim => {
-            if let Some(rule_exists) = rule.premises.get(0) {
+            if let Some(rule_exists) = rule.premises.first() {
                 if let RuleFormula::Exists { identifier, .. } = &rule_exists.formula {
                     let chosen = substitution
-                        .get(&identifier)
+                        .get(identifier)
                         .ok_or(BackendError::BadRequest(
                             "Could not find the exists identifier in the substitution".to_string(),
                         ))?;
-                    let free_vars = get_free_vars(&target.formula, BTreeSet::new())?;
-                    let lhs_free_vars = target.lhs.iter().fold(
-                        Ok(BTreeSet::new()),
-                        |acc: Result<BTreeSet<String>, BackendError>, elem: &Formula| {
-                            let acc = acc?;
-                            let free = get_free_vars(elem, BTreeSet::new());
-                            match free {
-                                Ok(free) => Ok(acc.union(&free).cloned().collect()),
-                                Err(err) => Err(err),
-                            }
-                        },
-                    )?;
-                    if free_vars.contains(chosen) || lhs_free_vars.contains(chosen) {
-                        return Err(BackendError::BadRequest(
-                            "The chosen variable must not be free in the target formula"
-                                .to_string(),
-                        ));
-                    }
+                    let mut formulas = target.lhs.clone();
+                    formulas.push(target.formula.clone());
+                    check_not_free_condition(formulas.iter().collect(), chosen)?
                 }
             }
         }
         Rules::AlphaExists => {
-            if let Some(rule_exists) = rule.premises.get(0) {
+            if let Some(rule_exists) = rule.premises.first() {
                 if let RuleFormula::Exists { formula, .. } = rule_exists.formula.clone() {
                     if let RuleFormula::Substitution {
                         lhs: from, rhs: to, ..
@@ -749,7 +819,7 @@ pub fn legal_rule(
             }
         }
         Rules::AlphaForall => {
-            if let Some(rule_forall) = rule.premises.get(0) {
+            if let Some(rule_forall) = rule.premises.first() {
                 if let RuleFormula::Forall { formula, .. } = rule_forall.formula.clone() {
                     if let RuleFormula::Substitution {
                         lhs: RuleIdentifier::Element(_),
@@ -779,7 +849,7 @@ pub fn apply_rule(
     mapping: &mut BTreeMap<RuleIdentifier, Formula>,
     substitution: &mut BTreeMap<RuleIdentifier, String>,
 ) -> BackendResult<Vec<Statement>> {
-    let _ = legal_rule(&target, &rule, substitution)?;
+    legal_rule(&target, &rule, substitution)?;
 
     if let RuleFormula::Substitution {
         identifier,
@@ -787,17 +857,17 @@ pub fn apply_rule(
         rhs: to_ident,
     } = &rule.conclusion.formula
     {
-        let formula = get_formula(&identifier, mapping)?;
+        let formula = get_formula(identifier, mapping)?;
         let from = substitution
-            .get(&from_ident)
+            .get(from_ident)
             .ok_or(BackendError::BadRequest(
                 "Could not find the substitution".to_string(),
             ))?;
-        let to = substitution.get(&to_ident).ok_or(BackendError::BadRequest(
+        let to = substitution.get(to_ident).ok_or(BackendError::BadRequest(
             "Could not find the substitution".to_string(),
         ))?;
         // println!("Substitution {:?} -> {:?}", from, to);
-        let new_formula = apply_substitution(formula, &to, &from, BTreeSet::new())?;
+        let new_formula = apply_substitution(formula, to, from, BTreeSet::new())?;
         // println!("Substitution reversed {:?}", new_formula);
         mapping.insert(identifier.clone(), new_formula);
     }
@@ -814,14 +884,8 @@ pub fn apply_rule(
         .premises
         .iter()
         .map(|premise| {
-            let formula = apply_mapping(&premise.formula, &mapping, substitution);
-            let lhs = match &premise.lhs {
-                Some(i) => {
-                    let f = Some(get_formula(&i, mapping));
-                    f
-                }
-                None => None,
-            };
+            let formula = apply_mapping(&premise.formula, mapping, substitution);
+            let lhs = premise.lhs.as_ref().map(|i| get_formula(i, mapping));
 
             info!("Premise {:?} -> {:?}", lhs, formula);
             match (lhs, formula) {
@@ -881,5 +945,5 @@ pub fn check_tree(root: Uuid, nodes: Vec<Node>) -> bool {
         }
     }
 
-    return valid;
+    valid
 }
