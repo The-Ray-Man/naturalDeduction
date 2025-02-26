@@ -3,7 +3,10 @@ import { NodeType } from "../components/exercise/node";
 import { getTypstRuleByName } from "./rule";
 
 export function exportToTypst(root: NodeType, nodes: Array<NodeType>): string {
-  return `#prooftree(${exportSubformula(root, nodes)})`;
+  const imp = `#import "@preview/curryst:0.5.0": rule, prooftree`;
+  const page = `#set page(fill: none, width: auto, height: auto, margin: (x: 1em, y: 1em))`;
+  const prooftree = `#prooftree(${exportSubformula(root, nodes)})`
+  return `${imp}\n${page}\n${prooftree}`
 }
 
 function exportSubformula(node: NodeType, nodes: Array<NodeType>): string {

@@ -10,13 +10,19 @@ import {
   ScrollArea,
   Stack,
   Text,
+  Tooltip,
 } from "@mantine/core";
 import { useNodesContext } from "@/lib/hook/FormulaContext";
-import { IconCopy, IconZoomCancel } from "@tabler/icons-react";
+import { IconCopy, IconFileTypePng, IconZoomCancel } from "@tabler/icons-react";
 import { treeCompleted } from "@/lib/utils/finished";
 import { useWindowSize } from "react-use";
 import { exportToTypst } from "@/lib/utils/export";
 import { $typst, TypstSnippet } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs"
+import { showError, showInfo } from "@/lib/utils/notifications";
+import { notifications } from "@mantine/notifications";
+
+const TYPST_COMPILER_URL = process.env["NEXT_PUBLIC_TYPST_COMPILER_URL"] || "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm"
+const TYPST_RENDERER_URL = process.env["NEXT_PUBLIC_TYPST_RENDERER_URL"] || "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm"
 
 type ExerciseProps = {
   exercise: Statement;
@@ -25,9 +31,10 @@ type ExerciseProps = {
 const Exercise = ({ exercise }: ExerciseProps) => {
   const { nodes, handler, rootId, currentId, currentIdHandler } =
     useNodesContext();
-  const svgRef = useRef<SVGSVGElement>(null);
+  const [compiling, setCompiling] = useState<boolean>(false);
 
   const [done, setDone] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   const { width, height } = useWindowSize();
 
@@ -39,6 +46,7 @@ const Exercise = ({ exercise }: ExerciseProps) => {
       }
       const completed = treeCompleted(root_node, nodes);
       setDone(completed);
+      setCompleted(completed);
       if (completed) {
         setTimeout(() => {
           setDone(false);
@@ -60,99 +68,84 @@ const Exercise = ({ exercise }: ExerciseProps) => {
     }
   }, [exercise]);
 
-  const handleTypstExport = async () => {
+  const initializeTypst = () => {
+    if (($typst as any).isInitialized) return;
+    $typst.setCompilerInitOptions({
+      getModule: () => TYPST_COMPILER_URL
+    });
+    $typst.setRendererInitOptions({
+      getModule: () => TYPST_RENDERER_URL
+    });
+    ($typst as any).isInitialized = true;
+  }
+
+  const covertSvgToPng = async (svg: string): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgEl.innerHTML = svg;
+      const width = parseFloat(svgEl.firstElementChild!.getAttribute("width") as string);
+      const height = parseFloat(svgEl.firstElementChild!.getAttribute("height") as string);
+
+      const img = new Image();
+      const svgBlob = new Blob([svg], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = async function () {
+           const canvas = document.createElement("canvas");
+           canvas.width = width * 2;
+           canvas.height = height * 2;
+           const ctx = canvas.getContext("2d");
+           if (!ctx) return reject("Canvas context does not exist");
+           ctx.clearRect(0, 0, width * 2, height * 2);
+           ctx.drawImage(img, 0, 0, width * 2, height * 2);
+           URL.revokeObjectURL(url);
+
+           canvas.toBlob(async (blob) => {
+             if (!blob) return reject("Canvas could not be exported to Blob");
+             resolve(blob)
+           }, "image/png");
+       };
+      img.src = url;
+    });
+  }
+
+  const handleTypstSourceExport = async () => {
     const root = nodes?.find(node => node.name === rootId);
     if (!root) return;
     const typstStr = exportToTypst(root, nodes || []);
-    // TODO: Copy to clipboard
+    await navigator.clipboard.writeText(typstStr);
+    showInfo("Copied typst source to clipboard")
+  }
 
-    $typst.setCompilerInitOptions({
-      getModule: () =>
-        'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm',
+  const handleTypstPngExport = async () => {
+    const root = nodes?.find(node => node.name === rootId);
+    if (!root) return;
+    setCompiling(true);
+    const typstStr = exportToTypst(root, nodes || []);
+    initializeTypst();
+    notifications.show({
+      title: "Info",
+      message: "Compiling typst source, this may take a while!",
+      color: "gray",
     });
-    $typst.setRendererInitOptions({
-      getModule: () =>
-        'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm',
-    });
-
-    const text = `
-      #import "@preview/curryst:0.5.0": rule, prooftree
-
-      #set page(fill: none, width: auto, height: auto, margin: (x: 1em, y: 1em))
-
-      ${typstStr}
-    `
-
-
-    console.log(text);
-
-    const canvas = document.createElement("canvas");
-    const svg = await $typst.canvas(canvas, {
-      mainContent: text,
-    });
-    const dataUrl = `data:image/svg+xml;base64,${btoa(svg)}`;
-    const svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    // const img = document.createElement("img");
-    // img.src = dataUrl;
-    // svgEl.innerHTML = svg;
-    // const width = svgEl.clientWidth;
-    // const height = svgEl.clientHeight;
-
-    // new Promise((resolve, reject) => {
-    //         // Create a Blob from the SVG string
-    //         const blob = new Blob([svg], { type: 'image/svg+xml' });
-    //         const url = URL.createObjectURL(blob);
-
-    //         // Create an Image element
-    //         const img = new Image();
-    //         img.onload = () => {
-    //             // Create a Canvas and draw the image
-    //             const canvas = document.createElement('canvas');
-    //             canvas.width = width;
-    //             canvas.height = height;
-    //             const ctx = canvas.getContext('2d');
-
-    //             ctx!.clearRect(0, 0, width, height);
-    //             ctx!.drawImage(img, 0, 0, width, height);
-
-    //             // Convert canvas to PNG
-    //             canvas.toBlob((blob) => {
-    //                 URL.revokeObjectURL(url); // Clean up
-    //                 resolve(blob);
-    //             }, 'image/png');
-    //         };
-
-    //         img.onerror = (err) => {
-    //             reject(err);
-    //         };
-
-    //         img.src = url;
-    //     });
-
-    // const pngDataUrl = canvas.toDataURL("image/png");
-    // console.log(dataUrl)
 
     try {
-      const png: Blob = await new Promise((resolve, reject) => canvas.toBlob(blob => {
-        if (blob) resolve(blob);
-        else reject();
-      }, "image/png", 1.0));
-      const url = URL.createObjectURL(png);
-      console.log(url);
-      // navigator.clipboard.write([
-      //   new ClipboardItem({
-      //     'image/png': png
-      //   })
-      // ])
-    } catch(e) {
-      console.error(e);
+      const svg = await $typst.svg({ data_selection: { js: false, css: true, body: true, defs: true }, mainContent: typstStr } as any)
+      const blob = await covertSvgToPng(svg);
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob })
+      ]);
+      showInfo("Copied exported png to clipboard");
+    } catch (err) {
+      showError(`Failed to copy png: ${err}`)
+    } finally {
+      setCompiling(false)
     }
   }
 
   return (
     <>
       {done && <Confetti width={width} height={height} />}
-      <svg ref={svgRef} />
       <Group w={"100%"}>
         <Stack w={50}>
           <ActionIcon
@@ -161,9 +154,16 @@ const Exercise = ({ exercise }: ExerciseProps) => {
           >
             <IconZoomCancel />
           </ActionIcon>
-          <ActionIcon disabled={!done} onClick={handleTypstExport}>
-            <IconCopy  />
-          </ActionIcon>
+          <Tooltip label={"Copy typst source for proof formula"}>
+            <ActionIcon disabled={!completed} onClick={handleTypstSourceExport}>
+              <IconCopy />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label={"Export proof formula as png"}>
+            <ActionIcon disabled={!completed || compiling} onClick={handleTypstPngExport}>
+              <IconFileTypePng  />
+            </ActionIcon>
+          </Tooltip>
         </Stack>
         <Center w={"100%"}>
           <ScrollArea>
