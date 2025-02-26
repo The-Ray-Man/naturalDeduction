@@ -88,7 +88,7 @@ const Exercise = ({ exercise }: ExerciseProps) => {
 
       const img = new Image();
       const svgBlob = new Blob([svg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(svgBlob);
+      const url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 
       img.setAttribute("crossorigin", "anonymous");
       img.onload = async function () {
