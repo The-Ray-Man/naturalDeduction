@@ -2,8 +2,8 @@ name: Publish docker image
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
