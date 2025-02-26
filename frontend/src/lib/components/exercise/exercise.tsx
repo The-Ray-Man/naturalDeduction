@@ -99,7 +99,6 @@ const Exercise = ({ exercise }: ExerciseProps) => {
            if (!ctx) return reject("Canvas context does not exist");
            ctx.clearRect(0, 0, width * 2, height * 2);
            ctx.drawImage(img, 0, 0, width * 2, height * 2);
-           URL.revokeObjectURL(url);
 
            canvas.toBlob(async (blob) => {
              if (!blob) return reject("Canvas could not be exported to Blob");
