@@ -1,7 +1,7 @@
 "use client";
 import { Statement } from "@/lib/api";
 import Node, { NodeType } from "./node";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import {
   ActionIcon,
@@ -17,7 +17,7 @@ import { IconCopy, IconFileTypePng, IconZoomCancel } from "@tabler/icons-react";
 import { treeCompleted } from "@/lib/utils/finished";
 import { useWindowSize } from "react-use";
 import { exportToTypst } from "@/lib/utils/export";
-import { $typst, TypstSnippet } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs"
+import { $typst } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs"
 import { showError, showInfo } from "@/lib/utils/notifications";
 import { notifications } from "@mantine/notifications";
 
