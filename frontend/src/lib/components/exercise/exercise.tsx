@@ -87,8 +87,7 @@ const Exercise = ({ exercise }: ExerciseProps) => {
       const height = parseFloat(svgEl.firstElementChild!.getAttribute("height") as string);
 
       const img = new Image();
-      const svgBlob = new Blob([svg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(svgBlob);
+      const url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 
       img.setAttribute("crossorigin", "anonymous");
       img.onload = async function () {
@@ -99,7 +98,6 @@ const Exercise = ({ exercise }: ExerciseProps) => {
            if (!ctx) return reject("Canvas context does not exist");
            ctx.clearRect(0, 0, width * 2, height * 2);
            ctx.drawImage(img, 0, 0, width * 2, height * 2);
-           URL.revokeObjectURL(url);
 
            canvas.toBlob(async (blob) => {
              if (!blob) return reject("Canvas could not be exported to Blob");
