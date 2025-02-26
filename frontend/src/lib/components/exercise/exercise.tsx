@@ -90,6 +90,7 @@ const Exercise = ({ exercise }: ExerciseProps) => {
       const svgBlob = new Blob([svg], { type: "image/svg+xml" });
       const url = URL.createObjectURL(svgBlob);
 
+      img.setAttribute("crossorigin", "anonymous");
       img.onload = async function () {
            const canvas = document.createElement("canvas");
            canvas.width = width * 2;
