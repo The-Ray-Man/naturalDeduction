@@ -1,19 +1,13 @@
 import {
   ActionIcon,
-  Box,
-  Button,
   Card,
   Divider,
   Flex,
   Grid,
   Group,
-  Progress,
   Text,
-  Title,
   Tooltip,
 } from "@mantine/core";
-import { Exercise, Statement as StatementType } from "../api";
-import Statement from "./statement";
 import {
   IconCheck,
   IconChevronRight,
@@ -21,11 +15,12 @@ import {
   IconThumbDown,
   IconThumbUp,
 } from "@tabler/icons-react";
-import Link from "next/link";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { UUID } from "crypto";
-import Difficulty from "./difficulty";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Exercise } from "../api";
 import localStorage from "../utils/localStorage";
+import Difficulty from "./difficulty";
+import Statement from "./statement";
 
 type exerciseListElementProps = {
   exercise: Exercise;

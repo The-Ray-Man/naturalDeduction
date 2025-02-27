@@ -1,7 +1,7 @@
-import { Group, Text } from "@mantine/core";
 import { ElementMapping as ElementMappingType } from "@/lib/api";
 import Formula from "@/lib/components/formula/formula";
 import RuleFormula from "@/lib/components/rule/ruleFormula";
+import { Group, Text } from "@mantine/core";
 
 type ElementMappingProps = {
   mapping: ElementMappingType;

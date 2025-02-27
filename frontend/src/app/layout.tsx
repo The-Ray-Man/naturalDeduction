@@ -39,7 +39,7 @@ export default function RootLayout({
               <MantineProvider>
                 <Notifications />
                 <AppShell
-                  header={{ height: 40 }}
+                  header={{ height: 60 }}
                   navbar={{
                     width: 0,
                     breakpoint: "sm",

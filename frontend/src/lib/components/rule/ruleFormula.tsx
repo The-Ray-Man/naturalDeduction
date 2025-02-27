@@ -11,7 +11,7 @@ import {
   RuleOr,
   RuleSubstitution,
   RuleTrue,
-} from "./rule_parts";
+} from "./ruleParts";
 import { useMemo } from "react";
 
 export type RuleFormulaProps<T extends RuleFormulaType["type"]> = {

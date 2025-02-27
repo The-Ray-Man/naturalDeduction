@@ -1,5 +1,18 @@
 "use client";
 import {
+  ElementMapping as ElementMappingType,
+  FormulaMapping as FormulaMappingType,
+  Formula as FormulaType,
+  useAllRulesQuery,
+  useApplyRuleMutation,
+  useParseMutation,
+} from "@/lib/api";
+import DerivationRule from "@/lib/components/rule/rule";
+import Statement from "@/lib/components/statement";
+import { useDragContext } from "@/lib/hook/DragContext";
+import { useNodesContext } from "@/lib/hook/FormulaContext";
+import { getAllIdentifiers } from "@/lib/utils/formula";
+import {
   ActionIcon,
   Box,
   Button,
@@ -12,28 +25,14 @@ import {
   Textarea,
   TextInput,
 } from "@mantine/core";
-import { useDragContext } from "@/lib/hook/DragContext";
-import { IconCheck } from "@tabler/icons-react";
-import DerivationRule from "@/lib/components/rule/rule";
-import {
-  ElementMapping as ElementMappingType,
-  FormulaMapping as FormulaMappingType,
-  Formula as FormulaType,
-  RuleIdentifier,
-  useAllRulesQuery,
-  useApplyRuleMutation,
-  useParseMutation,
-} from "@/lib/api";
-import { useNodesContext } from "@/lib/hook/FormulaContext";
-import { getAllIdentifiers } from "@/lib/utils/formula";
-import { useEffect, useState } from "react";
 import { useListState } from "@mantine/hooks";
-import FormulaMapping from "./formulaMapping";
-import Statement from "@/lib/components/statement";
-import { NodeType } from "./node";
+import { IconCheck } from "@tabler/icons-react";
 import { UUID } from "crypto";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import ElementMapping from "./elementMapping";
+import FormulaMapping from "./formulaMapping";
+import { NodeType } from "./node";
 
 const Matcher = () => {
   const {

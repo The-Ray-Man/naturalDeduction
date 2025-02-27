@@ -1,10 +1,8 @@
-import { Group, Text, useMantineColorScheme } from "@mantine/core";
-import RuleFormula, { RuleFormulaProps } from "./ruleFormula";
-import { RuleIdentifier } from "@/lib/api";
 import { get_color } from "@/lib/utils/color";
-import { RuleFormula as RuleFormulaType } from "@/lib/api";
+import { Text, useMantineColorScheme } from "@mantine/core";
 import { useMemo } from "react";
-import { getStyle } from "../formula/formula_parts";
+import { getStyle } from "../formula/formulaParts";
+import RuleFormula, { RuleFormulaProps } from "./ruleFormula";
 
 const RuleIdent = ({ rule, highlighted }: RuleFormulaProps<"Ident">) => {
   const [letter, bgColor] = useMemo(() => {
@@ -166,14 +164,14 @@ const RuleSubstitution = ({
 };
 
 export {
-  RuleIdent,
   RuleAnd,
-  RuleOr,
-  RuleNot,
-  RuleImplication,
-  RuleTrue,
+  RuleExists,
   RuleFalse,
   RuleForall,
-  RuleExists,
+  RuleIdent,
+  RuleImplication,
+  RuleNot,
+  RuleOr,
   RuleSubstitution,
+  RuleTrue,
 };

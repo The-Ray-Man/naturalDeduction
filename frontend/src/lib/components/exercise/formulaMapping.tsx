@@ -1,7 +1,7 @@
-import { Group, Text } from "@mantine/core";
 import { FormulaMapping as FormulaMappingType } from "@/lib/api";
 import Formula from "@/lib/components/formula/formula";
 import RuleFormula from "@/lib/components/rule/ruleFormula";
+import { Group, Text } from "@mantine/core";
 
 type FormulaMappingProps = {
   mapping: FormulaMappingType;

@@ -1,11 +1,7 @@
-import { Card, SimpleGrid } from "@mantine/core";
-import {
-  DerivationRule as DerivationRuleType,
-  RuleFormula,
-  useAllRulesQuery,
-} from "@/lib/api";
-import { useDraggable } from "@dnd-kit/core";
+import { useAllRulesQuery } from "@/lib/api";
 import DerivationRule, { RuleProps } from "@/lib/components/rule/rule";
+import { useDraggable } from "@dnd-kit/core";
+import { Card } from "@mantine/core";
 
 const DraggableRule = ({ rule }: RuleProps) => {
   // return <DerivationRule rule={rule} />;

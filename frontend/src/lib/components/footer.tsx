@@ -1,5 +1,5 @@
 import { ActionIcon, Center, Flex, SimpleGrid, Text } from "@mantine/core";
-import { IconBrandGithub, IconHeart } from "@tabler/icons-react";
+import { IconBrandGithub } from "@tabler/icons-react";
 
 const Footer = () => {
   return (

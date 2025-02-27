@@ -1,33 +1,20 @@
-import {
-  ActionIcon,
-  Box,
-  Button,
-  Divider,
-  Flex,
-  Group,
-  Menu,
-  Stack,
-} from "@mantine/core";
-import Statement from "@/lib/components/statement";
 import { Rules, Statement as StatementType, useCheckMutation } from "@/lib/api";
-import { useEffect, useState } from "react";
-import { UUID } from "crypto";
-import { useDroppable } from "@dnd-kit/core";
-import DropZone from "./dropzone";
+import RuleName from "@/lib/components/rule/ruleName";
+import Statement from "@/lib/components/statement";
+import { useNodesContext } from "@/lib/hook/FormulaContext";
+import { treeCompleted } from "@/lib/utils/finished";
+import { Box, Divider, Flex, Group, Menu, Stack } from "@mantine/core";
 import {
-  IconBadge4k,
   IconCheck,
   IconDots,
-  IconFocus,
-  IconFocusCentered,
   IconLayoutBottombarCollapse,
   IconTrash,
   IconZoomCheck,
   IconZoomIn,
 } from "@tabler/icons-react";
-import { useNodesContext } from "@/lib/hook/FormulaContext";
-import { treeCompleted } from "@/lib/utils/finished";
-import RuleName from "@/lib/components/rule/ruleName";
+import { UUID } from "crypto";
+import { useEffect, useState } from "react";
+import DropZone from "./dropzone";
 
 function get_child_ids(node: NodeType, all_nodes: NodeType[]): UUID[] {
   let children: UUID[] = [];

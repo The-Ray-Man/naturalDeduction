@@ -6,7 +6,7 @@ import React from "react";
 const Header: React.FC = (): React.ReactNode => {
   const { toggleColorScheme, colorScheme } = useMantineColorScheme();
   return (
-    <Flex px={"md"} align="center" justify="space-between">
+    <Flex px={"md"} align="center" justify="space-between" h="100%">
       <Link
         onClick={location.reload}
         href={"/"}

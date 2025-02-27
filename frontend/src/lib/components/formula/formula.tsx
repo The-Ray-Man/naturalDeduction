@@ -1,19 +1,18 @@
-import { Group, Text } from "@mantine/core";
+import { Group } from "@mantine/core";
+import { useMemo } from "react";
 import { Formula as FormulaType } from "../../api";
 import {
   And,
-  Or,
-  Not,
-  Identifier,
-  Implication,
-  True,
+  Exists,
   False,
   Forall,
-  Exists,
+  Identifier,
+  Implication,
+  Not,
+  Or,
   Predicate,
-} from "./formula_parts";
-import { useHover } from "@mantine/hooks";
-import { useMemo } from "react";
+  True,
+} from "./formulaParts";
 
 export type FormulaProps<T extends FormulaType["type"]> = {
   formula: FormulaType & { type: T };

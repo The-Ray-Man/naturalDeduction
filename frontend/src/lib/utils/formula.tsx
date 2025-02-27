@@ -1,9 +1,4 @@
-import {
-  DerivationRule,
-  RuleFormula,
-  RuleIdentifier,
-  RuleStatement,
-} from "../api";
+import { DerivationRule, RuleIdentifier, RuleStatement } from "../api";
 
 function getIdentifiers(statement: RuleStatement): RuleIdentifier[] {
   let identifiers = [];

@@ -14,29 +14,26 @@ const Info = () => {
   };
 
   return (
-    <Accordion value={value} onChange={changeCollapse}>
+    <Accordion value={value} onChange={changeCollapse} variant="filled">
       <Accordion.Item value="info">
         <Accordion.Control>
-          {" "}
-          <Title order={3}>Welcome</Title>
+          <Title order={3}>🎉 Welcome</Title>
         </Accordion.Control>
-        {/* <Accordion.Control>{item.value}</Accordion.Control> */}
         <Accordion.Panel>
-          <Divider />
           <Text>
-            Welcome to FMFP Made Easy! This is a tool to help you learn natural
-            deduction. This tool includes the following features:
+            Welcome to FMFP Made Easy! 🚀 This is a tool to help you learn
+            natural deduction. This tool includes the following features:
           </Text>
           <List>
             <List.Item>
-              <Text fw={700}>New Exercises:</Text>
+              <Text fw={700}>📝 New Exercises:</Text>
               <Text>
                 The added exercises are visible to everyone. You cannot add
                 impossible exercises.
               </Text>
             </List.Item>
             <List.Item>
-              <Text fw={700}>Apply Rules</Text>
+              <Text fw={700}>🔢 Apply Rules</Text>
               <Text>
                 Highlighting makes matching easier. Additionally, a rule cannot
                 be applied incorrectly. However, you can still choose the wrong
@@ -44,7 +41,7 @@ const Info = () => {
               </Text>
             </List.Item>
             <List.Item>
-              <Text fw={700}>Checking</Text>
+              <Text fw={700}>✅ Checking</Text>
               <Text>
                 You can always check if the current proof tree is still
                 solvable!
@@ -52,10 +49,10 @@ const Info = () => {
             </List.Item>
           </List>
 
-          <Title order={4}>Entering Formulas</Title>
+          <Title order={4}>⌨️ Entering Formulas</Title>
           <Text>
             Entering logical formulas can be cumbersome (the parser is not very
-            advanced :o). Here are some tips:
+            advanced 😅). Here are some tips:
           </Text>
           <List>
             <List.Item>
@@ -74,7 +71,7 @@ const Info = () => {
               </Text>
             </List.Item>
             <List.Item>
-              <Text>Some examples:</Text>
+              <Text>📚 Some examples:</Text>
               <List>
                 <List.Item>
                   <Text>A and p(x,y)</Text>
@@ -91,24 +88,24 @@ const Info = () => {
             </List.Item>
           </List>
 
-          <Title order={4}>Improvements</Title>
+          <Title order={4}>🚀 Improvements</Title>
           <Text>
             If you find errors or have great ideas, you have two options: You
             can either open an issue on GitHub or fix it yourself and submit a
-            pull request.
+            pull request. 🛠️
           </Text>
 
-          <Title order={4}>Coming Soon (maybe)</Title>
+          <Title order={4}>🔜 Coming Soon (maybe)</Title>
           <List>
             <List.Item>
-              <Text>Automated exercise generation</Text>
+              <Text>🤖 Automated exercise generation</Text>
             </List.Item>
             <List.Item>
-              <Text>Hints for which rule to apply</Text>
+              <Text>💡 Hints for which rule to apply</Text>
             </List.Item>
           </List>
 
-          <Title order={4}>Disclaimer</Title>
+          <Title order={4}>⚠️ Disclaimer</Title>
           <Text>
             This is not official software for the FMFP course at ETHZ. There are
             no guarantees for correctness.

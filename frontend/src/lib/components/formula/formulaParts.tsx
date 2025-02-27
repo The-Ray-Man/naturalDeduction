@@ -1,17 +1,11 @@
 import {
-  Formula as FormulaType,
-  Identifier as IdentifierType,
-} from "@/lib/api";
-import Formula, { FormulaProps } from "./formula";
-import {
-  Box,
   Group,
   MantineColorScheme,
   Text,
   useMantineColorScheme,
 } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
-import { useMemo } from "react";
+import Formula, { FormulaProps } from "./formula";
 
 const getStyle = (hovered: boolean, colorScheme: MantineColorScheme) => {
   if (colorScheme == "dark") {
@@ -220,14 +214,14 @@ const Predicate = ({
 
 export {
   And,
-  Or,
-  Not,
-  Identifier,
-  Implication,
-  True,
+  Exists,
   False,
   Forall,
-  Exists,
-  Predicate,
   getStyle,
+  Identifier,
+  Implication,
+  Not,
+  Or,
+  Predicate,
+  True,
 };

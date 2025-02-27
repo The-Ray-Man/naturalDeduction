@@ -14,7 +14,6 @@ import {
   Text,
 } from "@mantine/core";
 import { UUID } from "crypto";
-import { useParams } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
 
 type ExerciseInterfaceProps = {

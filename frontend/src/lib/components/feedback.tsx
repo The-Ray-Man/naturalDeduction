@@ -4,19 +4,18 @@ import {
   Card,
   Drawer,
   Group,
-  Modal,
   Slider,
   Stack,
   Title,
 } from "@mantine/core";
-import { Exercise, usePostFeedbackMutation } from "../api";
 import { useDisclosure } from "@mantine/hooks";
-import Statement from "./statement";
-import { useEffect, useState } from "react";
 import { IconThumbDown, IconThumbUp } from "@tabler/icons-react";
-import { showError } from "../utils/notifications";
-import localStorage from "../utils/localStorage";
 import { UUID } from "crypto";
+import { useEffect, useState } from "react";
+import { Exercise, usePostFeedbackMutation } from "../api";
+import localStorage from "../utils/localStorage";
+import { showError } from "../utils/notifications";
+import Statement from "./statement";
 
 type FeedbackProps = {
   exercise: Exercise;

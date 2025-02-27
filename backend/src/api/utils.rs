@@ -719,8 +719,7 @@ fn check_not_free_condition(formulas: Vec<&Formula>, var: &String) -> BackendRes
             if !captured.contains(var) {
                 return Err(BackendError::BadRequest(format!(
                     "In {} the variable {} could occur freely",
-                    f,
-                    var
+                    f, var
                 )));
             }
         }

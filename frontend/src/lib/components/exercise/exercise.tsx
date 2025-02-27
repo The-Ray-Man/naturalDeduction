@@ -1,8 +1,10 @@
 "use client";
 import { Exercise as ExerciseType, Statement } from "@/lib/api";
-import Node, { NodeType } from "./node";
-import { useEffect, useState } from "react";
-import Confetti from "react-confetti";
+import { useNodesContext } from "@/lib/hook/FormulaContext";
+import { exportToTypst } from "@/lib/utils/export";
+import { treeCompleted } from "@/lib/utils/finished";
+import localStorage from "@/lib/utils/localStorage";
+import { showError, showInfo } from "@/lib/utils/notifications";
 import {
   ActionIcon,
   Center,
@@ -12,18 +14,15 @@ import {
   Text,
   Tooltip,
 } from "@mantine/core";
-import { useNodesContext } from "@/lib/hook/FormulaContext";
-import { IconCopy, IconFileTypePng, IconZoomCancel } from "@tabler/icons-react";
-import { treeCompleted } from "@/lib/utils/finished";
-import { useWindowSize } from "react-use";
-import { exportToTypst } from "@/lib/utils/export";
-import { $typst } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs";
-import { showError, showInfo } from "@/lib/utils/notifications";
 import { notifications } from "@mantine/notifications";
-import { useDisclosure } from "@mantine/hooks";
-import Feedback from "../feedback";
-import localStorage from "@/lib/utils/localStorage";
+import { $typst } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs";
+import { IconCopy, IconFileTypePng, IconZoomCancel } from "@tabler/icons-react";
 import { UUID } from "crypto";
+import { useEffect, useState } from "react";
+import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
+import Feedback from "../feedback";
+import Node, { NodeType } from "./node";
 
 const TYPST_COMPILER_URL =
   process.env["NEXT_PUBLIC_TYPST_COMPILER_URL"] ||

@@ -1,8 +1,7 @@
 import { DerivationRule as DerivationRuleType } from "@/lib/api";
-import { Box, Divider, Flex, Stack } from "@mantine/core";
-import React from "react";
-import RuleStatement from "./ruleStatement";
+import { Box, Divider, Flex, Group, Stack, Text } from "@mantine/core";
 import RuleName from "./ruleName";
+import RuleStatement from "./ruleStatement";
 
 export type RuleProps = {
   rule: DerivationRuleType;
@@ -18,13 +17,18 @@ const DerivationRule = ({ rule, highlighted }: RuleProps) => {
           {rule.premises.map((premise, i) => (
             <RuleStatement key={i} rule={premise} highlighted={highlighted} />
           ))}
+          {rule.premises.length === 0 && (
+            <Group>
+              <Text>{"\u2800"}</Text>
+            </Group>
+          )}
         </Flex>
         {/* Divider */}
         <Divider w={"100%"} />
         {/* Conclusion */}
         <RuleStatement rule={rule.conclusion} highlighted={highlighted} />
       </Stack>
-      <Box pb={"14"} pl={"sm"}>
+      <Box pb={"18"} pl={"sm"}>
         <RuleName name={rule.name} />
       </Box>
     </Flex>
