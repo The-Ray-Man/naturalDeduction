@@ -326,7 +326,6 @@ impl Rules {
             },
         };
 
-        
         [
             ax,
             impl_intro,
@@ -350,7 +349,7 @@ impl Rules {
     }
     pub fn get_rule(&self) -> DerivationRule {
         let all_rules = Rules::all_rules();
-        
+
         all_rules
             .into_iter()
             .find(|rule| rule.name == *self)
@@ -720,8 +719,7 @@ fn check_not_free_condition(formulas: Vec<&Formula>, var: &String) -> BackendRes
             if !captured.contains(var) {
                 return Err(BackendError::BadRequest(format!(
                     "In {} the variable {} could occure freely",
-                    f,
-                    var
+                    f, var
                 )));
             }
         }

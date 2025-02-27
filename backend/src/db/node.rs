@@ -8,8 +8,8 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
-    pub rule: Rules,
     pub child_id: Uuid,
+    pub rule: Rules,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
