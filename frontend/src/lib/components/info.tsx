@@ -1,7 +1,17 @@
-import { Accordion, Divider, List, Text, Title } from "@mantine/core";
+import {
+  Accordion,
+  Divider,
+  Group,
+  List,
+  Progress,
+  Slider,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import localStorage from "../utils/localStorage";
+import SemsterProgress from "./semesterProgress";
 
 const Info = () => {
   const [value, setValue] = useState<string | null>(
@@ -17,7 +27,10 @@ const Info = () => {
     <Accordion value={value} onChange={changeCollapse} variant="filled">
       <Accordion.Item value="info">
         <Accordion.Control>
-          <Title order={3}>🎉 Welcome</Title>
+          <Group mr={"md"} align="center">
+            <Title order={3}>🎉 Welcome</Title>
+            <SemsterProgress />
+          </Group>
         </Accordion.Control>
         <Accordion.Panel>
           <Text>

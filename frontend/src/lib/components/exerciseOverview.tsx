@@ -6,6 +6,7 @@ import {
   Divider,
   Flex,
   Group,
+  SimpleGrid,
   Stack,
   Title,
   Tooltip,
@@ -138,117 +139,119 @@ const ExerciseOverview = () => {
             </Group>
           </Flex>
         </Card.Section>
-        <Flex
-          gap={"md"}
-          align={"stretch"}
-          wrap="nowrap"
-          justify={selectedModus == "difficulty" ? "stretch" : undefined}
-          style={{ overflowX: "auto" }}
-        >
-          {selectedModus === "difficulty" && (
-            <>
-              <Stack w={400}>
-                <Center w={400}>
-                  <Title order={3}>Easy 💁‍♂️</Title>
-                </Center>
-                {allExercises
-                  .filter((ex) => ex.difficulty <= 4)
-                  .toSorted(likeCompare)
-                  .map((exercise, i) => (
-                    <Box key={i} miw={400}>
-                      <ExerciseListElement
-                        key={i}
-                        exercise={exercise}
-                        handler={setSelectedExerciseId}
-                      />
-                    </Box>
-                  ))}
-              </Stack>
-              <Divider orientation="vertical" />
-              <Stack w={400}>
-                <Center w={400}>
-                  <Title order={3}>Intermediate 😎</Title>
-                </Center>
-                {allExercises
-                  .filter((ex) => ex.difficulty <= 7 && ex.difficulty > 4)
-                  .toSorted(likeCompare)
-                  .map((exercise, i) => (
-                    <Box key={i} miw={400}>
-                      <ExerciseListElement
-                        key={i}
-                        exercise={exercise}
-                        handler={setSelectedExerciseId}
-                      />
-                    </Box>
-                  ))}
-              </Stack>
-              <Divider orientation="vertical" />
-              <Stack w={400}>
-                <Center w={400}>
-                  <Title order={3}>Hard 🫠</Title>
-                </Center>
-                {allExercises
-                  .filter((ex) => ex.difficulty <= 9 && ex.difficulty > 7)
-                  .toSorted(likeCompare)
-                  .map((exercise, i) => (
-                    <Box key={i} miw={400}>
-                      <ExerciseListElement
-                        key={i}
-                        exercise={exercise}
-                        handler={setSelectedExerciseId}
-                      />
-                    </Box>
-                  ))}
-              </Stack>
-              <Divider orientation="vertical" />
-              <Stack w={400}>
-                <Center w={400}>
-                  <Title order={3}>Insane 🥵</Title>
-                </Center>
-                {allExercises
-                  .filter((ex) => ex.difficulty > 9)
-                  .toSorted(likeCompare)
-                  .map((exercise, i) => (
-                    <Box key={i} miw={400}>
-                      <ExerciseListElement
-                        key={i}
-                        exercise={exercise}
-                        handler={setSelectedExerciseId}
-                      />
-                    </Box>
-                  ))}
-              </Stack>
-            </>
-          )}
+        {selectedModus === "difficulty" && (
+          <Flex
+            gap={"md"}
+            align={"stretch"}
+            wrap="nowrap"
+            justify={selectedModus == "difficulty" ? "stretch" : undefined}
+            style={{ overflowX: "auto" }}
+          >
+            <Stack w={400}>
+              <Center w={400}>
+                <Title order={3}>Easy 💁‍♂️</Title>
+              </Center>
+              {allExercises
+                .filter((ex) => ex.difficulty <= 4)
+                .toSorted(likeCompare)
+                .map((exercise, i) => (
+                  <Box key={i} miw={400}>
+                    <ExerciseListElement
+                      key={i}
+                      exercise={exercise}
+                      handler={setSelectedExerciseId}
+                    />
+                  </Box>
+                ))}
+            </Stack>
+            <Divider orientation="vertical" />
+            <Stack w={400}>
+              <Center w={400}>
+                <Title order={3}>Intermediate 😎</Title>
+              </Center>
+              {allExercises
+                .filter((ex) => ex.difficulty <= 7 && ex.difficulty > 4)
+                .toSorted(likeCompare)
+                .map((exercise, i) => (
+                  <Box key={i} miw={400}>
+                    <ExerciseListElement
+                      key={i}
+                      exercise={exercise}
+                      handler={setSelectedExerciseId}
+                    />
+                  </Box>
+                ))}
+            </Stack>
+            <Divider orientation="vertical" />
+            <Stack w={400}>
+              <Center w={400}>
+                <Title order={3}>Hard 🫠</Title>
+              </Center>
+              {allExercises
+                .filter((ex) => ex.difficulty <= 9 && ex.difficulty > 7)
+                .toSorted(likeCompare)
+                .map((exercise, i) => (
+                  <Box key={i} miw={400}>
+                    <ExerciseListElement
+                      key={i}
+                      exercise={exercise}
+                      handler={setSelectedExerciseId}
+                    />
+                  </Box>
+                ))}
+            </Stack>
+            <Divider orientation="vertical" />
+            <Stack w={400}>
+              <Center w={400}>
+                <Title order={3}>Insane 🥵</Title>
+              </Center>
+              {allExercises
+                .filter((ex) => ex.difficulty > 9)
+                .toSorted(likeCompare)
+                .map((exercise, i) => (
+                  <Box key={i} miw={400}>
+                    <ExerciseListElement
+                      key={i}
+                      exercise={exercise}
+                      handler={setSelectedExerciseId}
+                    />
+                  </Box>
+                ))}
+            </Stack>
+          </Flex>
+        )}
 
-          {selectedModus === "likes" &&
-            allExercises.toSorted(likeCompare).map((exercise, i) => (
-              <Box key={i} miw={400}>
+        {selectedModus === "likes" && (
+          <SimpleGrid cols={3}>
+            {allExercises.toSorted(likeCompare).map((exercise, i) => (
+              <ExerciseListElement
+                key={i}
+                exercise={exercise}
+                handler={setSelectedExerciseId}
+              />
+            ))}
+          </SimpleGrid>
+        )}
+
+        {selectedModus === "incompleted" && (
+          <SimpleGrid cols={3}>
+            {allExercises
+              .filter((ex) => {
+                return !completed.includes(ex.id as UUID);
+              })
+              .map((exercise, i) => (
                 <ExerciseListElement
                   key={i}
                   exercise={exercise}
                   handler={setSelectedExerciseId}
                 />
-              </Box>
-            ))}
-
-          {selectedModus === "incompleted" &&
-            allExercises
-              .filter((ex) => {
-                return !completed.includes(ex.id as UUID);
-              })
-              .map((exercise, i) => (
-                <Box key={i} miw={400}>
-                  <ExerciseListElement
-                    key={i}
-                    exercise={exercise}
-                    handler={setSelectedExerciseId}
-                  />
-                </Box>
               ))}
+          </SimpleGrid>
+        )}
 
-          {["favorites", "default"].includes(selectedModus) &&
-            allExercises
+        {["favorites", "default"].includes(selectedModus) && (
+          <SimpleGrid cols={3}>
+            {allExercises
               .filter((ex) => {
                 if (selectedModus === "favorites") {
                   return favorites.includes(ex.id as UUID);
@@ -257,15 +260,14 @@ const ExerciseOverview = () => {
                 }
               })
               .map((exercise, i) => (
-                <Box key={i} miw={400}>
-                  <ExerciseListElement
-                    key={i}
-                    exercise={exercise}
-                    handler={setSelectedExerciseId}
-                  />
-                </Box>
+                <ExerciseListElement
+                  key={i}
+                  exercise={exercise}
+                  handler={setSelectedExerciseId}
+                />
               ))}
-        </Flex>
+          </SimpleGrid>
+        )}
       </Card>
     </Stack>
   );
