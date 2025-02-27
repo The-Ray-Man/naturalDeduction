@@ -22,6 +22,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import {
+  Exercise,
   Formula as FormulaType,
   Statement as StatementType,
   useCheckMutation,
@@ -36,9 +37,13 @@ import { useEffect, useState } from "react";
 import Statement from "./statement";
 import {
   IconCheck,
+  IconClearAll,
+  IconGauge,
   IconInfoCircle,
   IconPlus,
   IconReload,
+  IconStar,
+  IconThumbUp,
 } from "@tabler/icons-react";
 import Formula from "./formula/formula";
 import { Action } from "@dnd-kit/core/dist/store";
@@ -46,6 +51,7 @@ import { showError, showInfo } from "../utils/notifications";
 import Info from "./info";
 import { UUID } from "crypto";
 import ExerciseInterface from "./exercise/exerciseInterface";
+import localStorage from "../utils/localStorage";
 
 const CreateExerciseForm = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -135,9 +141,11 @@ const CreateExerciseForm = () => {
 
   return (
     <>
-      <ActionIcon onClick={open}>
-        <IconPlus />
-      </ActionIcon>
+      <Tooltip label="Create">
+        <ActionIcon onClick={open}>
+          <IconPlus />
+        </ActionIcon>
+      </Tooltip>
       <Modal
         opened={opened}
         onClose={close}
@@ -230,6 +238,19 @@ const CreateExerciseForm = () => {
 const ExerciseOverview = () => {
   const { data: allExercises, refetch } = useGetExercisesQuery();
 
+  const [selectedModus, setSelectedModus] = useState<
+    "default" | "favorites" | "difficulty" | "likes"
+  >("default");
+
+  const [favorites, setFavorites] = useState<UUID[]>([]);
+
+  useEffect(() => {
+    if (selectedModus === "favorites") {
+      const favs = localStorage.allFavorites();
+      setFavorites(favs);
+    }
+  }, [selectedModus]);
+
   const [selectedExerciseId, setSelectedExerciseId] = useState<
     UUID | undefined
   >();
@@ -241,51 +262,189 @@ const ExerciseOverview = () => {
   if (selectedExerciseId) {
     return (
       <ExerciseInterface
+        exercise_info={
+          allExercises.find((exercise) => exercise.id === selectedExerciseId)!
+        }
         exerciseId={selectedExerciseId}
         handler={setSelectedExerciseId}
       />
     );
   }
 
+  const likeCompare = (a: Exercise, b: Exercise) => {
+    if (a.likes == 0 && a.dislikes == 0) {
+      return 1;
+    } else if (b.likes == 0 && b.dislikes == 0) {
+      return -1;
+    }
+    return b.likes / (b.likes + b.dislikes) - a.likes / (a.likes + a.dislikes);
+  };
+
   return (
-    <Flex gap={"md"}>
-      {/* <Grid.Col span={6}> */}
+    <Stack gap={"md"}>
       <Card withBorder>
         <Info />
       </Card>
       <Card withBorder miw={500}>
         <Flex justify="space-between">
           <Title order={3}>Exercises</Title>
+          <Group>
+            <Tooltip label="Difficulty">
+              <ActionIcon
+                onClick={() => setSelectedModus("difficulty")}
+                variant={selectedModus == "difficulty" ? "filled" : "light"}
+              >
+                <IconGauge />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Likes">
+              <ActionIcon
+                onClick={() => setSelectedModus("likes")}
+                variant={selectedModus == "likes" ? "filled" : "light"}
+              >
+                <IconThumbUp />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Favorite">
+              <ActionIcon
+                onClick={() => setSelectedModus("favorites")}
+                variant={selectedModus == "favorites" ? "filled" : "light"}
+              >
+                <IconStar />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="All">
+              <ActionIcon
+                onClick={() => setSelectedModus("default")}
+                variant={selectedModus == "default" ? "filled" : "light"}
+              >
+                <IconClearAll />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
           <Group gap={"xs"}>
-            <ActionIcon onClick={refetch}>
-              <IconReload />
-            </ActionIcon>
+            <Tooltip label="Refresh">
+              <ActionIcon onClick={refetch}>
+                <IconReload />
+              </ActionIcon>
+            </Tooltip>
             <CreateExerciseForm />
           </Group>
         </Flex>
         <Divider py={"md"} />
-        <Stack>
-          {allExercises.map((exercise, i) => (
-            <ExerciseListElement
-              key={i}
-              exercise={exercise}
-              handler={setSelectedExerciseId}
-            />
-          ))}
-        </Stack>
-      </Card>
-      {/* </Grid.Col>
-      <Grid.Col span={6}> */}
-      {/* <Stack>
-        <Card withBorder miw={"800"}>
-          <Title order={3}>Create Exercise</Title>
-          <Divider py={"md"} />
+        <Flex
+          gap={"md"}
+          wrap="wrap"
+          justify={selectedModus == "difficulty" ? "stretch" : undefined}
+        >
+          {selectedModus === "difficulty" && (
+            <>
+              <Stack>
+                <Center miw={400}>
+                  <Title order={4}>Easy</Title>
+                </Center>
+                {allExercises
+                  .filter((ex) => ex.difficulty <= 4)
+                  .toSorted(likeCompare)
+                  .map((exercise, i) => (
+                    <Box key={i} miw={400}>
+                      <ExerciseListElement
+                        key={i}
+                        exercise={exercise}
+                        handler={setSelectedExerciseId}
+                      />
+                    </Box>
+                  ))}
+              </Stack>
+              <Divider orientation="vertical" />
+              <Stack>
+                <Center miw={400}>
+                  <Title order={4}>Intermediate</Title>
+                </Center>
+                {allExercises
+                  .filter((ex) => ex.difficulty <= 7 && ex.difficulty > 4)
+                  .toSorted(likeCompare)
+                  .map((exercise, i) => (
+                    <Box key={i} miw={400}>
+                      <ExerciseListElement
+                        key={i}
+                        exercise={exercise}
+                        handler={setSelectedExerciseId}
+                      />
+                    </Box>
+                  ))}
+              </Stack>
+              <Divider orientation="vertical" />
+              <Stack>
+                <Center miw={400}>
+                  <Title order={4}>Hards</Title>
+                </Center>
+                {allExercises
+                  .filter((ex) => ex.difficulty <= 9 && ex.difficulty > 7)
+                  .toSorted(likeCompare)
+                  .map((exercise, i) => (
+                    <Box key={i} miw={400}>
+                      <ExerciseListElement
+                        key={i}
+                        exercise={exercise}
+                        handler={setSelectedExerciseId}
+                      />
+                    </Box>
+                  ))}
+              </Stack>
+              <Divider orientation="vertical" />
+              <Stack>
+                <Center miw={400}>
+                  <Title order={4}>Insane</Title>
+                </Center>
+                {allExercises
+                  .filter((ex) => ex.difficulty > 9)
+                  .toSorted(likeCompare)
+                  .map((exercise, i) => (
+                    <Box key={i} miw={400}>
+                      <ExerciseListElement
+                        key={i}
+                        exercise={exercise}
+                        handler={setSelectedExerciseId}
+                      />
+                    </Box>
+                  ))}
+              </Stack>
+            </>
+          )}
 
-          <CreateExerciseForm />
-        </Card>
-      </Stack> */}
-      {/* </Grid.Col> */}
-    </Flex>
+          {selectedModus === "likes" &&
+            allExercises.toSorted(likeCompare).map((exercise, i) => (
+              <Box key={i} miw={400}>
+                <ExerciseListElement
+                  key={i}
+                  exercise={exercise}
+                  handler={setSelectedExerciseId}
+                />
+              </Box>
+            ))}
+
+          {["favorites", "default"].includes(selectedModus) &&
+            allExercises
+              .filter((ex) => {
+                if (selectedModus === "favorites") {
+                  return favorites.includes(ex.id as UUID);
+                } else {
+                  return true;
+                }
+              })
+              .map((exercise, i) => (
+                <Box key={i} miw={400}>
+                  <ExerciseListElement
+                    key={i}
+                    exercise={exercise}
+                    handler={setSelectedExerciseId}
+                  />
+                </Box>
+              ))}
+        </Flex>
+      </Card>
+    </Stack>
   );
 };
 
