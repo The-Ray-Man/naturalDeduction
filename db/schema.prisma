@@ -26,7 +26,7 @@ model Exercise {
   statementId   String    @db.Uuid
   likes         Int
   dislikes      Int
-  difficulty    Float     @default(1)
+  difficulty    Float     @default(0)
   num_responses Int       @default(0)
   statement     Statement @relation(fields: [statementId], references: [id])
 }
