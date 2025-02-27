@@ -57,6 +57,7 @@ const Exercise = ({ exercise, exercise_info }: ExerciseProps) => {
       setDone(completed);
       setCompleted(completed);
       if (completed) {
+        localStorage.addCompleted(exercise_info.id as UUID);
         setTimeout(() => {
           setDone(false);
         }, 5000);

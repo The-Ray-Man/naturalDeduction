@@ -3,6 +3,7 @@ import { UUID } from "crypto";
 type localStorage = {
   feedback_items: UUID[];
   favorite_items: UUID[];
+  completed: UUID[];
   welcome_collapsed: boolean;
 };
 
@@ -12,6 +13,7 @@ function readLocalStorage(): localStorage {
     return {
       feedback_items: [],
       favorite_items: [],
+      completed: [],
       welcome_collapsed: false,
     };
   }
@@ -47,6 +49,20 @@ function removeFavorite(fav: UUID) {
   saveLocalStorage(data);
 }
 
+function isFavorite(fav: UUID) {
+  return readLocalStorage().favorite_items.includes(fav);
+}
+
+function toggleFavorite(fav: UUID) {
+  let data = readLocalStorage();
+  if (data.favorite_items.includes(fav)) {
+    data.favorite_items = data.favorite_items.filter((item) => item != fav);
+  } else {
+    data.favorite_items.push(fav);
+  }
+  saveLocalStorage(data);
+}
+
 function allFavorites(): UUID[] {
   return readLocalStorage().favorite_items;
 }
@@ -64,12 +80,34 @@ function existsFeedback(feedback: UUID): boolean {
   return readLocalStorage().feedback_items.includes(feedback);
 }
 
+function isCompleted(exercise: UUID): boolean {
+  return readLocalStorage().completed.includes(exercise);
+}
+
+function addCompleted(exercise: UUID) {
+  let data = readLocalStorage();
+  if (data.completed.includes(exercise)) {
+    return;
+  }
+  data.completed.push(exercise);
+  saveLocalStorage(data);
+}
+
+function allCompleted(): UUID[] {
+  return readLocalStorage().completed;
+}
+
 export default {
   addFavorite,
   removeFavorite,
+  isFavorite,
   allFavorites,
+  toggleFavorite,
   addFeedback,
   existsFeedback,
   isWelcomeCollapsed,
   setWelcomeCollapsed,
+  isCompleted,
+  addCompleted,
+  allCompleted,
 };

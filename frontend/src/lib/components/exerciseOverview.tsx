@@ -38,12 +38,14 @@ import Statement from "./statement";
 import {
   IconCheck,
   IconClearAll,
+  IconCross,
   IconGauge,
   IconInfoCircle,
   IconPlus,
   IconReload,
   IconStar,
   IconThumbUp,
+  IconX,
 } from "@tabler/icons-react";
 import Formula from "./formula/formula";
 import { Action } from "@dnd-kit/core/dist/store";
@@ -239,15 +241,20 @@ const ExerciseOverview = () => {
   const { data: allExercises, refetch } = useGetExercisesQuery();
 
   const [selectedModus, setSelectedModus] = useState<
-    "default" | "favorites" | "difficulty" | "likes"
+    "default" | "favorites" | "difficulty" | "likes" | "incompleted"
   >("default");
 
   const [favorites, setFavorites] = useState<UUID[]>([]);
+  const [completed, setCompleted] = useState<UUID[]>([]);
 
   useEffect(() => {
     if (selectedModus === "favorites") {
       const favs = localStorage.allFavorites();
       setFavorites(favs);
+    }
+    if (selectedModus === "incompleted") {
+      const incompleted = localStorage.allCompleted();
+      setCompleted(incompleted);
     }
   }, [selectedModus]);
 
@@ -311,6 +318,14 @@ const ExerciseOverview = () => {
                 variant={selectedModus == "favorites" ? "filled" : "light"}
               >
                 <IconStar />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Incomplete">
+              <ActionIcon
+                onClick={() => setSelectedModus("incompleted")}
+                variant={selectedModus == "incompleted" ? "filled" : "light"}
+              >
+                <IconCheck />
               </ActionIcon>
             </Tooltip>
             <Tooltip label="All">
@@ -423,6 +438,21 @@ const ExerciseOverview = () => {
                 />
               </Box>
             ))}
+
+          {selectedModus === "incompleted" &&
+            allExercises
+              .filter((ex) => {
+                return !completed.includes(ex.id as UUID);
+              })
+              .map((exercise, i) => (
+                <Box key={i} miw={400}>
+                  <ExerciseListElement
+                    key={i}
+                    exercise={exercise}
+                    handler={setSelectedExerciseId}
+                  />
+                </Box>
+              ))}
 
           {["favorites", "default"].includes(selectedModus) &&
             allExercises
