@@ -27,29 +27,19 @@ function exportSubformula(node: NodeType, nodes: Array<NodeType>): string {
 
 function formulaToTypst(formula: Formula): string {
   switch (formula.type) {
-    case "And":
-      return `${formulaToTypst(formula.body.lhs)} and ${formulaToTypst(formula.body.rhs)}`;
-    case "Or":
-      return `${formulaToTypst(formula.body.lhs)} or ${formulaToTypst(formula.body.rhs)}`;
-    case "Not":
-      return `not ${formulaToTypst(formula.body)}`;
-    case "Ident":
-      return `${formula.body.value}`;
-    case "Imp":
-      return `${formulaToTypst(formula.body.lhs)} arrow.r ${formulaToTypst(formula.body.rhs)}`;
-    case "True":
-      return "top";
-    case "False":
-      return "bot";
-    case "Forall":
-      return `formall ${formulaToTypst({ type: "Ident", body: formula.body.identifier })}. ${formulaToTypst(formula.body.formula)}`;
-    case "Exists":
-      return `exists ${formulaToTypst({ type: "Ident", body: formula.body.identifier })}. ${formulaToTypst(formula.body.formula)}`;
+    case "And": return `${formulaToTypst(formula.body.lhs)} and ${formulaToTypst(formula.body.rhs)}`
+    case "Or": return `${formulaToTypst(formula.body.lhs)} or ${formulaToTypst(formula.body.rhs)}`
+    case "Not": return `not ${formulaToTypst(formula.body)}`
+    case "Ident": return `${formula.body.value}`;
+    case "Imp": return `${formulaToTypst(formula.body.lhs)} arrow.r ${formulaToTypst(formula.body.rhs)}`
+    case "True": return "top"
+    case "False": return "bot"
+    case "Forall": return `forall ${formulaToTypst({ type: "Ident", body: formula.body.identifier })}. ${formulaToTypst(formula.body.formula)}`
+    case "Exists": return `exists ${formulaToTypst({ type: "Ident", body: formula.body.identifier })}. ${formulaToTypst(formula.body.formula)}`
     case "Predicate": {
-      const vars = formula.body.identifiers.map((id) => id.value).join(", ");
+      const vars = formula.body.identifiers.map(id => id.value).join(", ");
       return `${formula.body.identifier}(${vars})`;
     }
-    default:
-      return "";
+    default: return "";
   }
 }

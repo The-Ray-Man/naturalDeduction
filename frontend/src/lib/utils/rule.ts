@@ -44,40 +44,40 @@ export function getRuleByName(name: Rules): string {
 export function getTypstRuleByName(name: Rules): string {
   switch (name) {
     case "AndElimL":
-      return 'and "EL"';
+      return "and \"EL\"";
     case "AndElimR":
-      return 'and "ER"';
+      return "and \"ER\"";
     case "AndIntro":
-      return 'and "I"';
+      return "and \"I\"";
     case "Ax":
-      return '"AXIOM"';
+      return "\"AXIOM\"";
     case "ExistsElim":
-      return 'exists "E**"';
+      return "exists \"E**\"";
     case "ExistsIntro":
-      return 'exists "I"';
+      return "exists \"I\"";
     case "FalseElim":
-      return 'bot "E"';
+      return "bot \"E\"";
     case "ForallElim":
-      return 'forall "E"';
+      return "forall \"E\"";
     case "ForallIntro":
-      return 'forall "I*"';
+      return "forall \"I*\"";
     case "ImplElim":
-      return 'arrow.r "E"';
+      return "arrow.r \"E\"";
     case "ImplIntro":
-      return 'arrow.r "I"';
+      return "arrow.r \"I\"";
     case "NotElim":
-      return 'not "E"';
+      return "not \"E\"";
     case "NotIntro":
-      return 'not "I"';
+      return "not \"I\"";
     case "OrElim":
-      return 'or "E"';
+      return "or \"E\"";
     case "OrIntroL":
-      return 'or "I"';
+      return "or \"I\"";
     case "OrIntroR":
-      return 'or "I"';
+      return "or \"I\"";
     case "AlphaExists":
-      return 'alpha exists "***"';
+      return "alpha exists \"***\"";
     case "AlphaForall":
-      return 'alpha forall "***"';
+      return "alpha forall \"***\""
   }
 }
