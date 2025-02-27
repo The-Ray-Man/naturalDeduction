@@ -32,7 +32,7 @@ type exerciseListElementProps = {
   handler: Dispatch<SetStateAction<UUID | undefined>>;
 };
 
-const exerciseListElment = ({
+const ExerciseListElment = ({
   exercise,
   handler,
 }: exerciseListElementProps) => {
@@ -104,4 +104,4 @@ const exerciseListElment = ({
   );
 };
 
-export default exerciseListElment;
+export default ExerciseListElment;
