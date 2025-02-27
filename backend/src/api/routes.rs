@@ -245,6 +245,21 @@ pub async fn apply_rule(query: Json<ApplyRuleParams>) -> BackendResult<Json<Vec<
 
 #[utoipa::path(
     post,
+    path = "/api/check",
+    responses(
+        (status = StatusCode::OK, body = bool),
+        (status = StatusCode::NOT_FOUND, description = "Building not found"),
+        (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Internal server error")
+    )
+)]
+pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
+    let result = is_tautology(query.0.clone());
+    info!("{:?} is a tautology: {}", query.0, result);
+    Ok(Json(result))
+}
+
+#[utoipa::path(
+    post,
     path = "/api/exercise/{id}/feedback",
     responses(
         (status = StatusCode::OK, body = bool),
