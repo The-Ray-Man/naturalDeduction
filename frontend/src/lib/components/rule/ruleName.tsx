@@ -7,7 +7,7 @@ type RuleNameProps = {
 };
 
 const RuleName = ({ name }: RuleNameProps) => {
-  return <Text>{getRuleByName(name)}</Text>
+  return <Text>{getRuleByName(name)}</Text>;
 };
 
 export default RuleName;

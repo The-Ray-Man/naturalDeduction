@@ -1,5 +1,5 @@
 "use client";
-import { useGetExerciseQuery } from "@/lib/api";
+import { Exercise as ExerciseType, useGetExerciseQuery } from "@/lib/api";
 import Exercise from "@/lib/components/exercise/exercise";
 import Matcher from "@/lib/components/exercise/matcher";
 import Rules from "@/lib/components/rule/rules";
@@ -18,11 +18,16 @@ import { useParams } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
 
 type ExerciseInterfaceProps = {
+  exercise_info: ExerciseType;
   exerciseId: UUID;
   handler: Dispatch<SetStateAction<UUID | undefined>>;
 };
 
-const ExerciseInterface = ({ exerciseId, handler }: ExerciseInterfaceProps) => {
+const ExerciseInterface = ({
+  exerciseId,
+  handler,
+  exercise_info,
+}: ExerciseInterfaceProps) => {
   const { data: exercise } = useGetExerciseQuery({
     id: exerciseId,
   });
@@ -57,7 +62,7 @@ const ExerciseInterface = ({ exerciseId, handler }: ExerciseInterfaceProps) => {
         </Box>
       )}
       <Stack align="center" justify="center" mih={500}>
-        <Exercise exercise={exercise} />
+        <Exercise exercise={exercise} exercise_info={exercise_info} />
       </Stack>
     </SimpleGrid>
   );

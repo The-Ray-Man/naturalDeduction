@@ -122,6 +122,36 @@
         }
       }
     },
+    "/api/exercise/{id}/feedback": {
+      "post": {
+        "tags": ["crate::api::routes"],
+        "operationId": "post_feedback",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Feedback" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          },
+          "404": { "description": "Building not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
     "/api/parse": {
       "post": {
         "tags": ["crate::api::routes"],
@@ -232,12 +262,25 @@
       },
       "Exercise": {
         "type": "object",
-        "required": ["id", "exercise", "likes", "dislikes"],
+        "required": ["id", "exercise", "likes", "dislikes", "difficulty"],
         "properties": {
+          "difficulty": { "type": "number", "format": "double" },
           "dislikes": { "type": "integer", "format": "int32" },
           "exercise": { "$ref": "#/components/schemas/Statement" },
           "id": { "type": "string", "format": "uuid" },
           "likes": { "type": "integer", "format": "int32" }
+        }
+      },
+      "Feedback": {
+        "type": "object",
+        "required": ["like"],
+        "properties": {
+          "difficulty": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          },
+          "like": { "type": "boolean" }
         }
       },
       "Formula": {

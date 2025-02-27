@@ -5,8 +5,8 @@ import { getTypstRuleByName } from "./rule";
 export function exportToTypst(root: NodeType, nodes: Array<NodeType>): string {
   const imp = `#import "@preview/curryst:0.5.0": rule, prooftree`;
   const page = `#set page(fill: none, width: auto, height: auto, margin: (x: 1em, y: 1em))`;
-  const prooftree = `#prooftree(${exportSubformula(root, nodes)})`
-  return `${imp}\n${page}\n${prooftree}`
+  const prooftree = `#prooftree(${exportSubformula(root, nodes)})`;
+  return `${imp}\n${page}\n${prooftree}`;
 }
 
 function exportSubformula(node: NodeType, nodes: Array<NodeType>): string {
@@ -15,14 +15,14 @@ function exportSubformula(node: NodeType, nodes: Array<NodeType>): string {
   const current = formulaToTypst(node.statement.formula);
 
   const premisses = node.premisses
-    .map(premisse => {
-      return nodes.find(node => node.name === premisse);
+    .map((premisse) => {
+      return nodes.find((node) => node.name === premisse);
     })
     .filter(Boolean)
-    .map(node => exportSubformula(node as NodeType, nodes))
+    .map((node) => exportSubformula(node as NodeType, nodes))
     .join(",\n");
 
-  return `rule(name: $${name}$,$${lhs} tack ${current}$,${premisses})`
+  return `rule(name: $${name}$,$${lhs} tack ${current}$,${premisses})`;
 }
 
 function formulaToTypst(formula: Formula): string {

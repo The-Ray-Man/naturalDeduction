@@ -43,7 +43,6 @@ impl LogicParser {
             Rule::false_ => Self::parse_false(num, pair, captures),
             e => panic!("Unexpected rule: {:?}", e),
         }
-        // todo!()
     }
 
     fn parse_true(

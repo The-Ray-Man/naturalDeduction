@@ -326,7 +326,6 @@ impl Rules {
             },
         };
 
-        
         [
             ax,
             impl_intro,
@@ -350,7 +349,7 @@ impl Rules {
     }
     pub fn get_rule(&self) -> DerivationRule {
         let all_rules = Rules::all_rules();
-        
+
         all_rules
             .into_iter()
             .find(|rule| rule.name == *self)

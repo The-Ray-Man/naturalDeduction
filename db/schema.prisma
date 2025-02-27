@@ -4,45 +4,48 @@ datasource db {
 }
 
 model Statement {
-    id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    lhs        String
-    rhs        String
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lhs String
+  rhs String
 
-    Exercise Exercise[]
+  Exercise Exercise[]
 }
 
 model Node {
-    id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    child_id String @db.Uuid
-    child Node @relation("Child", fields: [id], references: [id])
-    rule     rules
-    @@unique([id, child_id, rule])
-    Node Node[] @relation("Child")
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  child_id String @db.Uuid
+  child    Node   @relation("Child", fields: [id], references: [id])
+  rule     rules
+  Node     Node[] @relation("Child")
+
+  @@unique([id, child_id, rule])
 }
 
 model Exercise {
-    id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    statementId String @db.Uuid
-    likes       Int
-    dislikes    Int
-    statement  Statement @relation(fields: [statementId], references: [id])
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  statementId   String    @db.Uuid
+  likes         Int
+  dislikes      Int
+  difficulty    Float     @default(0)
+  num_responses Int       @default(0)
+  statement     Statement @relation(fields: [statementId], references: [id])
 }
 
 enum rules {
-    Ax
-    ImplIntro
-    ImplElim
-    FalseElim
-    NotIntro
-    NotElim
-    AndIntro
-    AndElimL
-    AndElimR
-    OrIntroL
-    OrIntroR
-    OrElim
-    ForallElim
-    ForallIntro
-    ExistsElim
-    ExistsIntro
+  Ax
+  ImplIntro
+  ImplElim
+  FalseElim
+  NotIntro
+  NotElim
+  AndIntro
+  AndElimL
+  AndElimR
+  OrIntroL
+  OrIntroR
+  OrElim
+  ForallElim
+  ForallIntro
+  ExistsElim
+  ExistsIntro
 }

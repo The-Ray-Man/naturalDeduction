@@ -1,7 +1,7 @@
 use axum::extract::{Path, State};
 use axum::Json;
 use log::info;
-use sea_orm::{ActiveModelTrait, QueryFilter};
+use sea_orm::{ActiveModelTrait, IntoActiveModel, QueryFilter};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
@@ -12,7 +12,7 @@ use sea_orm::EntityTrait;
 
 use super::exercise_models::{CreateExerciseRequest, Exercise};
 use super::formula_models::{Formula, ParseParams, Statement};
-use super::models::ApplyRuleParams;
+use super::models::{ApplyRuleParams, Feedback};
 use super::rule_models::{DerivationRule, RuleIdentifier, Rules};
 use super::utils::apply_rule as utils_apply_rule;
 use crate::lib::{is_tautology, LogicParser};
@@ -49,10 +49,8 @@ pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exe
             id: e.id,
             likes: e.likes,
             dislikes: e.dislikes,
-            exercise: Statement {
-                lhs,
-                formula,
-            },
+            difficulty: e.difficulty,
+            exercise: Statement { lhs, formula },
         });
     }
 
@@ -96,10 +94,7 @@ pub async fn get_exercise(
     let lhs = serde_json::from_str::<Vec<Formula>>(&statement.lhs)
         .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
-    let exercise = Statement {
-        formula,
-        lhs,
-    };
+    let exercise = Statement { formula, lhs };
 
     Ok(Json(exercise))
 }
@@ -263,22 +258,45 @@ pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
     Ok(Json(result))
 }
 
-// #[utoipa::path(
-//     post,
-//     path = "/api/tree",
-//     responses(
-//         (status = StatusCode::OK, body = bool),
-//         (status = StatusCode::NOT_FOUND, description = "Building not found"),
-//         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Internal server error")
-//     )
-// )]
-// pub async fn add_tree(query: Json<CreateTreeRequest>) -> BackendResult<Json<bool>> {
+#[utoipa::path(
+    post,
+    path = "/api/exercise/{id}/feedback",
+    responses(
+        (status = StatusCode::OK, body = bool),
+        (status = StatusCode::NOT_FOUND, description = "Building not found"),
+        (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Internal server error")
+    )
+)]
+pub async fn post_feedback(
+    state: State<AppState>,
+    Path(id): Path<Uuid>,
+    query: Json<Feedback>,
+) -> BackendResult<Json<bool>> {
+    let exercise = exercise::Entity::find_by_id(id).one(&state.db).await?;
 
-//     let check_tree = check_tree(query.root_id, query.nodes.clone());
+    if exercise.is_none() {
+        return Err(BackendError::NotFound {
+            entity: "Exercise".to_string(),
+        });
+    }
 
-//     if !check_tree {
-//         return Err(BackendError::BadRequest("The tree is not valid".to_string()));
-//     }
+    let exercise = exercise.unwrap();
+    let mut active_model = exercise.clone().into_active_model();
 
-//     Ok(Json(true))
-// }
+    if query.like {
+        active_model.likes = sea_orm::ActiveValue::Set(exercise.likes + 1);
+    } else {
+        active_model.dislikes = sea_orm::ActiveValue::Set(exercise.dislikes + 1);
+    }
+
+    if let Some(ranking) = query.difficulty {
+        let before_average = exercise.difficulty * exercise.num_responses as f64;
+        let new_average = (before_average + ranking as f64) / (exercise.num_responses + 1) as f64;
+        active_model.difficulty = sea_orm::ActiveValue::Set(new_average);
+        active_model.num_responses = sea_orm::ActiveValue::Set(exercise.num_responses + 1);
+    }
+
+    let _ = active_model.save(&state.db).await?;
+
+    Ok(Json(true))
+}

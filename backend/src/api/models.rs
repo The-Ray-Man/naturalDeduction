@@ -25,3 +25,9 @@ pub struct ApplyRuleParams {
     pub mapping: Vec<FormulaMapping>,
     pub substitution: Vec<ElementMapping>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]
+pub struct Feedback {
+    pub like: bool,
+    pub difficulty: Option<u32>,
+}

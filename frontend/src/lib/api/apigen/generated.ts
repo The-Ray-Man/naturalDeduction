@@ -31,6 +31,13 @@ const injectedRtkApi = api.injectEndpoints({
     getExercise: build.query<GetExerciseApiResponse, GetExerciseApiArg>({
       query: (queryArg) => ({ url: `/api/exercise/${queryArg.id}` }),
     }),
+    postFeedback: build.mutation<PostFeedbackApiResponse, PostFeedbackApiArg>({
+      query: (queryArg) => ({
+        url: `/api/exercise/${queryArg.id}/feedback`,
+        method: "POST",
+        body: queryArg.feedback,
+      }),
+    }),
     parse: build.mutation<ParseApiResponse, ParseApiArg>({
       query: (queryArg) => ({
         url: `/api/parse`,
@@ -62,6 +69,11 @@ export type CreateExerciseApiArg = {
 export type GetExerciseApiResponse = /** status 200  */ Statement;
 export type GetExerciseApiArg = {
   id: string;
+};
+export type PostFeedbackApiResponse = unknown;
+export type PostFeedbackApiArg = {
+  id: string;
+  feedback: Feedback;
 };
 export type ParseApiResponse = /** status 200  */ Formula;
 export type ParseApiArg = {
@@ -173,6 +185,7 @@ export type ApplyRuleParams = {
   substitution: ElementMapping[];
 };
 export type Exercise = {
+  difficulty: number;
   dislikes: number;
   exercise: Statement;
   id: string;
@@ -181,6 +194,10 @@ export type Exercise = {
 export type CreateExerciseRequest = {
   lhs: Formula[];
   rhs: Formula;
+};
+export type Feedback = {
+  difficulty?: number | null;
+  like: boolean;
 };
 export type ParseParams = {
   formula: string;
@@ -267,6 +284,7 @@ export const {
   useGetExercisesQuery,
   useCreateExerciseMutation,
   useGetExerciseQuery,
+  usePostFeedbackMutation,
   useParseMutation,
   useAllRulesQuery,
 } = injectedRtkApi;

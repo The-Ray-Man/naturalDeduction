@@ -37,7 +37,7 @@ export function getRuleByName(name: Rules): string {
     case "AlphaExists":
       return "\u03B1\u2203***";
     case "AlphaForall":
-      return "\u03B1\u2200***"
+      return "\u03B1\u2200***";
   }
 }
 
