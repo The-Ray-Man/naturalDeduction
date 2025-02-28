@@ -2,11 +2,10 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::lib::derivation::formula::Formula;
-use crate::lib::derivation::statement::Statement;
-use crate::lib::rule::Rules;
-
 use utoipa::IntoParams;
+
+use crate::lib::derivation::{formula::Formula, statement::Statement};
+use crate::lib::rule::Rules;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CreateExerciseRequest {
