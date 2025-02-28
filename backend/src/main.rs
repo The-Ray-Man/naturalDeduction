@@ -1,20 +1,21 @@
 pub mod api;
 mod db;
 mod docs;
+mod lib;
+mod logging;
 mod utils;
 // mod entities;
 mod error;
-mod lib;
 // mod search_engine;
 // mod utils;
-
 use crate::docs::ApiDocs;
 use axum::extract::Request;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use axum::{http, Router};
+use axum::{http, middleware, Router};
 use http::Method;
 use log::{error, info};
+use logging::mw_map_response;
 use sea_orm::DatabaseConnection;
 use tower_http::cors::{Any, CorsLayer};
 use utils::connect_db;
@@ -42,11 +43,7 @@ async fn main() {
         Err(err) => return error!("unable to connect to database: {err}"),
     };
 
-    let origins = [
-        "http://localhost:3000".parse().unwrap(),
-        // "http://nethmap.course-fwe-2023.isginf.ch".parse().unwrap(),
-        // "https://nethmap.course-fwe-2023.isginf.ch".parse().unwrap(),
-    ];
+    let origins = ["http://localhost:3000".parse().unwrap()];
 
     let app_state = AppState { db };
 
@@ -69,6 +66,7 @@ async fn main() {
     let mut app = Router::new()
         .merge(SwaggerUi::new("/api/docs").url("/api/docs/openapi.json", ApiDocs::openapi()))
         .nest("/api", api::get_router(&app_state))
+        .layer(middleware::map_response(mw_map_response))
         .fallback(handler_404);
 
     #[cfg(feature = "static")]
@@ -78,9 +76,7 @@ async fn main() {
         app = app.fallback(get(files::static_file_handler));
     }
 
-    app = app
-        // .fallback(handler_404)
-        .layer(cors);
+    app = app.layer(cors);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
     info!("starting web server at port 8000");
