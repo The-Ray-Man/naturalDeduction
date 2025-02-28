@@ -7,15 +7,18 @@ use uuid::Uuid;
 
 use crate::db::*;
 use crate::error::{BackendError, BackendResult};
+use crate::lib::derivation::formula::Formula;
+use crate::lib::derivation::statement::Statement;
+use crate::lib::rule::{DerivationRule, RuleIdentifier, Rules};
 use crate::AppState;
 use sea_orm::EntityTrait;
 
-use super::exercise_models::{CreateExerciseRequest, Exercise};
-use super::formula_models::{Formula, ParseParams, Statement};
-use super::models::{ApplyRuleParams, Feedback};
-use super::rule_models::{DerivationRule, RuleIdentifier, Rules};
+use super::models::{
+    ApplyRuleParams, CreateExerciseRequest, CreateTreeRequest, ElementMapping, Exercise, Feedback,
+    FormulaMapping, Node, ParseParams,
+};
 use super::utils::apply_rule as utils_apply_rule;
-use crate::lib::{is_tautology, LogicParser};
+use crate::lib::{LogicParser};
 use sea_orm::ColumnTrait;
 
 #[utoipa::path(
@@ -111,10 +114,13 @@ pub async fn create_exercise(
     state: State<AppState>,
     query: Json<CreateExerciseRequest>,
 ) -> BackendResult<Json<bool>> {
-    let res = is_tautology(Statement {
+
+    let stmt =  Statement {
         lhs: query.lhs.clone(),
         formula: query.rhs.clone(),
-    });
+    };
+
+    let res = stmt.check();
 
     if !res {
         return Err(BackendError::BadRequest(
@@ -122,10 +128,6 @@ pub async fn create_exercise(
         ));
     }
 
-    let statement = Statement {
-        formula: query.rhs.clone(),
-        lhs: query.lhs.clone(),
-    };
 
     let rhs = serde_json::to_string(&query.rhs)
         .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
@@ -253,7 +255,7 @@ pub async fn apply_rule(query: Json<ApplyRuleParams>) -> BackendResult<Json<Vec<
     )
 )]
 pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
-    let result = is_tautology(query.0.clone());
+    let result = query.0.check();
     info!("{:?} is a tautology: {}", query.0, result);
     Ok(Json(result))
 }

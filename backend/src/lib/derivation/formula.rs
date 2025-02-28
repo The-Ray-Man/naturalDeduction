@@ -44,16 +44,8 @@ pub enum Formula {
     },
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]
-pub struct Statement {
-    pub lhs: Vec<Formula>,
-    pub formula: Formula,
-}
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]
-pub struct ParseParams {
-    pub formula: String,
-}
+
 
 impl Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

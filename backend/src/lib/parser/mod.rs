@@ -5,10 +5,10 @@ use pest::iterators::Pair;
 use pest::Parser;
 use pest_derive::Parser;
 
-use crate::api::formula_models::{Formula, Identifier};
+use crate::lib::derivation::formula::{Formula, Identifier};
 
 #[derive(Parser)]
-#[grammar = "./lib/grammar.pest"] // relative to src
+#[grammar = "./lib/parser/grammar.pest"] // relative to src
 pub struct LogicParser {}
 
 impl LogicParser {

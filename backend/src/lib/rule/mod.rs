@@ -1,3 +1,5 @@
+pub mod rule_definition;
+
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
