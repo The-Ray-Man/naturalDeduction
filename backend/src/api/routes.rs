@@ -17,8 +17,7 @@ use super::models::{
     ApplyRuleParams, CreateExerciseRequest, CreateTreeRequest, ElementMapping, Exercise, Feedback,
     FormulaMapping, Node, ParseParams,
 };
-use super::utils::apply_rule as utils_apply_rule;
-use crate::lib::{LogicParser};
+use crate::lib::LogicParser;
 use sea_orm::ColumnTrait;
 
 #[utoipa::path(
@@ -114,8 +113,7 @@ pub async fn create_exercise(
     state: State<AppState>,
     query: Json<CreateExerciseRequest>,
 ) -> BackendResult<Json<bool>> {
-
-    let stmt =  Statement {
+    let stmt = Statement {
         lhs: query.lhs.clone(),
         formula: query.rhs.clone(),
     };
@@ -127,7 +125,6 @@ pub async fn create_exercise(
             "The formula is not a tautology".to_string(),
         ));
     }
-
 
     let rhs = serde_json::to_string(&query.rhs)
         .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
@@ -236,12 +233,10 @@ pub async fn apply_rule(query: Json<ApplyRuleParams>) -> BackendResult<Json<Vec<
         .map(|map| (RuleIdentifier::Element(map.from), map.to))
         .collect::<BTreeMap<RuleIdentifier, String>>();
 
-    let new_premisses = utils_apply_rule(
-        query.statement.clone(),
-        rule,
-        &mut formula_mapping,
-        &mut element_mapping,
-    )?;
+    let new_premisses =
+        query
+            .statement
+            .apply_rule(rule, &mut formula_mapping, &mut element_mapping)?;
     Ok(Json(new_premisses))
 }
 

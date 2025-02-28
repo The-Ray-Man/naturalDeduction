@@ -1,6 +1,5 @@
 pub mod models;
 pub mod routes;
-pub mod utils;
 
 use axum::routing::{get, post};
 use axum::Router;
