@@ -136,13 +136,20 @@ impl Statement {
                 if let Some(rule_forall) = rule.premises.first() {
                     if let RuleFormula::Forall { formula, .. } = rule_forall.formula.clone() {
                         if let RuleFormula::Substitution {
-                            lhs: RuleIdentifier::Element(_),
-                            rhs: RuleIdentifier::Element(to),
+                            lhs: from ,
+                            rhs: to,
                             ..
                         } = *formula
                         {
                             let free_vars = self.formula.free_vars(BTreeSet::new())?;
-                            if free_vars.contains(&to) {
+                            let from = substitution.get(&from).ok_or(BackendError::BadRequest(
+                                "Could not find the substitution".to_string(),
+                            ))?;
+                            let to = substitution.get(&to).ok_or(BackendError::BadRequest(
+                                "Could not find the substitution".to_string(),
+                            ))?;
+
+                            if free_vars.contains(to) {
                                 return Err(BackendError::BadRequest(
                                     "The variable to be substituted must not be free in the target formula"
                                         .to_string(),
