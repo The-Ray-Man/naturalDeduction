@@ -6,14 +6,14 @@ FROM frontend AS frontend-deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 
-COPY frontend/package.json frontend/package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm ci -f
 
 FROM frontend AS frontend-builder
 
 WORKDIR /app
 COPY --from=frontend-deps /app/node_modules ./node_modules
-COPY frontend .
+COPY . .
 
 ENV NEXT_PUBLIC_API_URL=$API_URL
 ENV NEXT_PUBLIC_TYPST_COMPILER_URL=/typst-compiler.wasm
