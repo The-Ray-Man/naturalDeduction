@@ -66,3 +66,9 @@ pub struct Feedback {
 pub struct ParseParams {
     pub formula: String,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]
+pub struct Tipp {
+    pub rule: Rules,
+    pub premisses: Vec<Statement>,
+}

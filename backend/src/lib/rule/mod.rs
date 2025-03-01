@@ -7,7 +7,7 @@ use utoipa::{IntoParams, ToSchema};
 
 use super::derivation::formula::Identifier;
 
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, PartialOrd, Ord, Eq)]
 pub enum Rules {
     Ax,
     ImplIntro,

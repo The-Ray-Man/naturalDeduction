@@ -1,8 +1,8 @@
 use axum::extract::{Path, State};
 use axum::Json;
 use log::info;
-use sea_orm::{ActiveModelTrait, IntoActiveModel, QueryFilter};
-use std::collections::BTreeMap;
+use sea_orm::{ActiveModelTrait, IntoActiveModel, QueryFilter, TransactionTrait};
+use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
 use crate::db::*;
@@ -16,9 +16,9 @@ use sea_orm::EntityTrait;
 
 use super::models::{
     ApplyRuleParams, CreateExerciseRequest, CreateTreeRequest, ElementMapping, Exercise, Feedback,
-    FormulaMapping, Node, ParseParams,
+    FormulaMapping, Node, ParseParams, Tipp,
 };
-use crate::lib::LogicParser;
+use crate::lib::{db, LogicParser};
 use sea_orm::ColumnTrait;
 
 #[utoipa::path(
@@ -265,9 +265,14 @@ pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Internal server error")
     )
 )]
-pub async fn add_tree(query: Json<CreateTreeRequest>) -> BackendResult<Json<bool>> {
+pub async fn add_tree(
+    state: State<AppState>,
+    query: Json<CreateTreeRequest>,
+) -> BackendResult<Json<bool>> {
     check_tree(query.root_id, &query.nodes)?;
-
+    let trx = state.db.begin().await?;
+    let _ = db::add_tree(&trx, query.root_id, &query.nodes).await?;
+    trx.commit().await?;
     Ok(Json(true))
 }
 
@@ -312,4 +317,78 @@ pub async fn post_feedback(
     let _ = active_model.save(&state.db).await?;
 
     Ok(Json(true))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/statement/tipp",
+    responses(
+        (status = StatusCode::OK, body = Statement),
+        (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Internal server error")
+    )
+)]
+pub async fn get_tipp(
+    state: State<AppState>,
+    query: Json<Statement>,
+) -> BackendResult<Json<Vec<Tipp>>> {
+    let lhs = serde_json::to_string(&query.lhs)
+        .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
+    let rhs = serde_json::to_string(&query.formula)
+        .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
+
+    let statement = statement::Entity::find()
+        .filter(statement::Column::Lhs.eq(&lhs))
+        .filter(statement::Column::Rhs.eq(&rhs))
+        .one(&state.db)
+        .await?;
+
+    if statement.is_none() {
+        return Err(BackendError::NotFound {
+            entity: "Statement".to_string(),
+        });
+    }
+    let model = statement.unwrap();
+
+    let tipps = node::Entity::find()
+        .filter(node::Column::ParentId.eq(model.id))
+        .all(&state.db)
+        .await?;
+
+    let sorted_tips: BTreeMap<Rules, Vec<(Statement, u32)>> = BTreeMap::new();
+
+    for node in tipps {
+        let mut premisses = sorted_tips
+            .get(&node.rule.into())
+            .unwrap_or(&Vec::new())
+            .clone();
+
+        if let Some(premisse) = node.child_id {
+            let premiss = statement::Entity::find_by_id(premisse)
+                .one(&state.db)
+                .await?;
+
+            if let Some(premisse) = premiss {
+                premisses.push((
+                    Statement {
+                        lhs: serde_json::from_str(&premisse.lhs).unwrap(),
+                        formula: serde_json::from_str(&premisse.rhs).unwrap(),
+                    },
+                    node.order as u32,
+                ));
+            }
+        }
+    }
+
+    let result = sorted_tips
+        .iter()
+        .map(|(rule, premisses)| {
+            let mut sorted_premisses = premisses.clone();
+            sorted_premisses.sort_by(|(_, a), (_, b)| a.cmp(b));
+            Tipp {
+                rule: rule.clone(),
+                premisses: sorted_premisses.iter().map(|(s, _)| s.clone()).collect(),
+            }
+        })
+        .collect::<Vec<_>>();
+    Ok(Json(result))
 }
