@@ -3,7 +3,7 @@ FROM rust:alpine3.19 AS api-builder
 WORKDIR /app
 RUN apk add --no-cache musl-dev z3 cmake g++ make python3 curl clang16-libclang z3-dev
 
-COPY backend .
+COPY . .
 ENV RUSTFLAGS='-C target-feature=-crt-static'
 # RUN cargo build --release --features static
 RUN cargo build --release
