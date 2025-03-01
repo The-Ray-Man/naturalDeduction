@@ -1,10 +1,17 @@
-import { Rules, Statement as StatementType, useCheckMutation } from "@/lib/api";
+import {
+  Rules,
+  Statement as StatementType,
+  Tipp,
+  useCheckMutation,
+  useGetTippMutation,
+} from "@/lib/api";
 import RuleName from "@/lib/components/rule/ruleName";
 import Statement from "@/lib/components/statement";
 import { useNodesContext } from "@/lib/hook/FormulaContext";
 import { treeCompleted } from "@/lib/utils/finished";
-import { Box, Divider, Flex, Group, Menu, Stack } from "@mantine/core";
+import { Box, Button, Divider, Flex, Group, Menu, Stack } from "@mantine/core";
 import {
+  IconBulb,
   IconCheck,
   IconDots,
   IconLayoutBottombarCollapse,
@@ -15,6 +22,8 @@ import {
 import { UUID } from "crypto";
 import { useEffect, useState } from "react";
 import DropZone from "./dropzone";
+import Hint from "./hint";
+import { useDisclosure } from "@mantine/hooks";
 
 function get_child_ids(node: NodeType, all_nodes: NodeType[]): UUID[] {
   let children: UUID[] = [];
@@ -56,6 +65,8 @@ type NodeProps = {
 const Node = ({ node, all_nodes }: NodeProps) => {
   const { rootId, nodes, handler, currentId, currentIdHandler } =
     useNodesContext();
+
+  const [hintOpened, { open, close }] = useDisclosure(false);
 
   const isRoot = rootId == node.name;
 
@@ -106,95 +117,104 @@ const Node = ({ node, all_nodes }: NodeProps) => {
   }
 
   return (
-    <Stack m={isRoot ? 16 : 0} pt={isRoot ? 10 : 0} gap={0}>
-      {hidden ? (
-        <Flex gap={"xl"} justify="center" align="flex-end">
-          {isCompleted ? (
-            <IconCheck size={20} color={"green"} />
-          ) : (
-            <IconDots size={20} color={"red"} />
-          )}
-        </Flex>
-      ) : (
-        <Flex gap={"xl"} justify="center" align="flex-end">
-          {node && node.premisses.length > 0 && (
-            <Group align="flex-end" w={"fit-content"}>
-              {node.premisses.map((premiss) => {
-                return (
-                  <Node
-                    key={premiss}
-                    all_nodes={all_nodes}
-                    node={all_nodes.find((n) => n.name == premiss) as NodeType}
-                  />
-                );
-              })}
-            </Group>
-          )}
-          {node.premisses.length == 0 && node.rule == undefined && (
-            <DropZone id={node.name} />
-          )}
-        </Flex>
-      )}
-      <Group justify="center" align="start">
-        <Stack gap={0}>
-          <Divider
-            style={{ borderColor: "currentColor" }}
-            mb={8}
-            mt={node.rule == undefined ? 15 : 8}
-            w={"100%"}
-          ></Divider>
-          <Flex justify={"center"}>
-            <Statement statement={node.statement} textColor={color} />
+    <>
+      <Hint statement={node.statement} opened={hintOpened} close={close} />
+      <Stack m={isRoot ? 16 : 0} pt={isRoot ? 10 : 0} gap={0}>
+        {hidden ? (
+          <Flex gap={"xl"} justify="center" align="flex-end">
+            {isCompleted ? (
+              <IconCheck size={20} color={"green"} />
+            ) : (
+              <IconDots size={20} color={"red"} />
+            )}
           </Flex>
-        </Stack>
-        <Group
-          pl={node.rule == undefined ? 5 : -10}
-          mt={node.rule == undefined ? 5 : -5}
-          gap={15}
-        >
-          {node && node.rule && (
-            <Box className="katex">
-              <RuleName name={node.rule} />
-            </Box>
-          )}
-          <Menu trigger="click-hover" position="right">
-            <Menu.Target>
-              <IconDots size={14} />
-            </Menu.Target>
-            <Menu.Dropdown>
-              {!isRoot && (
-                <>
-                  <Menu.Item
-                    leftSection={<IconTrash size={14} />}
-                    onClick={deleteNode}
-                  >
-                    Delete Subtree
-                  </Menu.Item>
-                </>
-              )}
-              <Menu.Item
-                leftSection={<IconZoomIn size={14} />}
-                onClick={() => currentIdHandler(node.name)}
-              >
-                Focus
-              </Menu.Item>
-              <Menu.Item
-                leftSection={<IconLayoutBottombarCollapse size={14} />}
-                onClick={() => setHidden(!hidden)}
-              >
-                {hidden ? "Show" : "Hide"}
-              </Menu.Item>
-              <Menu.Item
-                leftSection={<IconZoomCheck size={14} />}
-                onClick={checkNode}
-              >
-                Satisfiable
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+        ) : (
+          <Flex gap={"xl"} justify="center" align="flex-end">
+            {node && node.premisses.length > 0 && (
+              <Group align="flex-end" w={"fit-content"}>
+                {node.premisses.map((premiss) => {
+                  return (
+                    <Node
+                      key={premiss}
+                      all_nodes={all_nodes}
+                      node={
+                        all_nodes.find((n) => n.name == premiss) as NodeType
+                      }
+                    />
+                  );
+                })}
+              </Group>
+            )}
+            {node.premisses.length == 0 && node.rule == undefined && (
+              <DropZone id={node.name} />
+            )}
+          </Flex>
+        )}
+
+        <Group justify="center" align="start">
+          <Stack gap={0}>
+            <Divider
+              style={{ borderColor: "currentColor" }}
+              mb={8}
+              mt={node.rule == undefined ? 15 : 8}
+              w={"100%"}
+            ></Divider>
+            <Flex justify={"center"}>
+              <Statement statement={node.statement} textColor={color} />
+            </Flex>
+          </Stack>
+          <Group
+            pl={node.rule == undefined ? 5 : -10}
+            mt={node.rule == undefined ? 5 : -5}
+            gap={15}
+          >
+            {node && node.rule && (
+              <Box className="katex">
+                <RuleName name={node.rule} />
+              </Box>
+            )}
+            <Menu trigger="click-hover" position="right">
+              <Menu.Target>
+                <IconDots size={14} />
+              </Menu.Target>
+              <Menu.Dropdown>
+                {!isRoot && (
+                  <>
+                    <Menu.Item
+                      leftSection={<IconTrash size={14} />}
+                      onClick={deleteNode}
+                    >
+                      Delete Subtree
+                    </Menu.Item>
+                  </>
+                )}
+                <Menu.Item leftSection={<IconBulb size={14} />} onClick={open}>
+                  Hint
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconZoomIn size={14} />}
+                  onClick={() => currentIdHandler(node.name)}
+                >
+                  Focus
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconLayoutBottombarCollapse size={14} />}
+                  onClick={() => setHidden(!hidden)}
+                >
+                  {hidden ? "Show" : "Hide"}
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconZoomCheck size={14} />}
+                  onClick={checkNode}
+                >
+                  Satisfiable
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
         </Group>
-      </Group>
-    </Stack>
+      </Stack>
+    </>
   );
 };
 

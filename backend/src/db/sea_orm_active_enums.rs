@@ -2,7 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, PartialOrd, Ord)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "rules")]
 pub enum Rules {
     #[sea_orm(string_value = "Ax")]
@@ -37,4 +37,8 @@ pub enum Rules {
     ExistsElim,
     #[sea_orm(string_value = "ExistsIntro")]
     ExistsIntro,
+    #[sea_orm(string_value = "AlphaExists")]
+    AlphaExists,
+    #[sea_orm(string_value = "AlphaForall")]
+    AlphaForall,
 }

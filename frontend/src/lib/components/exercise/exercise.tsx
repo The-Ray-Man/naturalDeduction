@@ -1,5 +1,9 @@
 "use client";
-import { Exercise as ExerciseType, Statement } from "@/lib/api";
+import {
+  Exercise as ExerciseType,
+  Statement,
+  useAddTreeMutation,
+} from "@/lib/api";
 import { useNodesContext } from "@/lib/hook/FormulaContext";
 import { exportToTypst } from "@/lib/utils/export";
 import { treeCompleted } from "@/lib/utils/finished";
@@ -7,6 +11,7 @@ import localStorage from "@/lib/utils/localStorage";
 import { showError, showInfo } from "@/lib/utils/notifications";
 import {
   ActionIcon,
+  Button,
   Center,
   Group,
   ScrollArea,
@@ -23,6 +28,7 @@ import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import Feedback from "../feedback";
 import Node, { NodeType } from "./node";
+import { useParams } from "next/navigation";
 
 const TYPST_COMPILER_URL =
   process.env["NEXT_PUBLIC_TYPST_COMPILER_URL"] ||
@@ -32,11 +38,12 @@ const TYPST_RENDERER_URL =
   "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm";
 
 type ExerciseProps = {
-  exercise_info: ExerciseType;
   exercise: Statement;
 };
 
-const Exercise = ({ exercise, exercise_info }: ExerciseProps) => {
+const Exercise = ({ exercise }: ExerciseProps) => {
+  const { id } = useParams<{ id: UUID }>();
+
   const { nodes, handler, rootId, currentId, currentIdHandler } =
     useNodesContext();
   const [compiling, setCompiling] = useState<boolean>(false);
@@ -45,6 +52,8 @@ const Exercise = ({ exercise, exercise_info }: ExerciseProps) => {
   const [completed, setCompleted] = useState(false);
 
   const { width, height } = useWindowSize();
+
+  const [finished] = useAddTreeMutation();
 
   useEffect(() => {
     if (nodes) {
@@ -56,10 +65,27 @@ const Exercise = ({ exercise, exercise_info }: ExerciseProps) => {
       setDone(completed);
       setCompleted(completed);
       if (completed) {
-        localStorage.addCompleted(exercise_info.id as UUID);
+        localStorage.addCompleted(id as UUID);
+        localStorage.saveTree(rootId as UUID, nodes);
+
         setTimeout(() => {
           setDone(false);
         }, 5000);
+
+        let result = finished({
+          createTreeRequest: {
+            root_id: rootId as UUID,
+            nodes: nodes.map((n) => {
+              return {
+                name: n.name as UUID,
+                premisses: n.premisses as UUID[],
+                rule: n.rule!,
+                statement: n.statement,
+              };
+            }),
+          },
+        }).unwrap();
+        console.log(result);
       }
     }
   }, [nodes]);
@@ -169,8 +195,8 @@ const Exercise = ({ exercise, exercise_info }: ExerciseProps) => {
           <Confetti width={width} height={height} />
         </>
       )}
-      {completed && !localStorage.existsFeedback(exercise_info.id as UUID) && (
-        <Feedback exercise={exercise_info} />
+      {completed && !localStorage.existsFeedback(id as UUID) && (
+        <Feedback exercise={exercise} />
       )}
       <Group w={"100%"}>
         <Stack w={50}>

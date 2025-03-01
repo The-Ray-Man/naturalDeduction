@@ -22,12 +22,15 @@ This project consists of three parts: Frontend, Backend and Database.
     - Run ```npm run dev```
 
 ### Database Migration
-If you change the database schema you need to manually push the file again to the database. Additionally, in the backend run 
-
+If you change the database schema you need to manually push the file again to the database. 
 ```shell
 npx prisma db push --schema ../db/schema.prisma --database-url ...
 ```
-to update the rust crate with the new database structure.
+Additionally, in the backend run to update the rust crate with the new database structure.
+```shell
+sea-orm-cli generate entity -o ./src/db/ --database-url ...
+```
+You may need to install ```sea-orm-cli```.
 
 ### API changes
 To be able to use new or changed endpoints in the frontend the following steps must be done:

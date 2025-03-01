@@ -9,17 +9,35 @@ model Statement {
   rhs String
 
   Exercise Exercise[]
+
+  NodeC Node[] @relation("Child")
+
+  NodeP Node[] @relation("Parent")
 }
 
 model Node {
-  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  child_id String @db.Uuid
-  child    Node   @relation("Child", fields: [id], references: [id])
-  rule     rules
-  Node     Node[] @relation("Child")
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parent_id String    @db.Uuid
+  Parent    Statement @relation("Parent", fields: [parent_id], references: [id])
 
-  @@unique([id, child_id, rule])
+  Child    Statement? @relation("Child", fields: [child_id], references: [id])
+  child_id String?    @db.Uuid
+  order   Int 
+  rule     rules
+
+  @@unique([parent_id, child_id, rule])
 }
+
+// model Node {
+// statement_id       String @db.Uuid 
+// Statement Statement @relation("Stmt", fields: [statement_id], references: [id])
+// child_id String @db.Uuid
+// child    Node   @relation("Child", fields: [statement_id], references: [statement_id])
+// rule     rules
+// Node     Node[] @relation("Child")
+
+// @@unique([statement_id, child_id, rule])
+// }
 
 model Exercise {
   id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -48,4 +66,6 @@ enum rules {
   ForallIntro
   ExistsElim
   ExistsIntro
+  AlphaExists
+  AlphaForall
 }

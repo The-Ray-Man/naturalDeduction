@@ -12,16 +12,23 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { UUID } from "crypto";
 import { useEffect, useState } from "react";
-import { Exercise, usePostFeedbackMutation } from "../api";
+import {
+  Exercise,
+  Statement as StatementType,
+  usePostFeedbackMutation,
+} from "../api";
 import localStorage from "../utils/localStorage";
 import { showError } from "../utils/notifications";
 import Statement from "./statement";
+import { useParams } from "next/navigation";
 
 type FeedbackProps = {
-  exercise: Exercise;
+  exercise: StatementType;
 };
 
 const Feedback = ({ exercise }: FeedbackProps) => {
+  const { id } = useParams<{ id: UUID }>();
+
   const [opened, { open, close }] = useDisclosure(true);
 
   const [like, setLike] = useState<undefined | boolean>(undefined);
@@ -51,10 +58,10 @@ const Feedback = ({ exercise }: FeedbackProps) => {
     const send_difficulty = Math.round(difficulty / 10);
     try {
       let result = mutation({
-        id: exercise.id,
+        id: id,
         feedback: { like, difficulty: send_difficulty },
       }).unwrap();
-      localStorage.addFeedback(exercise.id as UUID);
+      localStorage.addFeedback(id as UUID);
       close();
     } catch (e: any) {
       console.log(e);
@@ -67,7 +74,7 @@ const Feedback = ({ exercise }: FeedbackProps) => {
       <Drawer opened={opened} onClose={close} title="Feedback" position="right">
         <Stack align="center">
           <Card withBorder>
-            <Statement statement={exercise.exercise} />
+            <Statement statement={exercise} />
           </Card>
           <Title order={4}>Likes</Title>
           <Group>
@@ -86,6 +93,7 @@ const Feedback = ({ exercise }: FeedbackProps) => {
               ></IconThumbDown>
             </ActionIcon>
           </Group>
+          <Title order={4}>Difficulty</Title>
           <Slider
             w={"100%"}
             value={difficulty}

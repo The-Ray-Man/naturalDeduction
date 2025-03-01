@@ -1,6 +1,13 @@
 import { prototype as api } from "./prototype";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    addTree: build.mutation<AddTreeApiResponse, AddTreeApiArg>({
+      query: (queryArg) => ({
+        url: `/api/add_tree`,
+        method: "POST",
+        body: queryArg.createTreeRequest,
+      }),
+    }),
     applyRule: build.mutation<ApplyRuleApiResponse, ApplyRuleApiArg>({
       query: (queryArg) => ({
         url: `/api/apply`,
@@ -48,10 +55,21 @@ const injectedRtkApi = api.injectEndpoints({
     allRules: build.query<AllRulesApiResponse, AllRulesApiArg>({
       query: () => ({ url: `/api/rules` }),
     }),
+    getTipp: build.mutation<GetTippApiResponse, GetTippApiArg>({
+      query: (queryArg) => ({
+        url: `/api/statement/hint`,
+        method: "POST",
+        body: queryArg.statement,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 export { injectedRtkApi as api };
+export type AddTreeApiResponse = unknown;
+export type AddTreeApiArg = {
+  createTreeRequest: CreateTreeRequest;
+};
 export type ApplyRuleApiResponse = /** status 200  */ Statement[];
 export type ApplyRuleApiArg = {
   applyRuleParams: ApplyRuleParams;
@@ -81,6 +99,29 @@ export type ParseApiArg = {
 };
 export type AllRulesApiResponse = /** status 200  */ DerivationRule[];
 export type AllRulesApiArg = void;
+export type GetTippApiResponse = /** status 200  */ Tipp[];
+export type GetTippApiArg = {
+  statement: Statement;
+};
+export type Rules =
+  | "Ax"
+  | "ImplIntro"
+  | "ImplElim"
+  | "FalseElim"
+  | "NotIntro"
+  | "NotElim"
+  | "AndIntro"
+  | "AndElimL"
+  | "AndElimR"
+  | "OrIntroL"
+  | "OrIntroR"
+  | "OrElim"
+  | "ForallElim"
+  | "ForallIntro"
+  | "ExistsElim"
+  | "ExistsIntro"
+  | "AlphaExists"
+  | "AlphaForall";
 export type Identifier =
   | {
       type: "Literal";
@@ -151,29 +192,20 @@ export type Statement = {
   formula: Formula;
   lhs: Formula[];
 };
+export type Node = {
+  name: string;
+  premisses: string[];
+  rule: Rules;
+  statement: Statement;
+};
+export type CreateTreeRequest = {
+  nodes: Node[];
+  root_id: string;
+};
 export type FormulaMapping = {
   from: number;
   to: Formula;
 };
-export type Rules =
-  | "Ax"
-  | "ImplIntro"
-  | "ImplElim"
-  | "FalseElim"
-  | "NotIntro"
-  | "NotElim"
-  | "AndIntro"
-  | "AndElimL"
-  | "AndElimR"
-  | "OrIntroL"
-  | "OrIntroR"
-  | "OrElim"
-  | "ForallElim"
-  | "ForallIntro"
-  | "ExistsElim"
-  | "ExistsIntro"
-  | "AlphaExists"
-  | "AlphaForall";
 export type ElementMapping = {
   from: string;
   to: string;
@@ -278,7 +310,12 @@ export type DerivationRule = {
   name: Rules;
   premises: RuleStatement[];
 };
+export type Tipp = {
+  premisses: Statement[];
+  rule: Rules;
+};
 export const {
+  useAddTreeMutation,
   useApplyRuleMutation,
   useCheckMutation,
   useGetExercisesQuery,
@@ -287,4 +324,5 @@ export const {
   usePostFeedbackMutation,
   useParseMutation,
   useAllRulesQuery,
+  useGetTippMutation,
 } = injectedRtkApi;

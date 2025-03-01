@@ -6,22 +6,32 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "Node")]
 pub struct Model {
+    pub child_id: Option<Uuid>,
+    pub rule: Rules,
+    pub parent_id: Uuid,
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
-    pub child_id: Uuid,
-    pub rule: Rules,
+    pub order: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "Entity",
-        from = "Column::Id",
-        to = "Column::Id",
+        belongs_to = "super::statement::Entity",
+        from = "Column::ChildId",
+        to = "super::statement::Column::Id",
+        on_update = "Cascade",
+        on_delete = "SetNull"
+    )]
+    Statement2,
+    #[sea_orm(
+        belongs_to = "super::statement::Entity",
+        from = "Column::ParentId",
+        to = "super::statement::Column::Id",
         on_update = "Cascade",
         on_delete = "Restrict"
     )]
-    SelfRef,
+    Statement1,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

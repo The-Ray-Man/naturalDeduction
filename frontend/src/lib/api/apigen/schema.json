@@ -7,6 +7,28 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/add_tree": {
+      "post": {
+        "tags": ["crate::api::routes"],
+        "operationId": "add_tree",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateTreeRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          },
+          "404": { "description": "Building not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
     "/api/apply": {
       "post": {
         "tags": ["crate::api::routes"],
@@ -195,6 +217,34 @@
             }
           },
           "404": { "description": "Building not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/api/statement/hint": {
+      "post": {
+        "tags": ["crate::api::routes"],
+        "operationId": "get_tipp",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Statement" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Tipp" }
+                }
+              }
+            }
+          },
           "500": { "description": "Internal server error" }
         }
       }
@@ -644,6 +694,17 @@
             "type": "array",
             "items": { "$ref": "#/components/schemas/Formula" }
           }
+        }
+      },
+      "Tipp": {
+        "type": "object",
+        "required": ["rule", "premisses"],
+        "properties": {
+          "premisses": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Statement" }
+          },
+          "rule": { "$ref": "#/components/schemas/Rules" }
         }
       }
     }

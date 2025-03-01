@@ -21,16 +21,13 @@ import { Exercise } from "../api";
 import localStorage from "../utils/localStorage";
 import Difficulty from "./difficulty";
 import Statement from "./statement";
+import Link from "next/link";
 
 type exerciseListElementProps = {
   exercise: Exercise;
-  handler: Dispatch<SetStateAction<UUID | undefined>>;
 };
 
-const ExerciseListElment = ({
-  exercise,
-  handler,
-}: exerciseListElementProps) => {
+const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
   const [fav, setFav] = useState(localStorage.isFavorite(exercise.id as UUID));
   const [done, setDone] = useState(
     localStorage.isCompleted(exercise.id as UUID),
@@ -91,9 +88,14 @@ const ExerciseListElment = ({
       <Divider pb={"md"} />
       <Flex justify="space-between">
         <Statement statement={exercise.exercise} />
-        <ActionIcon onClick={() => handler(exercise.id as UUID)}>
-          <IconChevronRight />
-        </ActionIcon>
+        <Link
+          href={`/exercise/${exercise.id}`}
+          style={{ textDecoration: "none" }}
+        >
+          <ActionIcon>
+            <IconChevronRight />
+          </ActionIcon>
+        </Link>
       </Flex>
     </Card>
   );

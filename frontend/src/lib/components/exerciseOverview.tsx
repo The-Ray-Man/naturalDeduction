@@ -57,18 +57,6 @@ const ExerciseOverview = () => {
     return <div>Loading...</div>;
   }
 
-  if (selectedExerciseId) {
-    return (
-      <ExerciseInterface
-        exercise_info={
-          allExercises.find((exercise) => exercise.id === selectedExerciseId)!
-        }
-        exerciseId={selectedExerciseId}
-        handler={setSelectedExerciseId}
-      />
-    );
-  }
-
   const likeCompare = (a: Exercise, b: Exercise) => {
     if (a.likes == 0 && a.dislikes == 0) {
       return 1;
@@ -156,11 +144,7 @@ const ExerciseOverview = () => {
                 .toSorted(likeCompare)
                 .map((exercise, i) => (
                   <Box key={i} miw={400}>
-                    <ExerciseListElement
-                      key={i}
-                      exercise={exercise}
-                      handler={setSelectedExerciseId}
-                    />
+                    <ExerciseListElement key={i} exercise={exercise} />
                   </Box>
                 ))}
             </Stack>
@@ -174,11 +158,7 @@ const ExerciseOverview = () => {
                 .toSorted(likeCompare)
                 .map((exercise, i) => (
                   <Box key={i} miw={400}>
-                    <ExerciseListElement
-                      key={i}
-                      exercise={exercise}
-                      handler={setSelectedExerciseId}
-                    />
+                    <ExerciseListElement key={i} exercise={exercise} />
                   </Box>
                 ))}
             </Stack>
@@ -192,11 +172,7 @@ const ExerciseOverview = () => {
                 .toSorted(likeCompare)
                 .map((exercise, i) => (
                   <Box key={i} miw={400}>
-                    <ExerciseListElement
-                      key={i}
-                      exercise={exercise}
-                      handler={setSelectedExerciseId}
-                    />
+                    <ExerciseListElement key={i} exercise={exercise} />
                   </Box>
                 ))}
             </Stack>
@@ -210,11 +186,7 @@ const ExerciseOverview = () => {
                 .toSorted(likeCompare)
                 .map((exercise, i) => (
                   <Box key={i} miw={400}>
-                    <ExerciseListElement
-                      key={i}
-                      exercise={exercise}
-                      handler={setSelectedExerciseId}
-                    />
+                    <ExerciseListElement key={i} exercise={exercise} />
                   </Box>
                 ))}
             </Stack>
@@ -224,11 +196,7 @@ const ExerciseOverview = () => {
         {selectedModus === "likes" && (
           <SimpleGrid cols={3}>
             {allExercises.toSorted(likeCompare).map((exercise, i) => (
-              <ExerciseListElement
-                key={i}
-                exercise={exercise}
-                handler={setSelectedExerciseId}
-              />
+              <ExerciseListElement key={i} exercise={exercise} />
             ))}
           </SimpleGrid>
         )}
@@ -240,11 +208,7 @@ const ExerciseOverview = () => {
                 return !completed.includes(ex.id as UUID);
               })
               .map((exercise, i) => (
-                <ExerciseListElement
-                  key={i}
-                  exercise={exercise}
-                  handler={setSelectedExerciseId}
-                />
+                <ExerciseListElement key={i} exercise={exercise} />
               ))}
           </SimpleGrid>
         )}
@@ -260,11 +224,7 @@ const ExerciseOverview = () => {
                 }
               })
               .map((exercise, i) => (
-                <ExerciseListElement
-                  key={i}
-                  exercise={exercise}
-                  handler={setSelectedExerciseId}
-                />
+                <ExerciseListElement key={i} exercise={exercise} />
               ))}
           </SimpleGrid>
         )}

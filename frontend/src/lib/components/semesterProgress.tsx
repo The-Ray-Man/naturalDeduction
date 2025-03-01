@@ -4,7 +4,7 @@ const SemsterProgress = () => {
   const dates = [
     [new Date("2025-02-17"), "Semester Start"],
     [new Date("2025-03-13"), "Midterm I"],
-    [new Date("2025-05-13"), "Midterm II"], // Todo
+    [new Date("2025-05-13"), "Midterm II"],
     [new Date("2025-05-30"), "Semester End"],
     [new Date("2025-08-10"), "Final Exam"],
   ];

@@ -1,10 +1,5 @@
-pub mod exercise_models;
-pub mod formula_models;
 pub mod models;
-pub mod normalize;
 pub mod routes;
-pub mod rule_models;
-pub mod utils;
 
 use axum::routing::{get, post};
 use axum::Router;
@@ -20,6 +15,8 @@ pub fn get_router(state: &AppState) -> Router {
         .route("/parse", post(routes::parse))
         .route("/rules", get(routes::all_rules))
         .route("/check", post(routes::check))
+        .route("/statement/hint", post(routes::get_tipp))
+        .route("/add_tree", post(routes::add_tree))
         .route("/exercise/{id}/feedback", post(routes::post_feedback))
         // .route("/tree", post(routes::add_tree))
         .with_state(state.clone())
