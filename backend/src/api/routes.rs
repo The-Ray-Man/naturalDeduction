@@ -267,7 +267,6 @@ pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
 )]
 pub async fn add_tree(query: Json<CreateTreeRequest>) -> BackendResult<Json<bool>> {
     check_tree(query.root_id, &query.nodes)?;
-    println!("Tree check passed");
 
     Ok(Json(true))
 }

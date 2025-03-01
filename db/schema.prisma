@@ -48,4 +48,6 @@ enum rules {
   ForallIntro
   ExistsElim
   ExistsIntro
+  AlphaExists
+  AlphaForall
 }

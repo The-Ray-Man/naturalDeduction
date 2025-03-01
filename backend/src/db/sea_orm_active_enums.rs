@@ -37,4 +37,8 @@ pub enum Rules {
     ExistsElim,
     #[sea_orm(string_value = "ExistsIntro")]
     ExistsIntro,
+    #[sea_orm(string_value = "AlphaExists")]
+    AlphaExists,
+    #[sea_orm(string_value = "AlphaForall")]
+    AlphaForall,
 }
