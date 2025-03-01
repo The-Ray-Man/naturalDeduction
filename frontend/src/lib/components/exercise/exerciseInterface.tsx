@@ -1,5 +1,9 @@
 "use client";
-import { Exercise as ExerciseType, Statement, useGetExerciseQuery } from "@/lib/api";
+import {
+  Exercise as ExerciseType,
+  Statement,
+  useGetExerciseQuery,
+} from "@/lib/api";
 import Exercise from "@/lib/components/exercise/exercise";
 import Matcher from "@/lib/components/exercise/matcher";
 import Rules from "@/lib/components/rule/rules";
@@ -20,13 +24,8 @@ type ExerciseInterfaceProps = {
   exercise: Statement;
 };
 
-const ExerciseInterface = ({
-  exercise,
-}: ExerciseInterfaceProps) => {
-
-
+const ExerciseInterface = ({ exercise }: ExerciseInterfaceProps) => {
   const { rule, target } = useDragContext();
-
 
   return (
     <SimpleGrid cols={1}>
@@ -34,7 +33,6 @@ const ExerciseInterface = ({
         <Matcher />
       ) : (
         <Box>
-          
           <Flex w={"100%"} gap={5} wrap="wrap">
             <Rules />
           </Flex>

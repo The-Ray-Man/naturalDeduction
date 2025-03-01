@@ -65,7 +65,7 @@ type NodeProps = {
 const Node = ({ node, all_nodes }: NodeProps) => {
   const { rootId, nodes, handler, currentId, currentIdHandler } =
     useNodesContext();
-    
+
   const [hintOpened, { open, close }] = useDisclosure(false);
 
   const isRoot = rootId == node.name;
@@ -118,7 +118,7 @@ const Node = ({ node, all_nodes }: NodeProps) => {
 
   return (
     <>
-    <Hint statement={node.statement} opened={hintOpened} close={close}/>
+      <Hint statement={node.statement} opened={hintOpened} close={close} />
       <Stack m={isRoot ? 16 : 0} pt={isRoot ? 10 : 0} gap={0}>
         {hidden ? (
           <Flex gap={"xl"} justify="center" align="flex-end">

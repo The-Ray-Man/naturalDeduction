@@ -12,7 +12,11 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { UUID } from "crypto";
 import { useEffect, useState } from "react";
-import { Exercise, Statement as StatementType, usePostFeedbackMutation } from "../api";
+import {
+  Exercise,
+  Statement as StatementType,
+  usePostFeedbackMutation,
+} from "../api";
 import localStorage from "../utils/localStorage";
 import { showError } from "../utils/notifications";
 import Statement from "./statement";

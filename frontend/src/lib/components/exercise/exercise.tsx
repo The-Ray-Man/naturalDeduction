@@ -42,7 +42,6 @@ type ExerciseProps = {
 };
 
 const Exercise = ({ exercise }: ExerciseProps) => {
-
   const { id } = useParams<{ id: UUID }>();
 
   const { nodes, handler, rootId, currentId, currentIdHandler } =
@@ -55,7 +54,6 @@ const Exercise = ({ exercise }: ExerciseProps) => {
   const { width, height } = useWindowSize();
 
   const [finished] = useAddTreeMutation();
-
 
   useEffect(() => {
     if (nodes) {
@@ -198,7 +196,7 @@ const Exercise = ({ exercise }: ExerciseProps) => {
         </>
       )}
       {completed && !localStorage.existsFeedback(id as UUID) && (
-        <Feedback exercise={exercise}/>
+        <Feedback exercise={exercise} />
       )}
       <Group w={"100%"}>
         <Stack w={50}>

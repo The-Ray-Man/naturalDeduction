@@ -27,9 +27,7 @@ type exerciseListElementProps = {
   exercise: Exercise;
 };
 
-const ExerciseListElment = ({
-  exercise,
-}: exerciseListElementProps) => {
+const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
   const [fav, setFav] = useState(localStorage.isFavorite(exercise.id as UUID));
   const [done, setDone] = useState(
     localStorage.isCompleted(exercise.id as UUID),
@@ -90,10 +88,13 @@ const ExerciseListElment = ({
       <Divider pb={"md"} />
       <Flex justify="space-between">
         <Statement statement={exercise.exercise} />
-        <Link href={`/exercise/${exercise.id}`} style={{ textDecoration: "none" }}>
-        <ActionIcon>
-          <IconChevronRight />
-        </ActionIcon>
+        <Link
+          href={`/exercise/${exercise.id}`}
+          style={{ textDecoration: "none" }}
+        >
+          <ActionIcon>
+            <IconChevronRight />
+          </ActionIcon>
         </Link>
       </Flex>
     </Card>

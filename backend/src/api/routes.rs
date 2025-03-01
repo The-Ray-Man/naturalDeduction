@@ -331,7 +331,6 @@ pub async fn get_tipp(
     state: State<AppState>,
     query: Json<Statement>,
 ) -> BackendResult<Json<Vec<Tipp>>> {
-    println!("{:?}", query);
     let lhs = serde_json::to_string(&query.lhs)
         .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
     let rhs = serde_json::to_string(&query.formula)
@@ -354,9 +353,6 @@ pub async fn get_tipp(
         .filter(node::Column::ParentId.eq(statement.id))
         .all(&state.db)
         .await?;
-
-    println!("{:?}", tipps);
-
     let mut sorted_tips: BTreeMap<Rules, Vec<(Statement, u32)>> = BTreeMap::new();
 
     for node in tipps {

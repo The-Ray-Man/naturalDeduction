@@ -37,7 +37,6 @@ fn infer_mapping_between_formula(
     to: &RuleIdentifier,
     element_mapping: &mut BTreeMap<RuleIdentifier, Formula>,
 ) -> BackendResult<()> {
-    println!("match formula: {} = {}", formula_from, formula_to);
     if formula_from == formula_to {
         match (from, to) {
             (RuleIdentifier::Element(from_str), RuleIdentifier::Element(to_str)) => {
@@ -137,13 +136,6 @@ fn infer_mapping_between_formula(
             }
 
             for (ident_from, ident_to) in identifiers_from.iter().zip(identifiers_to.iter()) {
-                println!("match ident: {} = {}", ident_from, ident_to);
-                println!(
-                    "meaning we have a mapping from {:?} to {}",
-                    from, ident_from
-                );
-                println!("meaning we have a mapping from {:?} to {}", to, ident_to);
-
                 if let Some(old) =
                     element_mapping.insert(from.clone(), Formula::Ident(ident_from.clone()))
                 {
@@ -182,7 +174,6 @@ fn infer_mapping_formula(
     formula_mapping: &mut BTreeMap<RuleIdentifier, Formula>,
     element_mapping: &mut BTreeMap<RuleIdentifier, Formula>,
 ) -> BackendResult<()> {
-    println!("infer between {} = {:?}", formula, rule);
     match (formula, rule) {
         (_, RuleFormula::Ident(rule_identifier)) => {
             add_mapping(formula_mapping, rule_identifier, formula)?
@@ -308,9 +299,6 @@ impl Node {
         let mut formula_mapping = BTreeMap::<RuleIdentifier, Formula>::new();
         let mut element_mapping = BTreeMap::<RuleIdentifier, Formula>::new();
 
-        println!("INFER");
-        println!("{} = {}", self.statement.formula, applied_rule.conclusion);
-
         for i in 0..5 {
             infer_mapping_stmt(
                 &self.statement,
@@ -342,12 +330,6 @@ impl Node {
 
             if all_mapped_identifiers == identifiers.iter().collect() {
                 break;
-            } else {
-                println!("Could not infer mapping. Trying another cycle {}/5", i + 1);
-                println!("mapping until now");
-                for (k, v) in formula_mapping.iter() {
-                    println!("{} -> {}", k, v);
-                }
             }
         }
         let mut all_mapped_identifiers = formula_mapping.keys().collect::<BTreeSet<_>>();
@@ -368,7 +350,6 @@ pub fn check_tree(root: Uuid, all_nodes: &Vec<Node>) -> BackendResult<()> {
         .iter()
         .find(|node| node.name == root)
         .ok_or_else(|| BackendError::BadRequest("Could not find root node".to_string()))?;
-    println!("Checking tree: {:?}", root_node.name);
     let rule = Rules::get_rule(&root_node.rule);
     let identifier = rule.identifiers();
 
