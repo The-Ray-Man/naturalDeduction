@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { getStyle } from "../formula/formulaParts";
 import RuleFormula, { RuleFormulaProps } from "./ruleFormula";
 
+
+
 const RuleIdent = ({ rule, highlighted }: RuleFormulaProps<"Ident">) => {
   const [letter, bgColor] = useMemo(() => {
     switch (rule.body.type) {

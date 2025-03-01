@@ -57,18 +57,6 @@ const ExerciseOverview = () => {
     return <div>Loading...</div>;
   }
 
-  if (selectedExerciseId) {
-    return (
-      <ExerciseInterface
-        exercise_info={
-          allExercises.find((exercise) => exercise.id === selectedExerciseId)!
-        }
-        exerciseId={selectedExerciseId}
-        handler={setSelectedExerciseId}
-      />
-    );
-  }
-
   const likeCompare = (a: Exercise, b: Exercise) => {
     if (a.likes == 0 && a.dislikes == 0) {
       return 1;
@@ -159,7 +147,6 @@ const ExerciseOverview = () => {
                     <ExerciseListElement
                       key={i}
                       exercise={exercise}
-                      handler={setSelectedExerciseId}
                     />
                   </Box>
                 ))}
@@ -177,7 +164,6 @@ const ExerciseOverview = () => {
                     <ExerciseListElement
                       key={i}
                       exercise={exercise}
-                      handler={setSelectedExerciseId}
                     />
                   </Box>
                 ))}
@@ -195,7 +181,6 @@ const ExerciseOverview = () => {
                     <ExerciseListElement
                       key={i}
                       exercise={exercise}
-                      handler={setSelectedExerciseId}
                     />
                   </Box>
                 ))}
@@ -213,7 +198,6 @@ const ExerciseOverview = () => {
                     <ExerciseListElement
                       key={i}
                       exercise={exercise}
-                      handler={setSelectedExerciseId}
                     />
                   </Box>
                 ))}
@@ -227,7 +211,6 @@ const ExerciseOverview = () => {
               <ExerciseListElement
                 key={i}
                 exercise={exercise}
-                handler={setSelectedExerciseId}
               />
             ))}
           </SimpleGrid>
@@ -243,7 +226,6 @@ const ExerciseOverview = () => {
                 <ExerciseListElement
                   key={i}
                   exercise={exercise}
-                  handler={setSelectedExerciseId}
                 />
               ))}
           </SimpleGrid>
@@ -263,7 +245,6 @@ const ExerciseOverview = () => {
                 <ExerciseListElement
                   key={i}
                   exercise={exercise}
-                  handler={setSelectedExerciseId}
                 />
               ))}
           </SimpleGrid>

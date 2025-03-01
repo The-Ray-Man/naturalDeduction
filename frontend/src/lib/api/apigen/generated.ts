@@ -55,6 +55,13 @@ const injectedRtkApi = api.injectEndpoints({
     allRules: build.query<AllRulesApiResponse, AllRulesApiArg>({
       query: () => ({ url: `/api/rules` }),
     }),
+    getTipp: build.mutation<GetTippApiResponse, GetTippApiArg>({
+      query: (queryArg) => ({
+        url: `/api/statement/hint`,
+        method: "POST",
+        body: queryArg.statement,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -92,6 +99,10 @@ export type ParseApiArg = {
 };
 export type AllRulesApiResponse = /** status 200  */ DerivationRule[];
 export type AllRulesApiArg = void;
+export type GetTippApiResponse = /** status 200  */ Tipp[];
+export type GetTippApiArg = {
+  statement: Statement;
+};
 export type Rules =
   | "Ax"
   | "ImplIntro"
@@ -299,6 +310,10 @@ export type DerivationRule = {
   name: Rules;
   premises: RuleStatement[];
 };
+export type Tipp = {
+  premisses: Statement[];
+  rule: Rules;
+};
 export const {
   useAddTreeMutation,
   useApplyRuleMutation,
@@ -309,4 +324,5 @@ export const {
   usePostFeedbackMutation,
   useParseMutation,
   useAllRulesQuery,
+  useGetTippMutation,
 } = injectedRtkApi;

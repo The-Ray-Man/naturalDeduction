@@ -320,10 +320,10 @@ pub async fn post_feedback(
 }
 
 #[utoipa::path(
-    get,
-    path = "/api/statement/tipp",
+    post,
+    path = "/api/statement/hint",
     responses(
-        (status = StatusCode::OK, body = Statement),
+        (status = StatusCode::OK, body = Vec<Tipp>),
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Internal server error")
     )
 )]
@@ -331,6 +331,7 @@ pub async fn get_tipp(
     state: State<AppState>,
     query: Json<Statement>,
 ) -> BackendResult<Json<Vec<Tipp>>> {
+    println!("{:?}", query);
     let lhs = serde_json::to_string(&query.lhs)
         .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
     let rhs = serde_json::to_string(&query.formula)
@@ -347,18 +348,20 @@ pub async fn get_tipp(
             entity: "Statement".to_string(),
         });
     }
-    let model = statement.unwrap();
+    let statement = statement.unwrap();
 
     let tipps = node::Entity::find()
-        .filter(node::Column::ParentId.eq(model.id))
+        .filter(node::Column::ParentId.eq(statement.id))
         .all(&state.db)
         .await?;
 
-    let sorted_tips: BTreeMap<Rules, Vec<(Statement, u32)>> = BTreeMap::new();
+    println!("{:?}", tipps);
+
+    let mut sorted_tips: BTreeMap<Rules, Vec<(Statement, u32)>> = BTreeMap::new();
 
     for node in tipps {
         let mut premisses = sorted_tips
-            .get(&node.rule.into())
+            .get(&node.rule.clone().into())
             .unwrap_or(&Vec::new())
             .clone();
 
@@ -377,6 +380,7 @@ pub async fn get_tipp(
                 ));
             }
         }
+        sorted_tips.insert(node.rule.into(), premisses);
     }
 
     let result = sorted_tips
