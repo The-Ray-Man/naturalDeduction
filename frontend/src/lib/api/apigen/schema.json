@@ -7,6 +7,28 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/add_tree": {
+      "post": {
+        "tags": ["crate::api::routes"],
+        "operationId": "add_tree",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateTreeRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          },
+          "404": { "description": "Building not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
     "/api/apply": {
       "post": {
         "tags": ["crate::api::routes"],
