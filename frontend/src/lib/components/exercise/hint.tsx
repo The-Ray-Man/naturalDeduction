@@ -10,6 +10,7 @@ import {
   Box,
   Button,
   Divider,
+  Drawer,
   Flex,
   Group,
   Menu,
@@ -98,7 +99,7 @@ const Hint = ({ statement, opened, close }: HintProps) => {
 
   return (
     <>
-      <Modal title="Hint" opened={opened} onClose={close} size="md">
+      <Drawer title="Hint" opened={opened} onClose={close} size="xl"  position="right">
         {hints.length == 0 && <Text>No Hint available</Text>}
 
         {hints && (
@@ -119,7 +120,7 @@ const Hint = ({ statement, opened, close }: HintProps) => {
             ))}
           </Accordion>
         )}
-      </Modal>
+      </Drawer>
     </>
   );
 };
