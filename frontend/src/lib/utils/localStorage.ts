@@ -1,4 +1,6 @@
 import { UUID } from "crypto";
+import { Node } from "../api";
+import { NodeType } from "../components/exercise/node";
 
 type localStorage = {
   feedback_items: UUID[];
@@ -97,6 +99,20 @@ function allCompleted(): UUID[] {
   return readLocalStorage().completed;
 }
 
+function saveTree(root : UUID, nodes: NodeType[]) {
+  localStorage.setItem("rootId", root);
+  localStorage.setItem("nodes", JSON.stringify(nodes));
+}
+
+function loadTree(): {root: UUID | undefined, nodes: Node[]} {
+  let root = localStorage.getItem("rootId");
+  let nodes = localStorage.getItem("nodes");
+  if (root == null || nodes == null) {
+    return {root: undefined, nodes: []};
+  }
+  return {root: root as UUID, nodes: JSON.parse(nodes)};
+}
+
 export default {
   addFavorite,
   removeFavorite,
@@ -110,4 +126,6 @@ export default {
   isCompleted,
   addCompleted,
   allCompleted,
+  saveTree,
+  loadTree,
 };

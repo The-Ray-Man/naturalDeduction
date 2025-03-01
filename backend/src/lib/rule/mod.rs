@@ -1,6 +1,6 @@
 pub mod apply;
 pub mod rule_definition;
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, fmt::Display};
 
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
@@ -148,5 +148,77 @@ impl DerivationRule {
             });
         set.extend(self.conclusion.identifiers());
         set
+    }
+}
+
+impl Display for RuleIdentifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RuleIdentifier::Formula(id) => {
+                let letter = (*id as u8 + b'A') as char;
+                write!(f, "{}", letter)
+            }
+            RuleIdentifier::Element(id) => {
+                write!(f, "{}", id)
+            }
+        }
+    }
+}
+
+impl Display for RuleFormula {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RuleFormula::Ident(rule_identifier) => {
+                write!(f, "{}", rule_identifier)
+            }
+            RuleFormula::And { lhs, rhs } => {
+                write!(f, "({} ∧ {})", lhs, rhs)
+            }
+            RuleFormula::Or { lhs, rhs } => {
+                write!(f, "({} ∨ {})", lhs, rhs)
+            }
+            RuleFormula::Not(rule_identifier) => {
+                write!(f, "¬{}", rule_identifier)
+            }
+            RuleFormula::Imp { lhs, rhs } => {
+                write!(f, "({} → {})", lhs, rhs)
+            }
+            RuleFormula::False => {
+                write!(f, "⊥")
+            }
+            RuleFormula::True => {
+                write!(f, "⊤")
+            }
+            RuleFormula::Forall {
+                identifier,
+                formula,
+            } => {
+                write!(f, "∀{}.{}", identifier, formula)
+            }
+            RuleFormula::Exists {
+                identifier,
+                formula,
+            } => {
+                write!(f, "∃{}.{}", identifier, formula)
+            }
+            RuleFormula::Substitution {
+                identifier,
+                lhs,
+                rhs,
+            } => {
+                write!(f, "{}[{} := {}]", identifier, lhs, rhs)
+            }
+        }
+    }
+}
+
+impl Display for RuleStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(lhs) = &self.lhs {
+            write!(f, "{} ⊢ ", lhs)?;
+        } else {
+            write!(f, "⊢ ")?;
+        }
+        write!(f, "{}", self.formula)
     }
 }

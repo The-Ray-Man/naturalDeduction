@@ -9,6 +9,7 @@ use crate::db::*;
 use crate::error::{BackendError, BackendResult};
 use crate::lib::derivation::formula::Formula;
 use crate::lib::derivation::statement::Statement;
+use crate::lib::derivation::tree::{check_tree, infer_mapping_stmt};
 use crate::lib::rule::{DerivationRule, RuleIdentifier, Rules};
 use crate::AppState;
 use sea_orm::EntityTrait;
@@ -253,6 +254,22 @@ pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
     let result = query.0.check();
     info!("{:?} is a tautology: {}", query.0, result);
     Ok(Json(result))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/add_tree",
+    responses(
+        (status = StatusCode::OK, body = bool),
+        (status = StatusCode::NOT_FOUND, description = "Building not found"),
+        (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Internal server error")
+    )
+)]
+pub async fn add_tree(query: Json<CreateTreeRequest>) -> BackendResult<Json<bool>> {
+    check_tree(query.root_id, &query.nodes)?;
+    println!("Tree check passed");
+
+    Ok(Json(true))
 }
 
 #[utoipa::path(

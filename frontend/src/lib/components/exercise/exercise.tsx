@@ -1,5 +1,5 @@
 "use client";
-import { Exercise as ExerciseType, Statement } from "@/lib/api";
+import { Exercise as ExerciseType, Statement, useAddTreeMutation } from "@/lib/api";
 import { useNodesContext } from "@/lib/hook/FormulaContext";
 import { exportToTypst } from "@/lib/utils/export";
 import { treeCompleted } from "@/lib/utils/finished";
@@ -7,6 +7,7 @@ import localStorage from "@/lib/utils/localStorage";
 import { showError, showInfo } from "@/lib/utils/notifications";
 import {
   ActionIcon,
+  Button,
   Center,
   Group,
   ScrollArea,
@@ -46,6 +47,18 @@ const Exercise = ({ exercise, exercise_info }: ExerciseProps) => {
 
   const { width, height } = useWindowSize();
 
+  const [finished] = useAddTreeMutation();
+
+
+  const test = () => {
+    const {root, nodes} = localStorage.loadTree();
+    let result = finished({createTreeRequest: {
+      root_id: root as UUID,
+      nodes: nodes.map((n) => {return {name: n.name as UUID, premisses: n.premisses as UUID[], rule: n.rule!, statement: n.statement}})
+    }}).unwrap()
+    console.log(result)
+  }
+
   useEffect(() => {
     if (nodes) {
       const root_node = nodes.find((n) => n.name == rootId);
@@ -57,9 +70,17 @@ const Exercise = ({ exercise, exercise_info }: ExerciseProps) => {
       setCompleted(completed);
       if (completed) {
         localStorage.addCompleted(exercise_info.id as UUID);
+        localStorage.saveTree(rootId as UUID, nodes);
+        
         setTimeout(() => {
           setDone(false);
         }, 5000);
+
+        let result = finished({createTreeRequest: {
+          root_id: rootId as UUID,
+          nodes: nodes.map((n) => {return {name: n.name as UUID, premisses: n.premisses as UUID[], rule: n.rule!, statement: n.statement}})
+        }}).unwrap()
+        console.log(result)
       }
     }
   }, [nodes]);
@@ -173,6 +194,7 @@ const Exercise = ({ exercise, exercise_info }: ExerciseProps) => {
         <Feedback exercise={exercise_info} />
       )}
       <Group w={"100%"}>
+        <Button onClick={test}>Test</Button>
         <Stack w={50}>
           <ActionIcon
             onClick={() => currentIdHandler(rootId!)}

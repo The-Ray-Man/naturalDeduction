@@ -1,7 +1,7 @@
 use utoipa::OpenApi;
 use utoipauto::utoipauto;
 
-#[utoipauto(paths = "src/api")]
+#[utoipauto(paths = "src")]
 #[derive(OpenApi)]
 #[openapi(
     tags(

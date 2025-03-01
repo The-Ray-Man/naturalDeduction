@@ -1,13 +1,10 @@
 pub mod api;
 mod db;
 mod docs;
+mod error;
 mod lib;
 mod logging;
 mod utils;
-// mod entities;
-mod error;
-// mod search_engine;
-// mod utils;
 use crate::docs::ApiDocs;
 use axum::extract::Request;
 use axum::http::StatusCode;

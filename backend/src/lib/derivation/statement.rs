@@ -1,4 +1,5 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
@@ -104,6 +105,7 @@ impl Statement {
                                 ))?;
                         let mut formulas = self.lhs.clone();
                         formulas.push(self.formula.clone());
+                        println!("Checking not free condition for formulas {:?}", formulas);
                         check_not_free_condition(formulas.iter().collect(), chosen)?
                     }
                 }
@@ -136,9 +138,7 @@ impl Statement {
                 if let Some(rule_forall) = rule.premises.first() {
                     if let RuleFormula::Forall { formula, .. } = rule_forall.formula.clone() {
                         if let RuleFormula::Substitution {
-                            lhs: from ,
-                            rhs: to,
-                            ..
+                            lhs: from, rhs: to, ..
                         } = *formula
                         {
                             let free_vars = self.formula.free_vars(BTreeSet::new())?;
@@ -239,5 +239,17 @@ impl Statement {
         }
 
         Ok(premisses)
+    }
+}
+
+impl Display for Statement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let lhs = self
+            .lhs
+            .iter()
+            .map(|f| f.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+        write!(f, "{} |- {}", lhs, self.formula)
     }
 }
