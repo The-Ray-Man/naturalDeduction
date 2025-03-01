@@ -24,7 +24,7 @@ services:
     container_name: backend
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./backend/Dockerfile
     depends_on:
       postgres:
         condition: service_healthy
@@ -32,6 +32,14 @@ services:
       POSTGRES_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
     ports:
       - "8080:8000"
+
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    ports:
+      - "3000:3000"
 
 volumes:
   postgres_data:
