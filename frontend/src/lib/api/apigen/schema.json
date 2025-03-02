@@ -312,11 +312,19 @@
       },
       "Exercise": {
         "type": "object",
-        "required": ["id", "exercise", "likes", "dislikes", "difficulty"],
+        "required": [
+          "id",
+          "exercise",
+          "likes",
+          "dislikes",
+          "difficulty",
+          "hint"
+        ],
         "properties": {
           "difficulty": { "type": "number", "format": "double" },
           "dislikes": { "type": "integer", "format": "int32" },
           "exercise": { "$ref": "#/components/schemas/Statement" },
+          "hint": { "type": "boolean" },
           "id": { "type": "string", "format": "uuid" },
           "likes": { "type": "integer", "format": "int32" }
         }

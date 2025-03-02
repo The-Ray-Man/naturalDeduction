@@ -1,7 +1,7 @@
 use axum::extract::{Path, State};
 use axum::Json;
 use log::info;
-use sea_orm::{ActiveModelTrait, IntoActiveModel, QueryFilter, TransactionTrait};
+use sea_orm::{ActiveModelTrait, IntoActiveModel, ModelTrait, QueryFilter, TransactionTrait};
 use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
@@ -42,6 +42,10 @@ pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exe
             continue;
         }
         let exercise = exercise.unwrap();
+        let hint_available = node::Entity::find()
+            .filter(node::Column::ParentId.eq(exercise.id))
+            .one(&state.db)
+            .await?.is_some();
         let formula = serde_json::from_str::<Formula>(&exercise.rhs)
             .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
@@ -53,7 +57,8 @@ pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exe
             likes: e.likes,
             dislikes: e.dislikes,
             difficulty: e.difficulty,
-            exercise: Statement { lhs, formula },
+            exercise: Statement { lhs, formula },  
+            hint: hint_available,            
         });
     }
 

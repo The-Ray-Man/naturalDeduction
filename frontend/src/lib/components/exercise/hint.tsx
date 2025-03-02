@@ -99,7 +99,13 @@ const Hint = ({ statement, opened, close }: HintProps) => {
 
   return (
     <>
-      <Drawer title="Hint" opened={opened} onClose={close} size="xl"  position="right">
+      <Drawer
+        title="Hint"
+        opened={opened}
+        onClose={close}
+        size="xl"
+        position="right"
+      >
         {hints.length == 0 && <Text>No Hint available</Text>}
 
         {hints && (
