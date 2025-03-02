@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
-    "@mantine/core": "^7.16.2",
+    "@mantine/core": "^7.17.1",
     "@mantine/hooks": "^7.16.2",
-    "@mantine/modals": "^7.16.2",
-    "@mantine/notifications": "^7.16.3",
+    "@mantine/modals": "^7.17.1",
+    "@mantine/notifications": "^7.17.1",
     "@myriaddreamin/typst-ts-renderer": "^0.5.5-rc6",
     "@myriaddreamin/typst-ts-web-compiler": "^0.5.5-rc6",
     "@myriaddreamin/typst.ts": "^0.5.5-rc6",
@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
