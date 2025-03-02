@@ -220,6 +220,7 @@ export type Exercise = {
   difficulty: number;
   dislikes: number;
   exercise: Statement;
+  hint: boolean;
   id: string;
   likes: number;
 };

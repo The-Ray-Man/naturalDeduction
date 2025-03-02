@@ -20,6 +20,7 @@ pub struct Exercise {
     pub likes: i32,
     pub dislikes: i32,
     pub difficulty: f64,
+    pub hint: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]

@@ -5,10 +5,12 @@ import {
   Flex,
   Grid,
   Group,
+  Indicator,
   Text,
   Tooltip,
 } from "@mantine/core";
 import {
+  IconBulb,
   IconCheck,
   IconChevronRight,
   IconStar,
@@ -92,9 +94,17 @@ const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
           href={`/exercise/${exercise.id}`}
           style={{ textDecoration: "none" }}
         >
-          <ActionIcon>
-            <IconChevronRight />
-          </ActionIcon>
+          <Indicator
+            color="lightgray"
+            label={<IconBulb size={20} color="black" />}
+            size={"lg"}
+            mr={"xs"}
+            disabled={!exercise.hint}
+          >
+            <ActionIcon>
+              <IconChevronRight />
+            </ActionIcon>
+          </Indicator>
         </Link>
       </Flex>
     </Card>
