@@ -25,7 +25,7 @@ model Node {
   order   Int 
   rule     rules
 
-  @@unique([parent_id, child_id, rule])
+  // @@unique([parent_id, child_id, rule])
 }
 
 // model Node {

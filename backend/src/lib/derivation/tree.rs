@@ -269,17 +269,14 @@ pub fn infer_mapping_stmt(
     )?;
 
     if let Some(lhs_rule) = &rule.lhs {
-        if let Some(lhs_formula) = statment.lhs.first() {
-            infer_mapping_formula(
-                lhs_formula,
-                &RuleFormula::Ident(lhs_rule.clone()),
-                formula_mapping,
-                element_mapping,
-            )?;
-        } else {
-            return Err(BackendError::BadRequest(
-                "Could not infer mapping".to_string(),
-            ));
+
+        if let Some(mapped_formula) = formula_mapping.get(lhs_rule) {
+            if !statment.lhs.contains(mapped_formula) {
+                
+                return Err(BackendError::BadRequest(
+                            format!("Could not infer mapping. Rhs ({}) is not present in lhs.", mapped_formula),
+                        ));
+            }
         }
     };
     Ok(())
