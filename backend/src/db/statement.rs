@@ -11,6 +11,8 @@ pub struct Model {
     pub lhs: String,
     #[sea_orm(column_type = "Text")]
     pub rhs: String,
+    #[sea_orm(column_type = "Text")]
+    pub sidecondition: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

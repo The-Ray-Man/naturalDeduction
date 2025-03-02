@@ -4,6 +4,7 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
+use crate::api::models::SideCondition;
 use crate::{
     error::{BackendError, BackendResult},
     lib::rule::{apply::get_formula, DerivationRule, RuleFormula, RuleIdentifier, Rules},
@@ -11,10 +12,13 @@ use crate::{
 
 use super::formula::{Formula, Identifier};
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]
+#[derive(
+    Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams, Ord, PartialEq, PartialOrd, Eq,
+)]
 pub struct Statement {
     pub lhs: Vec<Formula>,
     pub formula: Formula,
+    pub sidecondition: Vec<SideCondition>,
 }
 
 fn check_not_free_condition(formulas: Vec<&Formula>, var: &String) -> BackendResult<()> {
@@ -215,11 +219,16 @@ impl Statement {
                     (Some(Ok(lhs)), Ok(formula)) => {
                         let mut lhs = vec![lhs];
                         lhs.extend(self.lhs.clone());
-                        Ok(Statement { lhs, formula })
+                        Ok(Statement {
+                            lhs,
+                            formula,
+                            sidecondition: self.sidecondition.clone(),
+                        })
                     }
                     (None, Ok(formula)) => Ok(Statement {
                         lhs: self.lhs.clone(),
                         formula,
+                        sidecondition: self.sidecondition.clone(),
                     }),
                     (Some(Err(err)), _) => Err(err),
                     (_, Err(err)) => Err(err),

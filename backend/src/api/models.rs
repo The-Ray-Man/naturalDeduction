@@ -4,13 +4,25 @@ use uuid::Uuid;
 
 use utoipa::IntoParams;
 
+use crate::lib::derivation::formula::Identifier;
 use crate::lib::derivation::{formula::Formula, statement::Statement};
 use crate::lib::rule::Rules;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
+
+pub enum SideCondition {
+    NotFree(Pair),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Pair {
+    pub element: Identifier,
+    pub placeholder: Identifier,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CreateExerciseRequest {
-    pub lhs: Vec<Formula>,
-    pub rhs: Formula,
+    pub statement: Statement,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
