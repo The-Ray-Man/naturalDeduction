@@ -98,7 +98,7 @@ const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
             color="lightgray"
             label={<IconBulb size={20} color="black" />}
             size={"lg"}
-            mr={"xs"}
+            mr={2}
             disabled={!exercise.hint}
           >
             <ActionIcon>
