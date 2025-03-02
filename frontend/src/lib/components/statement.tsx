@@ -6,9 +6,15 @@ type StatementProps = {
   statement: StatementType;
   click?: (f: FormulaType) => void;
   textColor?: string;
+  showSideCondition?: boolean;
 };
 
-const Statement = ({ statement, click, textColor }: StatementProps) => {
+const Statement = ({
+  statement,
+  click,
+  textColor,
+  showSideCondition = false,
+}: StatementProps) => {
   return (
     <Group className="katex" gap={0}>
       {statement.lhs.length == 0 && <Text mb={-1}>{"\u2205"}</Text>}
@@ -33,6 +39,9 @@ const Statement = ({ statement, click, textColor }: StatementProps) => {
           click={click}
           textColor={textColor}
         />
+      )}
+      {showSideCondition && (
+        <Text>{JSON.stringify(statement.sidecondition)}</Text>
       )}
     </Group>
   );

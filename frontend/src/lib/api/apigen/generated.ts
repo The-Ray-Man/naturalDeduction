@@ -19,7 +19,7 @@ const injectedRtkApi = api.injectEndpoints({
       query: (queryArg) => ({
         url: `/api/check`,
         method: "POST",
-        body: queryArg.statement,
+        body: queryArg.createExerciseRequest,
       }),
     }),
     getExercises: build.query<GetExercisesApiResponse, GetExercisesApiArg>({
@@ -76,7 +76,7 @@ export type ApplyRuleApiArg = {
 };
 export type CheckApiResponse = unknown;
 export type CheckApiArg = {
-  statement: Statement;
+  createExerciseRequest: CreateExerciseRequest;
 };
 export type GetExercisesApiResponse = /** status 200  */ Exercise[];
 export type GetExercisesApiArg = void;
@@ -188,9 +188,17 @@ export type Formula =
       };
       type: "Predicate";
     };
+export type Pair = {
+  element: Identifier;
+  placeholder: Identifier;
+};
+export type SideCondition = {
+  NotFree: Pair;
+};
 export type Statement = {
   formula: Formula;
   lhs: Formula[];
+  sidecondition: SideCondition[];
 };
 export type Node = {
   name: string;
@@ -216,6 +224,9 @@ export type ApplyRuleParams = {
   statement: Statement;
   substitution: ElementMapping[];
 };
+export type CreateExerciseRequest = {
+  statement: Statement;
+};
 export type Exercise = {
   difficulty: number;
   dislikes: number;
@@ -223,10 +234,6 @@ export type Exercise = {
   hint: boolean;
   id: string;
   likes: number;
-};
-export type CreateExerciseRequest = {
-  lhs: Formula[];
-  rhs: Formula;
 };
 export type Feedback = {
   difficulty?: number | null;

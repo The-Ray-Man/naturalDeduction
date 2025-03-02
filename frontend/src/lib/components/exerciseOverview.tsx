@@ -21,7 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { UUID } from "crypto";
 import { useEffect, useState } from "react";
-import { Exercise, useGetExercisesQuery } from "../api";
+import { Exercise, useGetExerciseQuery, useGetExercisesQuery } from "../api";
 import localStorage from "../utils/localStorage";
 import CreateExerciseForm from "./createExercise";
 import ExerciseInterface from "./exercise/exerciseInterface";
@@ -144,7 +144,11 @@ const ExerciseOverview = () => {
                 .toSorted(likeCompare)
                 .map((exercise, i) => (
                   <Box key={i} miw={400}>
-                    <ExerciseListElement key={i} exercise={exercise} />
+                    <ExerciseListElement
+                      key={i}
+                      exercise={exercise}
+                      showSideCondition={true}
+                    />
                   </Box>
                 ))}
             </Stack>
@@ -158,7 +162,11 @@ const ExerciseOverview = () => {
                 .toSorted(likeCompare)
                 .map((exercise, i) => (
                   <Box key={i} miw={400}>
-                    <ExerciseListElement key={i} exercise={exercise} />
+                    <ExerciseListElement
+                      key={i}
+                      exercise={exercise}
+                      showSideCondition={true}
+                    />
                   </Box>
                 ))}
             </Stack>
@@ -172,7 +180,11 @@ const ExerciseOverview = () => {
                 .toSorted(likeCompare)
                 .map((exercise, i) => (
                   <Box key={i} miw={400}>
-                    <ExerciseListElement key={i} exercise={exercise} />
+                    <ExerciseListElement
+                      key={i}
+                      exercise={exercise}
+                      showSideCondition={true}
+                    />
                   </Box>
                 ))}
             </Stack>
@@ -186,7 +198,11 @@ const ExerciseOverview = () => {
                 .toSorted(likeCompare)
                 .map((exercise, i) => (
                   <Box key={i} miw={400}>
-                    <ExerciseListElement key={i} exercise={exercise} />
+                    <ExerciseListElement
+                      key={i}
+                      exercise={exercise}
+                      showSideCondition={true}
+                    />
                   </Box>
                 ))}
             </Stack>
@@ -196,7 +212,11 @@ const ExerciseOverview = () => {
         {selectedModus === "likes" && (
           <SimpleGrid cols={3}>
             {allExercises.toSorted(likeCompare).map((exercise, i) => (
-              <ExerciseListElement key={i} exercise={exercise} />
+              <ExerciseListElement
+                key={i}
+                exercise={exercise}
+                showSideCondition={true}
+              />
             ))}
           </SimpleGrid>
         )}
@@ -208,7 +228,11 @@ const ExerciseOverview = () => {
                 return !completed.includes(ex.id as UUID);
               })
               .map((exercise, i) => (
-                <ExerciseListElement key={i} exercise={exercise} />
+                <ExerciseListElement
+                  key={i}
+                  exercise={exercise}
+                  showSideCondition={true}
+                />
               ))}
           </SimpleGrid>
         )}
@@ -224,7 +248,11 @@ const ExerciseOverview = () => {
                 }
               })
               .map((exercise, i) => (
-                <ExerciseListElement key={i} exercise={exercise} />
+                <ExerciseListElement
+                  key={i}
+                  exercise={exercise}
+                  showSideCondition={true}
+                />
               ))}
           </SimpleGrid>
         )}

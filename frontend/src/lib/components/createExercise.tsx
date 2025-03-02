@@ -19,6 +19,7 @@ import { IconCheck, IconInfoCircle, IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import {
   Formula as FormulaType,
+  SideCondition as SideConditionType,
   Statement as StatementType,
   useCheckMutation,
   useCreateExerciseMutation,
@@ -40,6 +41,7 @@ const CreateExerciseForm = () => {
 
   const [lhs, lhsHandler] = useListState<FormulaType>([]);
   const [rhs, rhsHandler] = useState<FormulaType | undefined>(undefined);
+  const [sideCon, sideConHandler] = useListState<SideConditionType>([]);
 
   const [input, inputHandler] = useState<string>("");
   const [parseError, setParseError] = useState<string | undefined>(undefined);
@@ -52,9 +54,12 @@ const CreateExerciseForm = () => {
       if (rhs) {
         try {
           let result = await checkTautology({
-            statement: {
-              formula: rhs,
-              lhs: lhs,
+            createExerciseRequest: {
+              statement: {
+                formula: rhs,
+                lhs: lhs,
+                sidecondition: sideCon,
+              },
             },
           }).unwrap();
           setIsPossible(result as boolean);
@@ -72,6 +77,8 @@ const CreateExerciseForm = () => {
   const statement = {
     lhs: lhs,
     formula: rhs,
+    sidecondition: sideCon,
+
   } as StatementType;
 
   const enterFormula = async () => {
@@ -105,7 +112,9 @@ const CreateExerciseForm = () => {
     if (rhs) {
       try {
         await addExercise({
-          createExerciseRequest: { lhs: lhs, rhs: rhs },
+          createExerciseRequest: {
+            statement: { lhs: lhs, formula: rhs, sidecondition: sideCon },
+          },
         }).unwrap();
         showInfo("New Exercise created!");
         refetch();
