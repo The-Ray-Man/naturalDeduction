@@ -67,6 +67,7 @@ pub async fn add_tree(
                 let node = node::ActiveModel {
                     parent_id: sea_orm::ActiveValue::Set(statement_id),
                     rule: sea_orm::ActiveValue::Set(node.rule.clone().into()),
+                    order: sea_orm::ActiveValue::Set(0),
                     ..Default::default()
                 };
                 let _ = Box::pin(node.save(trx)).await?;
