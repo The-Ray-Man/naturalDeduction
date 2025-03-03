@@ -1,4 +1,4 @@
-import { Rules } from "../api";
+import { Formula, Rules } from "../api";
 
 export function getRuleByName(name: Rules): string {
   switch (name) {
@@ -80,4 +80,17 @@ export function getTypstRuleByName(name: Rules, footnote: number): string | [str
     case "AlphaForall":
       return [`alpha forall^(${footnote})`, '"the binding structure is preserved"'];
   }
+}
+
+export function getSideCondition(name: Rules): string | undefined {
+  switch (name) {
+    case "AlphaExists":
+    case "AlphaForall":
+      return "the binding structure is preserved";
+    case "ExistsElim":
+      return "x does not occur freely in any formula in Γ or B";
+    case "ForallIntro":
+      return "x does not occur freely in any formula in Γ";
+  }
+  return undefined;
 }
