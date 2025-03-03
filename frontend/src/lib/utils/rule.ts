@@ -41,7 +41,7 @@ export function getRuleByName(name: Rules): string {
   }
 }
 
-export function getTypstRuleByName(name: Rules): string {
+export function getTypstRuleByName(name: Rules, footnote: number): string | [string, string] {
   switch (name) {
     case "AndElimL":
       return 'and "EL"';
@@ -52,7 +52,7 @@ export function getTypstRuleByName(name: Rules): string {
     case "Ax":
       return '"AXIOM"';
     case "ExistsElim":
-      return 'exists "E**"';
+      return [`exists "E"^(${footnote})`, '%%identifier%% "does not occur freely in any formula in" %%lhs%% "or" %%rhs%%'];
     case "ExistsIntro":
       return 'exists "I"';
     case "FalseElim":
@@ -60,7 +60,7 @@ export function getTypstRuleByName(name: Rules): string {
     case "ForallElim":
       return 'forall "E"';
     case "ForallIntro":
-      return 'forall "I*"';
+      return [`forall "I"^$(${footnote})`, '%%identifier%% "does not occur freely in any formula in" %%lhs%%'];
     case "ImplElim":
       return 'arrow.r "E"';
     case "ImplIntro":
@@ -76,8 +76,8 @@ export function getTypstRuleByName(name: Rules): string {
     case "OrIntroR":
       return 'or "I"';
     case "AlphaExists":
-      return 'alpha exists "***"';
+      return [`alpha exists^(${footnote})`, '"the binding structure is preserved"'];
     case "AlphaForall":
-      return 'alpha forall "***"';
+      return [`alpha forall^(${footnote})`, '"the binding structure is preserved"'];
   }
 }

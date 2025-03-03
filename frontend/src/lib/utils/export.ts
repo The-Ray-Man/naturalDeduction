@@ -5,24 +5,56 @@ import { getTypstRuleByName } from "./rule";
 export function exportToTypst(root: NodeType, nodes: Array<NodeType>): string {
   const imp = `#import "@preview/curryst:0.5.0": rule, prooftree`;
   const page = `#set page(fill: none, width: auto, height: auto, margin: (x: 1em, y: 1em))`;
-  const prooftree = `#prooftree(${exportSubformula(root, nodes)})`;
-  return `${imp}\n${page}\n${prooftree}`;
+  const [formula, footnotes] = exportSubformula(root, nodes, 1);
+  const prooftree = `#prooftree(${formula})`;
+
+  const conditions = root.statement.sidecondition.map(({ NotFree: { element, placeholder } }) => {
+    return `${element.value} "not occuring freely in" ${placeholder.value}`
+  });
+  conditions.push(...footnotes.map(([id, note]) => `$"${id}:" ${note}$`));
+
+  let typstStr = `${imp}\n${page}\n${prooftree}`;
+
+  if (conditions.length > 0) {
+    typstStr += "\n#set text(size: 7pt)"
+    typstStr += "\n#let footnotes(body) = context {\n\tpad(top: 4pt, line(length: measure(body).width, stroke: 0.5pt + black))\n\tbody\n}";
+    typstStr += `\n#stack(dir: ttb, spacing: 4pt, ${conditions.join(", ")})`
+  }
+
+  return typstStr;
 }
 
-function exportSubformula(node: NodeType, nodes: Array<NodeType>): string {
-  const name = getTypstRuleByName(node.rule as Rules);
+function exportSubformula(node: NodeType, nodes: Array<NodeType>, footnoteNumber: number): [string, Array<[number, string]>] {
+  let name = getTypstRuleByName(node.rule as Rules, footnoteNumber);
   const lhs = node.statement.lhs.map(formulaToTypst).join(", ") || "emptyset";
   const current = formulaToTypst(node.statement.formula);
+  let currentFootnoteNumber = footnoteNumber;
+  const footnotes: Array<[number, string]> = [];
+  if (Array.isArray(name)) {
+    currentFootnoteNumber++;
+    const formula = node.statement.formula as Formula & { type: "Exists" | "Forall"};
+    const footnote = name[1]
+      .replaceAll("%%identifier%%", formula.body.identifier.value)
+      .replaceAll("%%lhs%%", lhs)
+      .replaceAll("%%rhs%%", current);
+    footnotes.push([footnoteNumber, name[1]]);
+    name = name[0];
+  };
 
   const premisses = node.premisses
     .map((premisse) => {
       return nodes.find((node) => node.name === premisse);
     })
     .filter(Boolean)
-    .map((node) => exportSubformula(node as NodeType, nodes))
+    .map((node) => {
+      const [subformula, footnotes] = exportSubformula(node as NodeType, nodes, currentFootnoteNumber);
+      currentFootnoteNumber += footnotes.length;
+      footnotes.push(...footnotes);
+      return subformula;
+    })
     .join(",\n");
 
-  return `rule(name: $${name}$,$${lhs} tack ${current}$,${premisses})`;
+  return [`rule(name: $${name}$,$${lhs} tack ${current}$,${premisses})`, footnotes];
 }
 
 function formulaToTypst(formula: Formula): string {
