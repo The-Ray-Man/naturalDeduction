@@ -21,7 +21,8 @@ pub struct Statement {
     pub sidecondition: Vec<SideCondition>,
 }
 
-fn check_not_free_condition(formulas: Vec<&Formula>, var: &String) -> BackendResult<()> {
+fn check_not_free_condition(formulas: Vec<&Formula>, var: &String, side_con: &Vec<SideCondition>) -> BackendResult<()> {
+    // Check for concrete variables.
     let free_vars = formulas
         .iter()
         .flat_map(|f| f.free_vars(BTreeSet::new()))
@@ -38,7 +39,7 @@ fn check_not_free_condition(formulas: Vec<&Formula>, var: &String) -> BackendRes
     for f in formulas {
         let everything_free = f.can_contain_any_free_variable()?;
         if everything_free {
-            let captured = f.captures()?;
+            let captured = f.captures(side_con)?;
             if !captured.contains(var) {
                 return Err(BackendError::BadRequest(format!(
                     "In {} the variable {} could occur freely",
@@ -94,7 +95,7 @@ impl Statement {
                     ..
                 } = self.formula.clone()
                 {
-                    check_not_free_condition(self.lhs.iter().collect(), &i)?
+                    check_not_free_condition(self.lhs.iter().collect(), &i, &self.sidecondition)?
                 }
             }
             Rules::ExistsElim => {
@@ -110,7 +111,7 @@ impl Statement {
                         let mut formulas = self.lhs.clone();
                         formulas.push(self.formula.clone());
                         println!("Checking not free condition for formulas {:?}", formulas);
-                        check_not_free_condition(formulas.iter().collect(), chosen)?
+                        check_not_free_condition(formulas.iter().collect(), chosen, &self.sidecondition)?
                     }
                 }
             }
