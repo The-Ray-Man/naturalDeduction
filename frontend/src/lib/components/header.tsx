@@ -8,7 +8,6 @@ const Header: React.FC = (): React.ReactNode => {
   return (
     <Flex px={"md"} align="center" justify="space-between" h="100%">
       <Link
-        onClick={location.reload}
         href={"/"}
         style={{ textDecoration: "none", color: "inherit" }}
       >
