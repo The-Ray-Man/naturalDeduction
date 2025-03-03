@@ -3,6 +3,7 @@ import {
   ElementMapping as ElementMappingType,
   FormulaMapping as FormulaMappingType,
   Formula as FormulaType,
+  RuleIdentifier,
   useAllRulesQuery,
   useApplyRuleMutation,
   useParseMutation,
@@ -18,6 +19,7 @@ import {
   Button,
   ButtonGroup,
   Center,
+  Checkbox,
   Group,
   Modal,
   Stack,
@@ -26,13 +28,17 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
-import { IconCheck } from "@tabler/icons-react";
+import { IconCheck, IconPlus, IconX } from "@tabler/icons-react";
 import { UUID } from "crypto";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import ElementMapping from "./elementMapping";
 import FormulaMapping from "./formulaMapping";
 import { NodeType } from "./node";
+import { getSideCondition } from "@/lib/utils/rule";
+import { RuleIdent } from "../rule/ruleParts";
+import Formula from "../formula/formula";
+import { cornersOfRectangle } from "@dnd-kit/core/dist/utilities/algorithms/helpers";
 
 const Matcher = () => {
   const {
@@ -50,11 +56,23 @@ const Matcher = () => {
 
   const current_node = nodes?.find((n) => n.name == target);
 
+  if (!current_rule) {
+    return <div>Something went wrong</div>;
+  }
+
+  const sideConditionText = getSideCondition(current_rule.name);
+
+  const allIdentifiers = getAllIdentifiers(current_rule);
+
   const [formulaIdentifier, formulaIdentifierHandler] = useListState<number>(
-    [],
+    allIdentifiers
+      .filter((ident) => ident.type === "Formula")
+      .map((ident) => ident.value),
   );
   const [elementIdentifier, elementIdentifierHandler] = useListState<string>(
-    [],
+    allIdentifiers
+      .filter((ident) => ident.type === "Element")
+      .map((ident) => ident.value),
   );
 
   const [formulaMatcher, formulaMatcherHandler] =
@@ -62,17 +80,92 @@ const Matcher = () => {
   const [elementMatcher, elementMatcherHandler] =
     useListState<ElementMappingType>([]);
 
-  const [counter, setCounter] = useState<number>(0);
+  const [counter, setCounter] = useState<number | undefined>(0);
+  const [highlighted, setHighlighted] = useState<number | string | undefined>(
+    undefined,
+  );
   const [parseError, setParseError] = useState<string>("");
 
   const [applyRuleRequest] = useApplyRuleMutation();
   const [parseFormula] = useParseMutation();
+  const [sideCondition, setSideCondition] = useState(false);
   const [applyError, setApplyError] = useState<string | undefined>(undefined);
 
+  useEffect(() => {
+    if (counter == undefined) {
+      setHighlighted(undefined);
+    } else {
+      if (counter < formulaIdentifier.length) {
+        setHighlighted(formulaIdentifier[counter]);
+      } else if (
+        counter <
+        formulaIdentifier.length + elementIdentifier.length
+      ) {
+        setHighlighted(elementIdentifier[counter - formulaIdentifier.length]);
+      } else {
+        setHighlighted(undefined);
+      }
+    }
+  }, [counter]);
+
+  useEffect(() => {
+    next();
+  }, [formulaMatcherHandler, elementMatcherHandler]);
+
+  const removeMapping = (mapping: FormulaMappingType | ElementMappingType) => {
+    if (typeof mapping.from == "number") {
+      let to_remove = mapping as FormulaMappingType;
+      let index = formulaMatcher.findIndex(
+        (m) => m.from === to_remove.from && m.to === to_remove.to,
+      );
+      formulaMatcherHandler.remove(index);
+    } else {
+      let to_remove = mapping as ElementMappingType;
+      let index = elementMatcher.indexOf(to_remove);
+      elementMatcherHandler.remove(index);
+    }
+  };
+
+  const next = () => {
+    if (allIdentifiers == undefined) return;
+    let identifier_index = allIdentifiers
+      ?.map((ident, i) => [ident, i] as [RuleIdentifier, number])
+      .filter(([ident, i]) => {
+        if (ident.type === "Formula") {
+          return !formulaMatcher.find((m) => m.from === ident.value);
+        } else {
+          return !elementMatcher.find((m) => m.from === ident.value);
+        }
+      });
+    if (identifier_index.length == 0) {
+      setCounter(undefined);
+      return;
+    }
+
+    if (counter == undefined) {
+      let index = Math.min(...identifier_index.map(([ident, i]) => i));
+      setCounter(index);
+
+      return;
+    }
+    identifier_index.sort(([a, ai], [b, bi]) => {
+      let dist_a = ai - counter;
+      let dist_b = bi - counter;
+      if (dist_a >= 0) {
+        return -(dist_b - dist_a);
+      } else {
+        return -(dist_a - dist_b);
+      }
+    });
+    let index = identifier_index[0][1];
+    setCounter(index);
+  };
+
   const handleClick = (f: FormulaType) => {
+    if (counter == undefined) return;
     if (counter < formulaIdentifier.length) {
       formulaMatcherHandler.append({ from: formulaIdentifier[counter], to: f });
-      setCounter(counter + 1);
+      next();
     } else if (
       counter >= formulaIdentifier.length &&
       counter < formulaIdentifier.length + elementIdentifier.length
@@ -82,16 +175,16 @@ const Matcher = () => {
           from: elementIdentifier[counter - formulaIdentifier.length],
           to: f.body.value,
         });
-        setCounter(counter + 1);
+        next();
       }
     }
   };
 
   const handleCustomFormula = async () => {
-    if (value) {
+    if (customFormula) {
       try {
         let result = await parseFormula({
-          parseParams: { formula: value },
+          parseParams: { formula: customFormula },
         }).unwrap();
         const f = result as FormulaType;
         handleClick(f);
@@ -150,33 +243,7 @@ const Matcher = () => {
     }
   };
 
-  useEffect(() => {
-    if (!current_rule) {
-      return;
-    }
-    let ident = getAllIdentifiers(current_rule);
-
-    let formulas: number[] = [];
-    let elements: string[] = [];
-
-    for (let i of ident) {
-      switch (i.type) {
-        case "Formula": {
-          formulas.push(i.value);
-          break;
-        }
-        case "Element": {
-          elements.push(i.value);
-          break;
-        }
-      }
-    }
-
-    formulaIdentifierHandler.setState(formulas);
-    elementIdentifierHandler.setState(elements);
-  }, [current_rule]);
-
-  const [value, setValue] = useState("");
+  const [customFormula, setCustomFormula] = useState("");
 
   if (nodes && !current_node) {
     return <div>Something went wrong</div>;
@@ -199,23 +266,68 @@ const Matcher = () => {
       title="Apply Rule"
     >
       <Group justify={"space-around"}>
-        <Stack className="katex" pt={"md"}>
-          <DerivationRule
-            rule={current_rule}
-            highlighted={
-              counter < formulaIdentifier.length
-                ? formulaIdentifier[counter]
-                : elementIdentifier[counter - formulaIdentifier.length]
+        <Stack pt={"md"}>
+          <Box className="katex">
+            <DerivationRule rule={current_rule} highlighted={highlighted} />
+          </Box>
+
+          {allIdentifiers?.map((i, index) => {
+            let rhs = undefined;
+            let mapping = undefined;
+            if (i.type == "Formula") {
+              rhs = formulaMatcher.find((m, j) => {
+                return m.from === i.value;
+              })?.to;
+              mapping = {
+                from: i.value,
+                to: rhs,
+              } as FormulaMappingType;
+            } else {
+              let name = elementMatcher.find((m, j) => {
+                return m.from === i.value;
+              })?.to;
+              if (name) {
+                rhs = {
+                  type: "Ident",
+                  body: { type: "Element", value: name },
+                } as FormulaType;
+                mapping = {
+                  from: i.value,
+                  to: name,
+                } as ElementMappingType;
+              }
             }
-          />
-
-          {formulaMatcher.map((m, i) => {
-            return <FormulaMapping mapping={m} key={i} />;
+            return (
+              <Group key={index} w={"100%"} p={0}>
+                <RuleIdent
+                  key={index}
+                  rule={{ type: "Ident", body: i }}
+                  highlighted={highlighted}
+                />
+                <Text>{"\u2261"}</Text>
+                {rhs && mapping && (
+                  <Group
+                    justify="space-between"
+                    styles={{ root: { flexGrow: "1" } }}
+                    p={0}
+                  >
+                    <Formula formula={rhs} />
+                    <ActionIcon
+                      variant="transparent"
+                      onClick={() => removeMapping(mapping)}
+                    >
+                      <IconX />
+                    </ActionIcon>
+                  </Group>
+                )}
+              </Group>
+            );
           })}
-
-          {elementMatcher.map((m, i) => {
-            return <ElementMapping mapping={m} key={i} />;
-          })}
+          {current_node && (
+            <Group styles={{ root: { visibility: "hidden" } }}>
+              <Statement statement={current_node?.statement} />
+            </Group>
+          )}
         </Stack>
 
         <Stack>
@@ -227,20 +339,29 @@ const Matcher = () => {
           </Box>
           <Group>
             <TextInput
-              value={value}
-              onChange={(event) => setValue(event.currentTarget.value)}
+              value={customFormula}
+              onChange={(event) => setCustomFormula(event.currentTarget.value)}
               placeholder="Custom Formula"
-              w={"80%"}
+              w={"100%"}
+              rightSection={
+                <ActionIcon onClick={handleCustomFormula} variant="transparent">
+                  <IconPlus />
+                </ActionIcon>
+              }
             />
-            <ActionIcon onClick={handleCustomFormula}>
-              <IconCheck />
-            </ActionIcon>
           </Group>
           {parseError.length > 0 && (
             <Textarea disabled value={parseError} rows={6} bg={"#ff8787"} />
           )}
         </Stack>
       </Group>
+      {sideConditionText && (
+        <Checkbox
+          checked={sideCondition}
+          onChange={(event) => setSideCondition(event.currentTarget.checked)}
+          label={sideConditionText}
+        />
+      )}
 
       <Center pt={"md"}>
         <ButtonGroup>
@@ -256,12 +377,7 @@ const Matcher = () => {
           >
             Clear
           </Button>
-          <Button
-            disabled={
-              counter < formulaIdentifier.length + elementIdentifier.length
-            }
-            onClick={applyRule}
-          >
+          <Button disabled={counter != undefined} onClick={applyRule}>
             Apply
           </Button>
         </ButtonGroup>

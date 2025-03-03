@@ -7,10 +7,7 @@ const Header: React.FC = (): React.ReactNode => {
   const { toggleColorScheme, colorScheme } = useMantineColorScheme();
   return (
     <Flex px={"md"} align="center" justify="space-between" h="100%">
-      <Link
-        href={"/"}
-        style={{ textDecoration: "none", color: "inherit" }}
-      >
+      <Link href={"/"} style={{ textDecoration: "none", color: "inherit" }}>
         <Title order={2}>FMFP Made Easy</Title>
       </Link>
       <ActionIcon onClick={toggleColorScheme}>
