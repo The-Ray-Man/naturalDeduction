@@ -37,7 +37,7 @@ function exportSubformula(node: NodeType, nodes: Array<NodeType>, footnoteNumber
       .replaceAll("%%identifier%%", formula.body.identifier.value)
       .replaceAll("%%lhs%%", lhs)
       .replaceAll("%%rhs%%", current);
-    footnotes.push([footnoteNumber, name[1]]);
+    footnotes.push([footnoteNumber, footnote]);
     name = name[0];
   };
 
@@ -47,9 +47,9 @@ function exportSubformula(node: NodeType, nodes: Array<NodeType>, footnoteNumber
     })
     .filter(Boolean)
     .map((node) => {
-      const [subformula, footnotes] = exportSubformula(node as NodeType, nodes, currentFootnoteNumber);
-      currentFootnoteNumber += footnotes.length;
-      footnotes.push(...footnotes);
+      const [subformula, extraFootnotes] = exportSubformula(node as NodeType, nodes, currentFootnoteNumber);
+      currentFootnoteNumber += extraFootnotes.length;
+      footnotes.push(...extraFootnotes);
       return subformula;
     })
     .join(",\n");

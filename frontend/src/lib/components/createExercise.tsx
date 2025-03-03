@@ -98,7 +98,7 @@ const CreateExerciseForm = () => {
           createExerciseRequest: {
             statement: {
               formula: rhs,
-              lhs: lhs,
+              lhs: lhs || [],
               sidecondition: sideCon,
             },
           },
