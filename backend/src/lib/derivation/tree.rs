@@ -275,6 +275,7 @@ pub fn infer_mapping_stmt(
                     "Could not infer mapping. Rhs ({}) is not present in lhs.",
                     mapped_formula
                 )));
+
             }
         }
     };
