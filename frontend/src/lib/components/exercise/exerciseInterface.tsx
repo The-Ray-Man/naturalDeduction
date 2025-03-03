@@ -45,7 +45,7 @@ const ExerciseInterface = ({ exercise }: ExerciseInterfaceProps) => {
         </Box>
       )}
       <Flex pt={0}>
-        {exercise.sidecondition.map((sidecondition, index) => (
+        {exercise.sidecondition?.map((sidecondition, index) => (
           <SideCondition sideCondition={sidecondition} key={index} />
         ))}
       </Flex>

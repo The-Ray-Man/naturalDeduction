@@ -8,7 +8,7 @@ export function exportToTypst(root: NodeType, nodes: Array<NodeType>): string {
   const [formula, footnotes] = exportSubformula(root, nodes, 1);
   const prooftree = `#prooftree(${formula})`;
 
-  const conditions = root.statement.sidecondition.map(({ NotFree: { element, placeholder } }) => {
+  const conditions = (root.statement.sidecondition || []).map(({ NotFree: { element, placeholder } }) => {
     return `${element.value} "not occuring freely in" ${placeholder.value}`
   });
   conditions.push(...footnotes.map(([id, note]) => `$"${id}:" ${note}$`));
@@ -18,7 +18,7 @@ export function exportToTypst(root: NodeType, nodes: Array<NodeType>): string {
   if (conditions.length > 0) {
     typstStr += "\n#set text(size: 7pt)"
     typstStr += "\n#let footnotes(body) = context {\n\tpad(top: 4pt, line(length: measure(body).width, stroke: 0.5pt + black))\n\tbody\n}";
-    typstStr += `\n#stack(dir: ttb, spacing: 4pt, ${conditions.join(", ")})`
+    typstStr += `\n#footnotes[#stack(dir: ttb, spacing: 4pt, ${conditions.join(", ")})]`
   }
 
   return typstStr;
