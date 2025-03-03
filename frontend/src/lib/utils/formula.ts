@@ -1,4 +1,11 @@
-import { DerivationRule, Formula, Identifier, RuleIdentifier, RuleStatement, Statement } from "../api";
+import {
+  DerivationRule,
+  Formula,
+  Identifier,
+  RuleIdentifier,
+  RuleStatement,
+  Statement,
+} from "../api";
 
 function getIdentifiers(statement: RuleStatement): RuleIdentifier[] {
   let identifiers = [];
@@ -52,7 +59,6 @@ export function getAllIdentifiers(rule: DerivationRule): RuleIdentifier[] {
   return unique_identifiers;
 }
 
-
 const getPlaceholders = (f: Formula) => {
   let placeholders = new Set<Identifier>();
   switch (f.type) {
@@ -73,7 +79,7 @@ const getPlaceholders = (f: Formula) => {
     case "Not":
       if (f.body) {
         console.log(f.body as Identifier);
-        placeholders = placeholders.add(f.body  as Identifier);
+        placeholders = placeholders.add(f.body as Identifier);
         console.log(placeholders);
       }
       break;
@@ -83,8 +89,10 @@ const getPlaceholders = (f: Formula) => {
   return placeholders;
 };
 
-export function getAllPlaceholders(lhs: Formula[], rhs: Formula |undefined) : Set<Identifier> {
-
+export function getAllPlaceholders(
+  lhs: Formula[],
+  rhs: Formula | undefined,
+): Set<Identifier> {
   let placeholders = rhs ? getPlaceholders(rhs) : new Set<Identifier>();
   for (let ident of lhs) {
     placeholders = placeholders.union(getPlaceholders(ident));

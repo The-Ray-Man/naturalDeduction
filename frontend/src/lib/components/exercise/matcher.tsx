@@ -108,7 +108,11 @@ const Matcher = () => {
         const result = await applyRuleRequest({
           applyRuleParams: {
             rule: rule_name,
-            statement: current_node?.statement,
+            statement: {
+              formula: current_node.statement.formula,
+              lhs: current_node.statement.lhs,
+              sidecondition: current_node.statement.sidecondition,
+            },
             mapping: formulaMatcher,
             substitution: elementMatcher,
           },

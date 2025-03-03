@@ -226,6 +226,7 @@ const Exercise = ({ exercise }: ExerciseProps) => {
               <Node
                 node={nodes.find((n) => n.name == currentId)!}
                 all_nodes={nodes}
+                side_con={exercise.sidecondition}
               />
             ) : (
               <>

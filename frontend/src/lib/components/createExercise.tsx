@@ -73,11 +73,13 @@ const CreateExerciseForm = () => {
   );
   const [parseError, setParseError] = useState<string | undefined>(undefined);
 
-
   // Sideconditions
-  const [ScElement, setScElement] = useState<IdentifierType | undefined>(undefined);
-  const [ScPlaceholder, setScPlaceholder] = useState<IdentifierType | undefined>(undefined);
-
+  const [ScElement, setScElement] = useState<IdentifierType | undefined>(
+    undefined,
+  );
+  const [ScPlaceholder, setScPlaceholder] = useState<
+    IdentifierType | undefined
+  >(undefined);
 
   // controle
   const [hasRhs, setHasRhs] = useState<boolean>(false);
@@ -115,19 +117,20 @@ const CreateExerciseForm = () => {
   }, [rhs, lhs, sideCon]);
 
   useEffect(() => {
-    
     // alert("getAllPlaceholders");
-    
+
     let vars = [...getAllPlaceholders(lhs, rhs)];
 
     let placeholder = vars.filter((v) => v.type === "Literal");
     let elem = vars.filter((v) => v.type === "Element");
 
     placeholder = placeholder.filter(
-      (item, idx, arr) => arr.findIndex(el => el.value === item.value) === idx
+      (item, idx, arr) =>
+        arr.findIndex((el) => el.value === item.value) === idx,
     );
     elem = elem.filter(
-      (item, idx, arr) => arr.findIndex(el => el.value === item.value) === idx
+      (item, idx, arr) =>
+        arr.findIndex((el) => el.value === item.value) === idx,
     );
 
     setPlaceholders.setState(placeholder);
@@ -161,7 +164,6 @@ const CreateExerciseForm = () => {
       }
     }
   };
-
 
   const create = async () => {
     if (rhs) {
@@ -203,7 +205,7 @@ const CreateExerciseForm = () => {
         title={"Add new Exercise"}
         mih={800}
       >
-        <List >
+        <List>
           <ListItem>
             <Text>✅ The added exercises are visible to everyone.</Text>
           </ListItem>
@@ -214,7 +216,7 @@ const CreateExerciseForm = () => {
             </Text>
           </ListItem>
         </List>
-        <Divider mt={"md"}/>
+        <Divider mt={"md"} />
         <Stack justify="center" align="stretch" gap={10}>
           <Group justify="center">
             <Card withBorder miw={"50%"} mih={125} mt={"xl"}>
@@ -316,56 +318,84 @@ const CreateExerciseForm = () => {
               </Group>
             </Grid.Col>
           </Grid>
-          <Divider my={"md"}/>
+          <Divider my={"md"} />
           <Stack align="center">
-
-          {sideCon.map((sc, i) => (
-            <Group key={i} gap={1}>
-              <Formula formula={{type: "Ident", body: sc.NotFree.element}} />
-              <Text px={"xs"}> not free in </Text>
-              <Formula formula={{type: "Ident", body: sc.NotFree.placeholder}} />
+            {sideCon.map((sc, i) => (
+              <Group key={i} gap={1}>
+                <Formula
+                  formula={{ type: "Ident", body: sc.NotFree.element }}
+                />
+                <Text px={"xs"}> not free in </Text>
+                <Formula
+                  formula={{ type: "Ident", body: sc.NotFree.placeholder }}
+                />
+                <ActionIcon
+                  mx={"md"}
+                  variant="transparent"
+                  onClick={() => sideConHandler.remove(i)}
+                >
+                  <IconX />
+                </ActionIcon>
+              </Group>
+            ))}
+            <Group>
+              <Select
+                data={elemente.map((e) => ({ value: e.value, label: e.value }))}
+                placeholder="Element"
+                value={ScElement?.value}
+                onChange={(value) =>
+                  setScElement(elemente.find((el) => el.value === value))
+                }
+              />
+              <Text> not free in</Text>
+              <Select
+                data={placeholders.map((e) => ({
+                  value: e.value,
+                  label: e.value,
+                }))}
+                placeholder="Placeholder"
+                value={ScPlaceholder?.value}
+                onChange={(value) =>
+                  setScPlaceholder(
+                    placeholders.find((el) => el.value === value),
+                  )
+                }
+              />
               <ActionIcon
-              mx={"md"}
                 variant="transparent"
-                onClick={() => sideConHandler.remove(i)}
+                onClick={() => {
+                  console.log("ScElement", ScElement);
+                  console.log("ScPlaceholder", ScPlaceholder);
+                  if (ScElement && ScPlaceholder) {
+                    sideConHandler.append({
+                      NotFree: {
+                        element: ScElement,
+                        placeholder: ScPlaceholder,
+                      },
+                    });
+                  }
+                }}
               >
-                <IconX />
+                <IconPlus />
               </ActionIcon>
             </Group>
-          ))}
-          <Group>
-            
-          <Select
-            data={elemente.map((e) => ({ value: e.value, label: e.value }))}
-            placeholder="Element"
-            value={ScElement?.value}
-            onChange={(value) => setScElement(elemente.find((el) => el.value === value))}
-            />
-          <Text> not free in</Text>
-          <Select
-            data={placeholders.map((e) => ({ value: e.value, label: e.value }))}
-            placeholder="Placeholder"
-            value={ScPlaceholder?.value}
-            onChange={(value) => setScPlaceholder(placeholders.find((el) => el.value === value))}
-            />
-            <ActionIcon variant="transparent" onClick={() => {
-              console.log("ScElement", ScElement);
-              console.log("ScPlaceholder", ScPlaceholder);
-              if (ScElement && ScPlaceholder) {
-                sideConHandler.append({ NotFree: {element: ScElement, placeholder: ScPlaceholder }});
-              }
-            }}>
-              <IconPlus />
-            </ActionIcon>
-            </Group>
-            </Stack>
-          <Divider my={"md"}/>
+          </Stack>
+          <Divider my={"md"} />
           <Group justify="center">
-
-          {hasRhs ? <Text>✅ Structure</Text> : <Text>⚠️ Must have a Rhs</Text>}
-          {isTautology ? <Text>✅ is tautology</Text> : <Text>⚠️ Is not a tautology</Text>}
+            {hasRhs ? (
+              <Text>✅ Structure</Text>
+            ) : (
+              <Text>⚠️ Must have a Rhs</Text>
+            )}
+            {isTautology ? (
+              <Text>✅ is tautology</Text>
+            ) : (
+              <Text>⚠️ Is not a tautology</Text>
+            )}
           </Group>
-            <Button disabled={!hasRhs || !isTautology } onClick={create}>Create</Button>
+          <Button disabled={!hasRhs || !isTautology} onClick={create}>
+            Create
+          </Button>
         </Stack>
       </Modal>
     </>
