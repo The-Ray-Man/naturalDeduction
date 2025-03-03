@@ -56,13 +56,11 @@ const Matcher = () => {
 
   const current_node = nodes?.find((n) => n.name == target);
 
-  if (!current_rule) {
-    return <div>Something went wrong</div>;
-  }
 
-  const sideConditionText = getSideCondition(current_rule.name);
 
-  const allIdentifiers = getAllIdentifiers(current_rule);
+  const sideConditionText = getSideCondition(current_rule!.name);
+
+  const allIdentifiers = getAllIdentifiers(current_rule!);
 
   const [formulaIdentifier, formulaIdentifierHandler] = useListState<number>(
     allIdentifiers
@@ -244,6 +242,10 @@ const Matcher = () => {
   };
 
   const [customFormula, setCustomFormula] = useState("");
+
+  if (!current_rule) {
+    return <div>Something went wrong</div>;
+  }
 
   if (nodes && !current_node) {
     return <div>Something went wrong</div>;
