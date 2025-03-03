@@ -60,7 +60,7 @@ const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
         </Grid.Col>
         <Grid.Col span={1}>
           <Group justify="flex-end" gap={0}>
-            <Tooltip label="toggle">
+            <Tooltip label={fav ? "Remove from favorites" : "Add to favorites"}>
               <ActionIcon
                 variant={"transparent"}
                 onClick={() => {

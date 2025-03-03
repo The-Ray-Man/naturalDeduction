@@ -11,7 +11,7 @@ export function exportToTypst(root: NodeType, nodes: Array<NodeType>): string {
 
 function exportSubformula(node: NodeType, nodes: Array<NodeType>): string {
   const name = getTypstRuleByName(node.rule as Rules);
-  const lhs = node.statement.lhs.map(formulaToTypst).join(", ");
+  const lhs = node.statement.lhs.map(formulaToTypst).join(", ") || "emptyset";
   const current = formulaToTypst(node.statement.formula);
 
   const premisses = node.premisses

@@ -101,7 +101,7 @@ const Feedback = ({ exercise }: FeedbackProps) => {
             size={10}
             color={color}
           />
-          <Button onClick={onSubmit}>Submit</Button>
+          <Button onClick={onSubmit} disabled={like === undefined}>Submit</Button>
         </Stack>
       </Drawer>
     </>
