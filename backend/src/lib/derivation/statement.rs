@@ -4,6 +4,7 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
+use crate::api::models::SideCondition;
 use crate::{
     error::{BackendError, BackendResult},
     lib::rule::{apply::get_formula, DerivationRule, RuleFormula, RuleIdentifier, Rules},
@@ -11,13 +12,21 @@ use crate::{
 
 use super::formula::{Formula, Identifier};
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams)]
+#[derive(
+    Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams, Ord, PartialEq, PartialOrd, Eq,
+)]
 pub struct Statement {
     pub lhs: Vec<Formula>,
     pub formula: Formula,
+    pub sidecondition: Vec<SideCondition>,
 }
 
-fn check_not_free_condition(formulas: Vec<&Formula>, var: &String) -> BackendResult<()> {
+fn check_not_free_condition(
+    formulas: Vec<&Formula>,
+    var: &String,
+    side_con: &Vec<SideCondition>,
+) -> BackendResult<()> {
+    // Check for concrete variables.
     let free_vars = formulas
         .iter()
         .flat_map(|f| f.free_vars(BTreeSet::new()))
@@ -34,7 +43,7 @@ fn check_not_free_condition(formulas: Vec<&Formula>, var: &String) -> BackendRes
     for f in formulas {
         let everything_free = f.can_contain_any_free_variable()?;
         if everything_free {
-            let captured = f.captures()?;
+            let captured = f.captures(side_con)?;
             if !captured.contains(var) {
                 return Err(BackendError::BadRequest(format!(
                     "In {} the variable {} could occur freely",
@@ -90,7 +99,7 @@ impl Statement {
                     ..
                 } = self.formula.clone()
                 {
-                    check_not_free_condition(self.lhs.iter().collect(), &i)?
+                    check_not_free_condition(self.lhs.iter().collect(), &i, &self.sidecondition)?
                 }
             }
             Rules::ExistsElim => {
@@ -106,7 +115,11 @@ impl Statement {
                         let mut formulas = self.lhs.clone();
                         formulas.push(self.formula.clone());
                         println!("Checking not free condition for formulas {:?}", formulas);
-                        check_not_free_condition(formulas.iter().collect(), chosen)?
+                        check_not_free_condition(
+                            formulas.iter().collect(),
+                            chosen,
+                            &self.sidecondition,
+                        )?
                     }
                 }
             }
@@ -215,11 +228,16 @@ impl Statement {
                     (Some(Ok(lhs)), Ok(formula)) => {
                         let mut lhs = vec![lhs];
                         lhs.extend(self.lhs.clone());
-                        Ok(Statement { lhs, formula })
+                        Ok(Statement {
+                            lhs,
+                            formula,
+                            sidecondition: self.sidecondition.clone(),
+                        })
                     }
                     (None, Ok(formula)) => Ok(Statement {
                         lhs: self.lhs.clone(),
                         formula,
+                        sidecondition: self.sidecondition.clone(),
                     }),
                     (Some(Err(err)), _) => Err(err),
                     (_, Err(err)) => Err(err),

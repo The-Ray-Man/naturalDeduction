@@ -7,6 +7,8 @@ use z3::{
     Config, Context, FuncDecl, SatResult, Solver, Sort,
 };
 
+use crate::api::models::SideCondition;
+
 use super::{
     formula::{Formula, Identifier},
     statement::Statement,
@@ -63,32 +65,45 @@ impl Formula {
     pub fn build_formula<'a>(
         &self,
         ctx: &'a Context,
-        bools: &'a BTreeMap<String, Bool<'a>>,
+        all_vars: &'a BTreeSet<String>,
+        bools: &'a BTreeMap<String, (z3::FuncDecl<'_>, Vec<&std::string::String>)>,
         predicates: &'a BTreeMap<String, FuncDecl<'a>>,
         pred_vars: &'a BTreeMap<String, Int<'a>>,
     ) -> Bool<'a> {
         match self {
             Formula::And { lhs, rhs } => {
-                let lhs = lhs.build_formula(ctx, bools, predicates, pred_vars);
-                let rhs = rhs.build_formula(ctx, bools, predicates, pred_vars);
+                let lhs = lhs.build_formula(ctx, all_vars, bools, predicates, pred_vars);
+                let rhs = rhs.build_formula(ctx, all_vars, bools, predicates, pred_vars);
                 Bool::and(ctx, &[&lhs, &rhs])
             }
             Formula::Or { lhs, rhs } => {
-                let lhs = lhs.build_formula(ctx, bools, predicates, pred_vars);
-                let rhs = rhs.build_formula(ctx, bools, predicates, pred_vars);
+                let lhs = lhs.build_formula(ctx, all_vars, bools, predicates, pred_vars);
+                let rhs = rhs.build_formula(ctx, all_vars, bools, predicates, pred_vars);
                 Bool::or(ctx, &[&lhs, &rhs])
             }
             Formula::Not(formula) => {
-                let f = formula.build_formula(ctx, bools, predicates, pred_vars);
+                let f = formula.build_formula(ctx, all_vars, bools, predicates, pred_vars);
                 f.not()
             }
             Formula::Ident(Identifier::Literal(name)) => {
-                let bool = bools.get(name).unwrap();
-                bool.clone()
+                let (placeholder, args) = bools.get(name).unwrap();
+                let vars = args
+                    .iter()
+                    .map(|var| pred_vars.get(*var).unwrap())
+                    .collect::<Vec<_>>();
+
+                let mut arguments = Vec::new();
+                for elem in vars.iter() {
+                    let arg = elem.to_owned() as &dyn Ast;
+                    arguments.push(arg);
+                }
+
+                let result = placeholder.apply(&arguments);
+                result.as_bool().unwrap()
             }
             Formula::Imp { lhs, rhs } => {
-                let lhs = lhs.build_formula(ctx, bools, predicates, pred_vars);
-                let rhs = rhs.build_formula(ctx, bools, predicates, pred_vars);
+                let lhs = lhs.build_formula(ctx, all_vars, bools, predicates, pred_vars);
+                let rhs = rhs.build_formula(ctx, all_vars, bools, predicates, pred_vars);
                 lhs.implies(&rhs)
             }
             Formula::True => Bool::from_bool(ctx, true),
@@ -98,7 +113,7 @@ impl Formula {
                 formula,
             } => {
                 let name = pred_vars.get(name).unwrap();
-                let f = formula.build_formula(ctx, bools, predicates, pred_vars);
+                let f = formula.build_formula(ctx, all_vars, bools, predicates, pred_vars);
 
                 let forall_formula = ast::forall_const(ctx, &[name], &[], &f);
 
@@ -109,7 +124,7 @@ impl Formula {
                 formula,
             } => {
                 let name = pred_vars.get(name).unwrap();
-                let f = formula.build_formula(ctx, bools, predicates, pred_vars);
+                let f = formula.build_formula(ctx, all_vars, bools, predicates, pred_vars);
 
                 let forall_formula = ast::exists_const(ctx, &[name], &[], &f);
 
@@ -127,8 +142,6 @@ impl Formula {
                         _ => panic!("Should never happen"),
                     })
                     .collect::<Vec<_>>();
-
-                let first = vars.first().unwrap();
                 let mut arguments = Vec::new();
                 for elem in vars.iter() {
                     let arg = elem.to_owned() as &dyn Ast;
@@ -141,7 +154,7 @@ impl Formula {
         }
     }
 
-    pub fn check(&self) -> bool {
+    pub fn check(&self, sideconditions: &Vec<SideCondition>) -> bool {
         let mut bool_vars = BTreeSet::new();
         let mut predicate_names = BTreeSet::new();
         let mut predicate_vars = BTreeSet::new();
@@ -166,18 +179,45 @@ impl Formula {
         }
 
         let mut bools = BTreeMap::new();
+
         for v in bool_vars {
-            let func = Bool::new_const(ctx, v.clone());
-            bools.insert(v, func);
+            let local_side_conditions = sideconditions
+                .iter()
+                .filter(|x| match x {
+                    SideCondition::NotFree(pair) => {
+                        pair.placeholder == Identifier::Literal(v.clone())
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            let mut args_vars = Vec::new();
+            for elem in predicate_vars.iter() {
+                let not_free = local_side_conditions.iter().any(|x| match x {
+                    SideCondition::NotFree(pair) => {
+                        pair.element == Identifier::Element(elem.clone())
+                    }
+                });
+                if not_free {
+                    continue;
+                }
+                args_vars.push(elem);
+            }
+
+            let args = (0..args_vars.len())
+                .into_iter()
+                .map(|_| &domain_sort)
+                .collect::<Vec<_>>();
+            let func = FuncDecl::new(ctx, v.clone(), &args, &bool_sort);
+            bools.insert(v, (func, args_vars));
         }
 
         let mut pred_vars = BTreeMap::new();
-        for name in predicate_vars.into_iter() {
+        for name in predicate_vars.iter() {
             let variable = ast::Int::new_const(ctx, name.clone());
-            pred_vars.insert(name, variable);
+            pred_vars.insert(name.clone(), variable);
         }
 
-        let formula = self.build_formula(ctx, &bools, &predicates, &pred_vars);
+        let formula = self.build_formula(ctx, &predicate_vars, &bools, &predicates, &pred_vars);
 
         let solver = Solver::new(ctx);
         solver.assert(&formula.not());
@@ -212,32 +252,6 @@ impl Statement {
 
     pub fn check(&self) -> bool {
         let formula = self.build_implication();
-        formula.check()
+        formula.check(&self.sidecondition)
     }
 }
-
-// pub fn build_formula_from_node(statement: Statement, premisses: Vec<Statement>) -> Formula {
-//     let conclusion = build_implication(statement);
-//     let premisses = premisses
-//         .into_iter()
-//         .map(build_implication)
-//         .collect::<Vec<_>>();
-
-//     let lhs = premisses
-//         .into_iter()
-//         .reduce(|lhs, rhs| Formula::And {
-//             lhs: Box::new(lhs.clone()),
-//             rhs: Box::new(rhs.clone()),
-//         })
-//         .unwrap();
-
-//     Formula::Imp {
-//         lhs: Box::new(lhs),
-//         rhs: Box::new(conclusion),
-//     }
-// }
-
-// pub fn check_node(statement: Statement, premisses: Vec<Statement>) -> bool {
-//     let formula = build_formula_from_node(statement, premisses);
-//     check_formula(formula)
-// }

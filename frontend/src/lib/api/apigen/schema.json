@@ -65,7 +65,7 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/Statement" }
+              "schema": { "$ref": "#/components/schemas/CreateExerciseRequest" }
             }
           },
           "required": true
@@ -270,13 +270,9 @@
       },
       "CreateExerciseRequest": {
         "type": "object",
-        "required": ["lhs", "rhs"],
+        "required": ["statement"],
         "properties": {
-          "lhs": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/Formula" }
-          },
-          "rhs": { "$ref": "#/components/schemas/Formula" }
+          "statement": { "$ref": "#/components/schemas/Statement" }
         }
       },
       "CreateTreeRequest": {
@@ -505,6 +501,14 @@
           "statement": { "$ref": "#/components/schemas/Statement" }
         }
       },
+      "Pair": {
+        "type": "object",
+        "required": ["element", "placeholder"],
+        "properties": {
+          "element": { "$ref": "#/components/schemas/Identifier" },
+          "placeholder": { "$ref": "#/components/schemas/Identifier" }
+        }
+      },
       "ParseParams": {
         "type": "object",
         "required": ["formula"],
@@ -693,14 +697,27 @@
           "AlphaForall"
         ]
       },
+      "SideCondition": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["NotFree"],
+            "properties": { "NotFree": { "$ref": "#/components/schemas/Pair" } }
+          }
+        ]
+      },
       "Statement": {
         "type": "object",
-        "required": ["lhs", "formula"],
+        "required": ["lhs", "formula", "sidecondition"],
         "properties": {
           "formula": { "$ref": "#/components/schemas/Formula" },
           "lhs": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/Formula" }
+          },
+          "sidecondition": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SideCondition" }
           }
         }
       },

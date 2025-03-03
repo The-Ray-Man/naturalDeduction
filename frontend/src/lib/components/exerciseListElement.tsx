@@ -24,6 +24,7 @@ import localStorage from "../utils/localStorage";
 import Difficulty from "./difficulty";
 import Statement from "./statement";
 import Link from "next/link";
+import SideCondition from "./sideCondition";
 
 type exerciseListElementProps = {
   exercise: Exercise;
@@ -107,6 +108,9 @@ const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
           </Indicator>
         </Link>
       </Flex>
+      {exercise.exercise.sidecondition.map((sideCondition, i) => (
+        <SideCondition sideCondition={sideCondition} key={i} />
+      ))}
     </Card>
   );
 };

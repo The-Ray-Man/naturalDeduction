@@ -21,7 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { UUID } from "crypto";
 import { useEffect, useState } from "react";
-import { Exercise, useGetExercisesQuery } from "../api";
+import { Exercise, useGetExerciseQuery, useGetExercisesQuery } from "../api";
 import localStorage from "../utils/localStorage";
 import CreateExerciseForm from "./createExercise";
 import ExerciseInterface from "./exercise/exerciseInterface";

@@ -19,6 +19,7 @@ import {
 } from "@mantine/core";
 import { UUID } from "crypto";
 import { Dispatch, SetStateAction } from "react";
+import SideCondition from "../sideCondition";
 
 type ExerciseInterfaceProps = {
   exercise: Statement;
@@ -32,7 +33,7 @@ const ExerciseInterface = ({ exercise }: ExerciseInterfaceProps) => {
       {rule && target ? (
         <Matcher />
       ) : (
-        <Box>
+        <Box pb={0}>
           <Flex w={"100%"} gap={5} wrap="wrap">
             <Rules />
           </Flex>
@@ -43,6 +44,11 @@ const ExerciseInterface = ({ exercise }: ExerciseInterfaceProps) => {
           </Group>
         </Box>
       )}
+      <Flex pt={0}>
+        {exercise.sidecondition.map((sidecondition, index) => (
+          <SideCondition sideCondition={sidecondition} key={index} />
+        ))}
+      </Flex>
       <Stack align="center" justify="center" mih={500}>
         <Exercise exercise={exercise} />
       </Stack>

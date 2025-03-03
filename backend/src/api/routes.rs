@@ -16,7 +16,7 @@ use sea_orm::EntityTrait;
 
 use super::models::{
     ApplyRuleParams, CreateExerciseRequest, CreateTreeRequest, ElementMapping, Exercise, Feedback,
-    FormulaMapping, Node, ParseParams, Tipp,
+    FormulaMapping, Node, ParseParams, SideCondition, Tipp,
 };
 use crate::lib::{db, LogicParser};
 use sea_orm::ColumnTrait;
@@ -31,7 +31,6 @@ use sea_orm::ColumnTrait;
 )]
 pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exercise>>> {
     let exercises = exercise::Entity::find().all(&state.db).await?;
-    info!("{:?}", exercises);
 
     let mut result = Vec::new();
     for e in exercises.iter() {
@@ -45,20 +44,28 @@ pub async fn get_exercises(state: State<AppState>) -> BackendResult<Json<Vec<Exe
         let hint_available = node::Entity::find()
             .filter(node::Column::ParentId.eq(exercise.id))
             .one(&state.db)
-            .await?.is_some();
+            .await?
+            .is_some();
         let formula = serde_json::from_str::<Formula>(&exercise.rhs)
             .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
         let lhs = serde_json::from_str::<Vec<Formula>>(&exercise.lhs)
             .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
+        let sidecondition = serde_json::from_str::<Vec<_>>(&exercise.sidecondition)
+            .map_err(|e| BackendError::BadRequest(format!("failed to serialize asdf: {e}")))?;
+
         result.push(Exercise {
             id: e.id,
             likes: e.likes,
             dislikes: e.dislikes,
             difficulty: e.difficulty,
-            exercise: Statement { lhs, formula },  
-            hint: hint_available,            
+            exercise: Statement {
+                lhs,
+                formula,
+                sidecondition,
+            },
+            hint: hint_available,
         });
     }
 
@@ -102,7 +109,14 @@ pub async fn get_exercise(
     let lhs = serde_json::from_str::<Vec<Formula>>(&statement.lhs)
         .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
-    let exercise = Statement { formula, lhs };
+    let sidecondition = serde_json::from_str::<Vec<SideCondition>>(&statement.sidecondition)
+        .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
+
+    let exercise = Statement {
+        formula,
+        lhs,
+        sidecondition,
+    };
 
     Ok(Json(exercise))
 }
@@ -119,12 +133,7 @@ pub async fn create_exercise(
     state: State<AppState>,
     query: Json<CreateExerciseRequest>,
 ) -> BackendResult<Json<bool>> {
-    let stmt = Statement {
-        lhs: query.lhs.clone(),
-        formula: query.rhs.clone(),
-    };
-
-    let res = stmt.check();
+    let res = query.statement.check();
 
     if !res {
         return Err(BackendError::BadRequest(
@@ -132,14 +141,19 @@ pub async fn create_exercise(
         ));
     }
 
-    let rhs = serde_json::to_string(&query.rhs)
+    let rhs = serde_json::to_string(&query.statement.formula)
         .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
-    let lhs = serde_json::to_string(&query.lhs)
+    let lhs = serde_json::to_string(&query.statement.lhs)
+        .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
+
+    println!("{:?}", query.statement.sidecondition);
+    let sidecondition = serde_json::to_string(&query.statement.sidecondition)
         .map_err(|e| BackendError::BadRequest(format!("failed to serialize: {e}")))?;
 
     let exists = statement::Entity::find()
         .filter(statement::Column::Lhs.eq(&lhs))
         .filter(statement::Column::Rhs.eq(&rhs))
+        .filter(statement::Column::Sidecondition.eq(&sidecondition))
         .one(&state.db)
         .await?;
 
@@ -165,6 +179,7 @@ pub async fn create_exercise(
         let node = statement::ActiveModel {
             lhs: sea_orm::ActiveValue::Set(lhs),
             rhs: sea_orm::ActiveValue::Set(rhs),
+            sidecondition: sea_orm::ActiveValue::Set(sidecondition),
             ..Default::default()
         };
 
@@ -255,8 +270,8 @@ pub async fn apply_rule(query: Json<ApplyRuleParams>) -> BackendResult<Json<Vec<
         (status = StatusCode::INTERNAL_SERVER_ERROR, description = "Internal server error")
     )
 )]
-pub async fn check(query: Json<Statement>) -> BackendResult<Json<bool>> {
-    let result = query.0.check();
+pub async fn check(query: Json<CreateExerciseRequest>) -> BackendResult<Json<bool>> {
+    let result = query.statement.check();
     info!("{:?} is a tautology: {}", query.0, result);
     Ok(Json(result))
 }
@@ -376,6 +391,7 @@ pub async fn get_tipp(
                     Statement {
                         lhs: serde_json::from_str(&premisse.lhs).unwrap(),
                         formula: serde_json::from_str(&premisse.rhs).unwrap(),
+                        sidecondition: serde_json::from_str(&premisse.sidecondition).unwrap(),
                     },
                     node.order as u32,
                 ));

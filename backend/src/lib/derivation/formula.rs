@@ -3,7 +3,10 @@ use std::{collections::BTreeSet, fmt::Display};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
-use crate::error::{BackendError, BackendResult};
+use crate::{
+    api::models::SideCondition,
+    error::{BackendError, BackendResult},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(tag = "type", content = "value")]
@@ -174,11 +177,11 @@ impl Formula {
         }
     }
 
-    pub fn captures(&self) -> BackendResult<BTreeSet<String>> {
+    pub fn captures(&self, side_con: &Vec<SideCondition>) -> BackendResult<BTreeSet<String>> {
         match self {
             Formula::And { lhs, rhs } | Formula::Imp { lhs, rhs } | Formula::Or { lhs, rhs } => {
-                let lhs = lhs.captures()?;
-                let rhs = rhs.captures()?;
+                let lhs = lhs.captures(side_con)?;
+                let rhs = rhs.captures(side_con)?;
                 let res = lhs.intersection(&rhs).cloned().collect::<BTreeSet<_>>();
                 Ok(res)
             }
@@ -187,9 +190,27 @@ impl Formula {
             | Formula::Predicate {
                 identifier: _,
                 identifiers: _,
+            } => Ok(BTreeSet::new()),
+            Formula::Ident(n) => {
+                let captrue_from_sc = side_con
+                    .iter()
+                    .filter_map(|sc| {
+                        match sc {
+                            SideCondition::NotFree(pair) => {
+                                if pair.placeholder == *n {
+                                    match &pair.element {
+                                        Identifier::Element(s) => return Some(s.clone()),
+                                        Identifier::Literal(_) => return None,
+                                    }
+                                }
+                            }
+                        };
+                        None
+                    })
+                    .collect::<BTreeSet<String>>();
+                Ok(captrue_from_sc)
             }
-            | Formula::Ident(_) => Ok(BTreeSet::new()),
-            Formula::Not(formula) => formula.captures(),
+            Formula::Not(formula) => formula.captures(side_con),
             Formula::Forall {
                 identifier,
                 formula,
@@ -201,7 +222,7 @@ impl Formula {
                 if let Identifier::Element(name) = identifier {
                     let mut captured = BTreeSet::new();
                     captured.insert(name.clone());
-                    let sub = formula.captures()?;
+                    let sub = formula.captures(side_con)?;
                     captured.extend(sub);
                     Ok(captured)
                 } else {

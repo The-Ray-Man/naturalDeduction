@@ -1,4 +1,11 @@
-import { DerivationRule, RuleIdentifier, RuleStatement } from "../api";
+import {
+  DerivationRule,
+  Formula,
+  Identifier,
+  RuleIdentifier,
+  RuleStatement,
+  Statement,
+} from "../api";
 
 function getIdentifiers(statement: RuleStatement): RuleIdentifier[] {
   let identifiers = [];
@@ -50,4 +57,45 @@ export function getAllIdentifiers(rule: DerivationRule): RuleIdentifier[] {
   }
 
   return unique_identifiers;
+}
+
+const getPlaceholders = (f: Formula) => {
+  let placeholders = new Set<Identifier>();
+  switch (f.type) {
+    case "And":
+    case "Or":
+    case "Imp":
+      let lhs = getPlaceholders(f.body.lhs);
+      let rhs = getPlaceholders(f.body.rhs);
+      placeholders = placeholders.union(lhs);
+      placeholders = placeholders.union(rhs);
+      break;
+    case "Forall":
+    case "Exists":
+      placeholders = placeholders.add(f.body.identifier);
+      placeholders = placeholders.union(getPlaceholders(f.body.formula));
+      break;
+    case "Ident":
+    case "Not":
+      if (f.body) {
+        console.log(f.body as Identifier);
+        placeholders = placeholders.add(f.body as Identifier);
+        console.log(placeholders);
+      }
+      break;
+    default:
+      break;
+  }
+  return placeholders;
+};
+
+export function getAllPlaceholders(
+  lhs: Formula[],
+  rhs: Formula | undefined,
+): Set<Identifier> {
+  let placeholders = rhs ? getPlaceholders(rhs) : new Set<Identifier>();
+  for (let ident of lhs) {
+    placeholders = placeholders.union(getPlaceholders(ident));
+  }
+  return placeholders;
 }

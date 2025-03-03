@@ -1,5 +1,6 @@
 import {
   Rules,
+  SideCondition,
   Statement as StatementType,
   Tipp,
   useCheckMutation,
@@ -61,8 +62,9 @@ export type NodeType = {
 type NodeProps = {
   node: NodeType;
   all_nodes: NodeType[];
+  side_con: SideCondition[];
 };
-const Node = ({ node, all_nodes }: NodeProps) => {
+const Node = ({ node, all_nodes, side_con }: NodeProps) => {
   const { rootId, nodes, handler, currentId, currentIdHandler } =
     useNodesContext();
 
@@ -105,7 +107,15 @@ const Node = ({ node, all_nodes }: NodeProps) => {
 
   const checkNode = async () => {
     try {
-      let result = await check({ statement: node.statement }).unwrap();
+      let result = await check({
+        createExerciseRequest: {
+          statement: {
+            formula: node.statement.formula,
+            lhs: node.statement.lhs,
+            sidecondition: side_con,
+          },
+        },
+      }).unwrap();
       setIsGood(result as boolean);
     } catch (error) {
       setIsGood(undefined);
@@ -140,6 +150,7 @@ const Node = ({ node, all_nodes }: NodeProps) => {
                       node={
                         all_nodes.find((n) => n.name == premiss) as NodeType
                       }
+                      side_con={side_con}
                     />
                   );
                 })}
