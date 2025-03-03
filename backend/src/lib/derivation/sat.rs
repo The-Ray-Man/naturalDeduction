@@ -192,13 +192,11 @@ impl Formula {
 
             let mut args_vars = Vec::new();
             for elem in predicate_vars.iter() {
-                let not_free = local_side_conditions
-                    .iter()
-                    .any(|x| match x {
-                        SideCondition::NotFree(pair) => {
-                            pair.element == Identifier::Element(elem.clone())
-                        }
-                    });
+                let not_free = local_side_conditions.iter().any(|x| match x {
+                    SideCondition::NotFree(pair) => {
+                        pair.element == Identifier::Element(elem.clone())
+                    }
+                });
                 if not_free {
                     continue;
                 }

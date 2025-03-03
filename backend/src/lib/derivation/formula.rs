@@ -3,7 +3,10 @@ use std::{collections::BTreeSet, fmt::Display};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
-use crate::{api::models::SideCondition, error::{BackendError, BackendResult}};
+use crate::{
+    api::models::SideCondition,
+    error::{BackendError, BackendResult},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(tag = "type", content = "value")]
@@ -188,22 +191,25 @@ impl Formula {
                 identifier: _,
                 identifiers: _,
             } => Ok(BTreeSet::new()),
-            | Formula::Ident(n) => {
-                let captrue_from_sc = side_con.iter().filter_map(|sc| {
-                    match sc {
-                        SideCondition::NotFree(pair) => {
-                            if pair.placeholder == *n  {
-                                match &pair.element {
-                                    Identifier::Element(s) => return Some(s.clone()),
-                                    Identifier::Literal(_) => return None
+            Formula::Ident(n) => {
+                let captrue_from_sc = side_con
+                    .iter()
+                    .filter_map(|sc| {
+                        match sc {
+                            SideCondition::NotFree(pair) => {
+                                if pair.placeholder == *n {
+                                    match &pair.element {
+                                        Identifier::Element(s) => return Some(s.clone()),
+                                        Identifier::Literal(_) => return None,
+                                    }
                                 }
                             }
-                        }
-                    };
-                    None
-                }).collect::<BTreeSet<String>>();
+                        };
+                        None
+                    })
+                    .collect::<BTreeSet<String>>();
                 Ok(captrue_from_sc)
-            },
+            }
             Formula::Not(formula) => formula.captures(side_con),
             Formula::Forall {
                 identifier,

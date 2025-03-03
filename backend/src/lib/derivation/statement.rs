@@ -21,7 +21,11 @@ pub struct Statement {
     pub sidecondition: Vec<SideCondition>,
 }
 
-fn check_not_free_condition(formulas: Vec<&Formula>, var: &String, side_con: &Vec<SideCondition>) -> BackendResult<()> {
+fn check_not_free_condition(
+    formulas: Vec<&Formula>,
+    var: &String,
+    side_con: &Vec<SideCondition>,
+) -> BackendResult<()> {
     // Check for concrete variables.
     let free_vars = formulas
         .iter()
@@ -111,7 +115,11 @@ impl Statement {
                         let mut formulas = self.lhs.clone();
                         formulas.push(self.formula.clone());
                         println!("Checking not free condition for formulas {:?}", formulas);
-                        check_not_free_condition(formulas.iter().collect(), chosen, &self.sidecondition)?
+                        check_not_free_condition(
+                            formulas.iter().collect(),
+                            chosen,
+                            &self.sidecondition,
+                        )?
                     }
                 }
             }
