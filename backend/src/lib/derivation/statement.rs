@@ -16,6 +16,7 @@ use super::formula::{Formula, Identifier};
     Serialize, Deserialize, Debug, Clone, ToSchema, IntoParams, Ord, PartialEq, PartialOrd, Eq,
 )]
 pub struct Statement {
+    #[serde(default)]
     pub lhs: Vec<Formula>,
     pub formula: Formula,
     pub sidecondition: Vec<SideCondition>,

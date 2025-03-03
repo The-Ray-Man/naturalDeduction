@@ -108,7 +108,7 @@ const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
           </Indicator>
         </Link>
       </Flex>
-      {exercise.exercise.sidecondition.map((sideCondition, i) => (
+      {exercise.exercise.sidecondition?.map((sideCondition, i) => (
         <SideCondition sideCondition={sideCondition} key={i} />
       ))}
     </Card>
