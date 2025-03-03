@@ -79,7 +79,7 @@ function formulaToTypst(formula: Formula): string {
       return `exists ${formulaToTypst({ type: "Ident", body: formula.body.identifier })}. ${formulaToTypst(formula.body.formula)}`;
     case "Predicate": {
       const vars = formula.body.identifiers.map((id) => id.value).join(", ");
-      return `${formula.body.identifier}(${vars})`;
+      return `${formula.body.identifier.value}(${vars})`;
     }
     default:
       return "";
