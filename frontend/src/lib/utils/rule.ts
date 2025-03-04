@@ -67,7 +67,7 @@ export function getTypstRuleByName(
       return 'forall "E"';
     case "ForallIntro":
       return [
-        `forall "I"^$(${footnote})`,
+        `forall "I"^(${footnote})`,
         '%%identifier%% "does not occur freely in any formula in" %%lhs%%',
       ];
     case "ImplElim":

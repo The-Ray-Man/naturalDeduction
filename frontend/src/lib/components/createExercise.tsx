@@ -21,7 +21,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import { useDisclosure, useListState } from "@mantine/hooks";
+import { useDebouncedValue, useDisclosure, useListState } from "@mantine/hooks";
 import {
   IconCheck,
   IconCirclePlus,
@@ -50,6 +50,10 @@ import { Identifier } from "./formula/formulaParts";
 
 const CreateExerciseForm = () => {
   const [opened, { open, close }] = useDisclosure(false);
+
+  const [[lhsFormulaStr, rhsFormulaStr], setFormulaStr] = useState<[string, string]>(["", ""]);
+  const [debouncedLhsFormulaStr] = useDebouncedValue(lhsFormulaStr, 150);
+  const [debouncedRhsFormulaStr] = useDebouncedValue(rhsFormulaStr, 150);
 
   // Api Calls
   const [parseFormula] = useParseMutation();
@@ -138,6 +142,16 @@ const CreateExerciseForm = () => {
 
     setHasRhs(rhs !== undefined);
   }, [lhs, rhs]);
+
+  useEffect(() => {
+    if (!debouncedLhsFormulaStr) return;
+    parseFormulaRequest(debouncedLhsFormulaStr, true);
+  }, [debouncedLhsFormulaStr])
+
+  useEffect(() => {
+    if (!debouncedRhsFormulaStr) return;
+    parseFormulaRequest(debouncedRhsFormulaStr, false);
+  }, [debouncedRhsFormulaStr])
 
   const parseFormulaRequest = async (formula: string, lhs: boolean) => {
     if (lhs) {
@@ -265,10 +279,8 @@ const CreateExerciseForm = () => {
                   />
                 ))}
                 <TextInput
-                  placeholder="Add Formula"
-                  onChange={(e) =>
-                    parseFormulaRequest(e.currentTarget.value, true)
-                  }
+                  placeholder="Enter Formula"
+                  onChange={(e) => setFormulaStr(([_, rhs]) => [e?.currentTarget?.value, rhs])}
                   rightSection={
                     <ActionIcon
                       variant="transparent"
@@ -297,10 +309,8 @@ const CreateExerciseForm = () => {
                   <Formula formula={rhs} click={() => rhsHandler(undefined)} />
                 ) : (
                   <TextInput
-                    placeholder="Set Formula"
-                    onChange={(e) =>
-                      parseFormulaRequest(e.currentTarget.value, false)
-                    }
+                    placeholder="Enter Formula"
+                    onChange={(e) => setFormulaStr(([lhs, _]) => [lhs, e?.currentTarget?.value])}
                     rightSection={
                       <ActionIcon
                         variant="transparent"
