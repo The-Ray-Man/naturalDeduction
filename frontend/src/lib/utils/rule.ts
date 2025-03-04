@@ -60,7 +60,7 @@ export function getTypstRuleByName(name: Rules, footnote: number): string | [str
     case "ForallElim":
       return 'forall "E"';
     case "ForallIntro":
-      return [`forall "I"^$(${footnote})`, '%%identifier%% "does not occur freely in any formula in" %%lhs%%'];
+      return [`forall "I"^(${footnote})`, '%%identifier%% "does not occur freely in any formula in" %%lhs%%'];
     case "ImplElim":
       return 'arrow.r "E"';
     case "ImplIntro":

@@ -9,7 +9,7 @@ export function exportToTypst(root: NodeType, nodes: Array<NodeType>): string {
   const prooftree = `#prooftree(${formula})`;
 
   const conditions = (root.statement.sidecondition || []).map(({ NotFree: { element, placeholder } }) => {
-    return `${element.value} "not occuring freely in" ${placeholder.value}`
+    return `$${element.value} "not occuring freely in" ${placeholder.value}$`
   });
   conditions.push(...footnotes.map(([id, note]) => `$"${id}:" ${note}$`));
 

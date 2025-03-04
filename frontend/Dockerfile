@@ -13,7 +13,7 @@ RUN npm ci --only=production --no-audit --no-fund
 FROM base AS frontend-builder
 WORKDIR /app
 COPY --from=frontend-deps /app/node_modules ./node_modules
-COPY . . 
+COPY . .
 
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_API_URL=$API_URL
@@ -36,6 +36,8 @@ WORKDIR /app
 COPY --from=frontend-builder /app/public ./public
 COPY --from=frontend-builder  /app/.next/standalone ./
 COPY --from=frontend-builder  /app/.next/static ./.next/static
+COPY --from=frontend-builder /app/node_modules/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm ./public/typst-renderer.wasm
+COPY --from=frontend-builder /app/node_modules/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm ./public/typst-compiler.wasm
 
 # RUN npm i next@15.2
 # COPY --from=frontend-deps /app/node_modules ./node_modules
