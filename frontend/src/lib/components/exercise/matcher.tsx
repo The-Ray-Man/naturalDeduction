@@ -26,9 +26,15 @@ import {
   Text,
   Textarea,
   TextInput,
+  Tooltip,
 } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
-import { IconCheck, IconPlus, IconX } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconInfoCircle,
+  IconPlus,
+  IconX,
+} from "@tabler/icons-react";
 import { UUID } from "crypto";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -39,6 +45,7 @@ import { getSideCondition } from "@/lib/utils/rule";
 import { RuleIdent } from "../rule/ruleParts";
 import Formula from "../formula/formula";
 import { cornersOfRectangle } from "@dnd-kit/core/dist/utilities/algorithms/helpers";
+import GrammarTooltip from "../grammarTooltip";
 
 const Matcher = () => {
   const {
@@ -56,22 +63,17 @@ const Matcher = () => {
 
   const current_node = nodes?.find((n) => n.name == target);
 
-
-
   const sideConditionText = getSideCondition(current_rule!.name);
 
   const allIdentifiers = getAllIdentifiers(current_rule!);
 
-  const [formulaIdentifier, formulaIdentifierHandler] = useListState<number>(
-    allIdentifiers
-      .filter((ident) => ident.type === "Formula")
-      .map((ident) => ident.value),
-  );
-  const [elementIdentifier, elementIdentifierHandler] = useListState<string>(
-    allIdentifiers
-      .filter((ident) => ident.type === "Element")
-      .map((ident) => ident.value),
-  );
+  const formulaIdentifier = allIdentifiers
+    .filter((ident) => ident.type === "Formula")
+    .map((ident) => ident.value);
+
+  const elementIdentifier = allIdentifiers
+    .filter((ident) => ident.type === "Element")
+    .map((ident) => ident.value);
 
   const [formulaMatcher, formulaMatcherHandler] =
     useListState<FormulaMappingType>([]);
@@ -90,19 +92,11 @@ const Matcher = () => {
   const [applyError, setApplyError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (counter == undefined) {
+    if (counter == undefined || allIdentifiers == undefined) {
       setHighlighted(undefined);
     } else {
-      if (counter < formulaIdentifier.length) {
-        setHighlighted(formulaIdentifier[counter]);
-      } else if (
-        counter <
-        formulaIdentifier.length + elementIdentifier.length
-      ) {
-        setHighlighted(elementIdentifier[counter - formulaIdentifier.length]);
-      } else {
-        setHighlighted(undefined);
-      }
+      let identifier = allIdentifiers[counter];
+      setHighlighted(identifier.value);
     }
   }, [counter]);
 
@@ -135,6 +129,7 @@ const Matcher = () => {
           return !elementMatcher.find((m) => m.from === ident.value);
         }
       });
+    console.log(identifier_index);
     if (identifier_index.length == 0) {
       setCounter(undefined);
       return;
@@ -161,20 +156,23 @@ const Matcher = () => {
 
   const handleClick = (f: FormulaType) => {
     if (counter == undefined) return;
-    if (counter < formulaIdentifier.length) {
-      formulaMatcherHandler.append({ from: formulaIdentifier[counter], to: f });
-      next();
-    } else if (
-      counter >= formulaIdentifier.length &&
-      counter < formulaIdentifier.length + elementIdentifier.length
+    let lhs_matching = allIdentifiers[counter];
+    if (
+      lhs_matching.type == "Element" &&
+      f.type === "Ident" &&
+      f.body.type === "Element"
     ) {
-      if (f.type === "Ident" && f.body.type === "Element") {
-        elementMatcherHandler.append({
-          from: elementIdentifier[counter - formulaIdentifier.length],
-          to: f.body.value,
-        });
-        next();
-      }
+      elementMatcherHandler.append({
+        from: lhs_matching.value,
+        to: f.body.value,
+      });
+      next();
+      return;
+    }
+
+    if (lhs_matching.type === "Formula") {
+      formulaMatcherHandler.append({ from: lhs_matching.value, to: f });
+      next();
     }
   };
 
@@ -333,12 +331,19 @@ const Matcher = () => {
         </Stack>
 
         <Stack>
-          <Box pt={"xs"}>
+          <Text maw={300}>
+            Match the highlighted part by clicking on the formula.
+          </Text>
+          <Text maw={300}>
+            If you need a formula not present in your statement, use the input
+            field.
+          </Text>
+          <Center pt={"xs"}>
             <Statement
               statement={current_node?.statement!}
               click={handleClick}
             />
-          </Box>
+          </Center>
           <Group>
             <TextInput
               value={customFormula}
@@ -365,7 +370,7 @@ const Matcher = () => {
         />
       )}
 
-      <Center pt={"md"}>
+      <Center pt={"xl"}>
         <ButtonGroup>
           <Button
             variant="light"
@@ -379,7 +384,13 @@ const Matcher = () => {
           >
             Clear
           </Button>
-          <Button disabled={counter != undefined} onClick={applyRule}>
+          <Button
+            disabled={
+              counter != undefined ||
+              (sideConditionText != undefined && !sideCondition)
+            }
+            onClick={applyRule}
+          >
             Apply
           </Button>
         </ButtonGroup>
