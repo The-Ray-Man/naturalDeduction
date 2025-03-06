@@ -81,7 +81,7 @@ const Hint = ({ statement, opened, close }: HintProps) => {
   const [hints, hintsHandler] = useListState<Tipp>([]);
 
   useEffect(() => {
-    console.log("load hint")
+    console.log("load hint");
     loadHint();
   }, [opened]);
 

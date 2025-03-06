@@ -47,11 +47,11 @@ export default function RootLayout({
                   }}
                   padding="md"
                 >
-                  <AppShell.Header styles={{header:{zIndex: 1000}}}>
+                  <AppShell.Header styles={{ header: { zIndex: 1000 } }}>
                     <Header />
                   </AppShell.Header>
                   <AppShell.Main>{children}</AppShell.Main>
-                  <AppShell.Footer  styles={{footer:{zIndex: 1000}}}>
+                  <AppShell.Footer styles={{ footer: { zIndex: 1000 } }}>
                     <Footer />
                   </AppShell.Footer>
                 </AppShell>

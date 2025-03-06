@@ -13,12 +13,18 @@ const SemsterProgress = () => {
     (dates[dates.length - 1][0] as Date).getTime() -
     (dates[0][0] as Date).getTime();
 
+  const now = new Date();
+  const current_progress = Math.min(
+    100,
+    ((now.getTime() - (dates[0][0] as Date).getTime()) / duration) * 100,
+  );
+
   return (
     <Slider
       ml={100}
       mr={"md"}
       style={{ flexGrow: "1", pointerEvents: "none" }}
-      value={10}
+      value={current_progress}
       marks={dates.map(([date, label]) => {
         return {
           value:

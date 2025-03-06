@@ -65,7 +65,7 @@ const ExerciseOverview = () => {
     } else if (a.dislikes <= b.dislikes) {
       return -1;
     }
-    return 1
+    return 1;
   };
 
   return (

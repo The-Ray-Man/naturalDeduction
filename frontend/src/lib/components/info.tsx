@@ -24,7 +24,12 @@ const Info = () => {
   };
 
   return (
-    <Accordion value={value} onChange={changeCollapse} variant="filled">
+    <Accordion
+      value={value}
+      onChange={changeCollapse}
+      variant="filled"
+      styles={{ control: { cursor: "default" } }}
+    >
       <Accordion.Item value="info">
         <Accordion.Control>
           <Group mr={"md"} align="center">
