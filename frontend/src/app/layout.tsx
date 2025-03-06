@@ -31,6 +31,7 @@ export default function RootLayout({
     <html lang="en" {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript />
+        <script defer src="https://umami.mcandri13.ch/script.js" data-website-id="77d5cac2-7526-455d-bdc9-3900e72adb09"></script>
       </head>
       <body>
         <StoreProvider>
