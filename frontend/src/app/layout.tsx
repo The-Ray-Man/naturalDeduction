@@ -31,6 +31,7 @@ export default function RootLayout({
     <html lang="en" {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript />
+        <script defer src="https://umami.ramonwick.ch/script.js" data-website-id="307074e0-4082-4059-a6b3-1e5680838806"></script>
       </head>
       <body>
         <StoreProvider>
