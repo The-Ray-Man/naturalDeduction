@@ -6,6 +6,7 @@ import {
   Grid,
   Group,
   Indicator,
+  SimpleGrid,
   Text,
   Tooltip,
 } from "@mantine/core";
@@ -45,14 +46,17 @@ const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
     <Card withBorder>
       <Grid grow align="center" pb={"md"}>
         <Grid.Col span={1}>
-          <Group gap={3} p={0} m={0}>
-            <Text pr={5}>{exercise.likes}</Text>
-            <IconThumbUp />
-          </Group>
-          <Group gap={3}>
-            <Text pr={5}> {exercise.dislikes}</Text>
+          <SimpleGrid cols={2}  spacing={0} verticalSpacing={0}>
+
+          {/* <SimpleGi gap={3} p={0} m={0} wrap="nowrap"> */}
+            <Text pr={5} styles={{root : {textAlign:"right"}}}>{exercise.likes}</Text>
+            <IconThumbUp/>
+          {/* </Group> */}
+          {/* <Group gap={3}> */}
+            <Text pr={5} styles={{root : {textAlign:"right"}}}> {exercise.dislikes}</Text>
             <IconThumbDown />
-          </Group>
+          </SimpleGrid>
+          {/* </Group> */}
         </Grid.Col>
         <Grid.Col span={7}>
           <Difficulty
