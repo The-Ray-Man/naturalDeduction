@@ -31,6 +31,7 @@ import {
 import { useListState } from "@mantine/hooks";
 import {
   IconCheck,
+  IconHelp,
   IconInfoCircle,
   IconPlus,
   IconX,
@@ -344,7 +345,7 @@ const Matcher = () => {
               click={handleClick}
             />
           </Center>
-          <Group>
+          <Group wrap="nowrap" gap={"xs"}>
             <TextInput
               value={customFormula}
               onChange={(event) => setCustomFormula(event.currentTarget.value)}
@@ -356,6 +357,9 @@ const Matcher = () => {
                 </ActionIcon>
               }
             />
+            <Tooltip label={<GrammarTooltip />}>
+              <IconHelp />
+            </Tooltip>
           </Group>
           {parseError.length > 0 && (
             <Textarea disabled value={parseError} rows={6} bg={"#ff8787"} />

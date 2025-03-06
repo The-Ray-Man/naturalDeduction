@@ -26,6 +26,7 @@ import {
   IconCheck,
   IconCirclePlus,
   IconCircleX,
+  IconHelp,
   IconInfoCircle,
   IconPlus,
   IconX,
@@ -51,7 +52,9 @@ import { Identifier } from "./formula/formulaParts";
 const CreateExerciseForm = () => {
   const [opened, { open, close }] = useDisclosure(false);
 
-  const [[lhsFormulaStr, rhsFormulaStr], setFormulaStr] = useState<[string, string]>(["", ""]);
+  const [[lhsFormulaStr, rhsFormulaStr], setFormulaStr] = useState<
+    [string, string]
+  >(["", ""]);
   const [debouncedLhsFormulaStr] = useDebouncedValue(lhsFormulaStr, 150);
   const [debouncedRhsFormulaStr] = useDebouncedValue(rhsFormulaStr, 150);
 
@@ -146,12 +149,12 @@ const CreateExerciseForm = () => {
   useEffect(() => {
     if (!debouncedLhsFormulaStr) return;
     parseFormulaRequest(debouncedLhsFormulaStr, true);
-  }, [debouncedLhsFormulaStr])
+  }, [debouncedLhsFormulaStr]);
 
   useEffect(() => {
     if (!debouncedRhsFormulaStr) return;
     parseFormulaRequest(debouncedRhsFormulaStr, false);
-  }, [debouncedRhsFormulaStr])
+  }, [debouncedRhsFormulaStr]);
 
   const parseFormulaRequest = async (formula: string, lhs: boolean) => {
     if (lhs) {
@@ -231,7 +234,14 @@ const CreateExerciseForm = () => {
           </ListItem>
         </List>
         <Divider mt={"md"} />
-        <Stack justify="center" align="stretch" gap={10}>
+        <Stack justify="center" align="stretch" gap={0}>
+          <Group>
+            <Title order={4}>Statement</Title>
+            <Tooltip label={<GrammarTooltip />}>
+              <IconHelp />
+            </Tooltip>
+          </Group>
+
           <Group justify="center">
             <Card withBorder miw={"50%"} mih={125} mt={"xl"}>
               <Card.Section h={"100%"}>
@@ -264,7 +274,6 @@ const CreateExerciseForm = () => {
               </Card.Section>
             </Card>
           </Group>
-
           <Grid pt={"xl"} align="center" grow columns={26}>
             <Grid.Col span={12}>
               <Group justify="right" align="center">
@@ -280,7 +289,9 @@ const CreateExerciseForm = () => {
                 ))}
                 <TextInput
                   placeholder="Enter Formula"
-                  onChange={(e) => setFormulaStr(([_, rhs]) => [e?.currentTarget?.value, rhs])}
+                  onChange={(e) =>
+                    setFormulaStr(([_, rhs]) => [e?.currentTarget?.value, rhs])
+                  }
                   rightSection={
                     <ActionIcon
                       variant="transparent"
@@ -310,7 +321,12 @@ const CreateExerciseForm = () => {
                 ) : (
                   <TextInput
                     placeholder="Enter Formula"
-                    onChange={(e) => setFormulaStr(([lhs, _]) => [lhs, e?.currentTarget?.value])}
+                    onChange={(e) =>
+                      setFormulaStr(([lhs, _]) => [
+                        lhs,
+                        e?.currentTarget?.value,
+                      ])
+                    }
                     rightSection={
                       <ActionIcon
                         variant="transparent"
@@ -329,6 +345,7 @@ const CreateExerciseForm = () => {
             </Grid.Col>
           </Grid>
           <Divider my={"md"} />
+          <Title order={4}>Side Conditions</Title>
           <Stack align="center">
             {sideCon.map((sc, i) => (
               <Group key={i} gap={1}>
@@ -391,7 +408,8 @@ const CreateExerciseForm = () => {
             </Group>
           </Stack>
           <Divider my={"md"} />
-          <Group justify="center">
+          {/* <Title order={4}>Side Conditions</Title> */}
+          <Group justify="center" pb={"md"}>
             {hasRhs ? (
               <Text>✅ Structure</Text>
             ) : (

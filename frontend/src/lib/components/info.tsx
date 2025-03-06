@@ -24,7 +24,12 @@ const Info = () => {
   };
 
   return (
-    <Accordion value={value} onChange={changeCollapse} variant="filled">
+    <Accordion
+      value={value}
+      onChange={changeCollapse}
+      variant="filled"
+      styles={{ control: { cursor: "default" } }}
+    >
       <Accordion.Item value="info">
         <Accordion.Control>
           <Group mr={"md"} align="center">
@@ -112,9 +117,6 @@ const Info = () => {
           <List>
             <List.Item>
               <Text>🤖 Automated exercise generation</Text>
-            </List.Item>
-            <List.Item>
-              <Text>💡 Hints for which rule to apply</Text>
             </List.Item>
           </List>
 

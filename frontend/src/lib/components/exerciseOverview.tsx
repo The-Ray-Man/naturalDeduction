@@ -60,10 +60,12 @@ const ExerciseOverview = () => {
   const likeCompare = (a: Exercise, b: Exercise) => {
     if (a.likes == 0 && a.dislikes == 0) {
       return 1;
-    } else if (b.likes == 0 && b.dislikes == 0) {
+    } else if (a.likes > b.likes) {
+      return -1;
+    } else if (a.dislikes <= b.dislikes) {
       return -1;
     }
-    return b.likes / (b.likes + b.dislikes) - a.likes / (a.likes + a.dislikes);
+    return 1;
   };
 
   return (

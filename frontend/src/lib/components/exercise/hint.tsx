@@ -77,15 +77,13 @@ type HintProps = {
 };
 
 const Hint = ({ statement, opened, close }: HintProps) => {
-  const [getHint] = useGetTippMutation();
+  const [getHint, refetch] = useGetTippMutation();
   const [hints, hintsHandler] = useListState<Tipp>([]);
 
   useEffect(() => {
+    console.log("load hint");
     loadHint();
-  }, []);
-  useEffect(() => {
-    loadHint();
-  }, []);
+  }, [opened]);
 
   const loadHint = async () => {
     try {
