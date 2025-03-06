@@ -26,6 +26,7 @@ import {
   IconCheck,
   IconCirclePlus,
   IconCircleX,
+  IconHelp,
   IconInfoCircle,
   IconPlus,
   IconX,
@@ -233,7 +234,14 @@ const CreateExerciseForm = () => {
           </ListItem>
         </List>
         <Divider mt={"md"} />
-        <Stack justify="center" align="stretch" gap={10}>
+        <Stack justify="center" align="stretch" gap={0}>
+          <Group>
+            <Title order={4}>Statement</Title>
+            <Tooltip label={<GrammarTooltip />}>
+              <IconHelp />
+            </Tooltip>
+          </Group>
+
           <Group justify="center">
             <Card withBorder miw={"50%"} mih={125} mt={"xl"}>
               <Card.Section h={"100%"}>
@@ -266,7 +274,6 @@ const CreateExerciseForm = () => {
               </Card.Section>
             </Card>
           </Group>
-
           <Grid pt={"xl"} align="center" grow columns={26}>
             <Grid.Col span={12}>
               <Group justify="right" align="center">
@@ -338,6 +345,7 @@ const CreateExerciseForm = () => {
             </Grid.Col>
           </Grid>
           <Divider my={"md"} />
+          <Title order={4}>Side Conditions</Title>
           <Stack align="center">
             {sideCon.map((sc, i) => (
               <Group key={i} gap={1}>
@@ -400,7 +408,8 @@ const CreateExerciseForm = () => {
             </Group>
           </Stack>
           <Divider my={"md"} />
-          <Group justify="center">
+          {/* <Title order={4}>Side Conditions</Title> */}
+          <Group justify="center" pb={"md"}>
             {hasRhs ? (
               <Text>✅ Structure</Text>
             ) : (

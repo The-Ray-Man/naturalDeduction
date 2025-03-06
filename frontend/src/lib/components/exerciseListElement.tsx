@@ -104,7 +104,7 @@ const ExerciseListElment = ({ exercise }: exerciseListElementProps) => {
           style={{ textDecoration: "none" }}
         >
           <Indicator
-            styles={{indicator : {zIndex : 1}}}
+            styles={{ indicator: { zIndex: 1 } }}
             color="lightgray"
             label={<IconBulb size={20} color="black" />}
             size={"lg"}
