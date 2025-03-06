@@ -113,9 +113,6 @@ const Info = () => {
             <List.Item>
               <Text>🤖 Automated exercise generation</Text>
             </List.Item>
-            <List.Item>
-              <Text>💡 Hints for which rule to apply</Text>
-            </List.Item>
           </List>
 
           <Title order={4}>⚠️ Disclaimer</Title>
