@@ -106,7 +106,6 @@ const Matcher = () => {
   }, [formulaMatcherHandler, elementMatcherHandler]);
 
   const removeMapping = (mapping: FormulaMappingType | ElementMappingType) => {
-    console.log("to remove", mapping);
     if (typeof mapping.from == "number") {
       let to_remove = mapping as FormulaMappingType;
       let index = formulaMatcher.findIndex(
@@ -133,7 +132,6 @@ const Matcher = () => {
           return !elementMatcher.find((m) => m.from === ident.value);
         }
       });
-    console.log(identifier_index);
     if (identifier_index.length == 0) {
       setCounter(undefined);
       return;

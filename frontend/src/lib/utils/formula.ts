@@ -78,9 +78,7 @@ const getPlaceholders = (f: Formula) => {
     case "Ident":
     case "Not":
       if (f.body) {
-        console.log(f.body as Identifier);
         placeholders = placeholders.add(f.body as Identifier);
-        console.log(placeholders);
       }
       break;
     default:

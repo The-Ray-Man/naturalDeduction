@@ -81,14 +81,12 @@ const Hint = ({ statement, opened, close }: HintProps) => {
   const [hints, hintsHandler] = useListState<Tipp>([]);
 
   useEffect(() => {
-    console.log("load hint");
     loadHint();
   }, [opened]);
 
   const loadHint = async () => {
     try {
       let result = await getHint({ statement: statement }).unwrap();
-      console.log(result);
       hintsHandler.setState(result);
     } catch (error) {
       console.log(error);

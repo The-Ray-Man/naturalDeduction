@@ -282,7 +282,6 @@ const CreateExerciseForm = () => {
                     key={i}
                     formula={f}
                     click={() => {
-                      console.log(lhsHandler);
                       lhsHandler.remove(i);
                     }}
                   />
@@ -391,8 +390,6 @@ const CreateExerciseForm = () => {
               <ActionIcon
                 variant="transparent"
                 onClick={() => {
-                  console.log("ScElement", ScElement);
-                  console.log("ScPlaceholder", ScPlaceholder);
                   if (ScElement && ScPlaceholder) {
                     sideConHandler.append({
                       NotFree: {

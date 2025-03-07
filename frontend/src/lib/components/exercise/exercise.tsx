@@ -85,7 +85,6 @@ const Exercise = ({ exercise }: ExerciseProps) => {
             }),
           },
         }).unwrap();
-        console.log(result);
       }
     }
   }, [nodes]);
